@@ -1,3 +1,7 @@
 *.user
 miniproject01/code/build-imagerestoration-Desktop-Default
 miniproject01/code/imagerestoration-build/
+*.log
+*.aux
+*.pdf
+*.gz
