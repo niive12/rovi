@@ -1,5 +1,4 @@
 # ROVI
 ## Robot Vision course
 
-# created by a couple of fools
-# 
+## Mini project 1: Image restoration 
