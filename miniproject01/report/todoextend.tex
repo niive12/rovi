@@ -1,0 +1,23 @@
+\usepackage{todonotes}
+\usepackage{epstopdf}
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+
+
+\let\ig\includegraphics
+\renewcommand{\includegraphics}[2][]{ \IfFileExists{#2}{ \ig[#1]{#2} }{ 
+		\IfFileExists{#2.eps}{ \ig[#1]{#2} }{ 
+		\IfFileExists{#2.png}{ \ig[#1]{#2} }{ 
+		\IfFileExists{#2.jpg}{ \ig[#1]{#2} }{ 
+		\IfFileExists{#2.jpeg}{ \ig[#1]{#2} }{ 
+		\IfFileExists{#2.gif}{ \ig[#1]{#2} }{ 
+		\IfFileExists{#2.ppm}{ \ig[#1]{#2} }{ 
+		\missingfigure{  \protect\detokenize{#2} was not found.} 
+}}}}}}}
+}
+
+\newcommand{\missingequation}[1]{\todo[inline, color = yellow]{Missing equation: #1}}
+
+
+%%
+%% End of file `mypackage.sty'.

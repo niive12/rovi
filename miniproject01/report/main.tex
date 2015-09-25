@@ -6,22 +6,43 @@
 \usepackage{amssymb}
 \usepackage{graphicx}
 
+\usepackage{float}
 \usepackage{fullpage}
+
+\input{todoextend}
 
 \begin{document}
 
-\title{Image Restoration}
+
+\title{Image Restoration\\ \large{ROVI - Miniproject}}
+\author{Nicolaj Iversen and Lukas Schwartz}
+\date{9$^{th}$ November 2015}
+
+
 \maketitle
 
 \pagebreak
 
 
-\section{Image Restoration}
 
+
+\section{Image Restoration}
+This report sets to describe the how the \textbf{4} given images from the ROVI lecture are restored to better display the image content.
+Each image is separately dealt with in each their section.
 
 
 
 \subsection{Pepper Noise}
+Pepper noise is when a set of pixels on an image are complete black, without the actual photographed scene has these elements.
+This is illustrated in figure \ref{fig:hist_pepper}.
+
+\begin{figure}[H]
+\includegraphics[width = 8cm]{graphics/hist.png}
+\caption{Histogram of the original ``Image1.png'' showing pepper noise.}
+\label{fig:hist_pepper}
+\end{figure}
+
+
 
 
 \subsection{Salt Noise}
@@ -32,6 +53,9 @@
 
 \subsection{Frequency Noise}
 
+
+
+\section{Conclusion}
 
 
 \end{document}
