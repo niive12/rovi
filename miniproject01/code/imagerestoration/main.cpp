@@ -2,6 +2,7 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include "histogram.h"
+#include "median_filter.h"
 #include <vector>
 
 int main(int argc, char** argv ){
@@ -22,10 +23,14 @@ int main(int argc, char** argv ){
         cv::Mat image = cv::imread( i , CV_LOAD_IMAGE_GRAYSCALE );
         cv::Mat histogram;
         cv::Mat histImage( 512, 1024, CV_8UC3 );
-        make_histogram(image,histImage,histogram,1024);
+        cv::Mat modified = image.clone();
+        median_filter(image,modified,7,1);
         //    cv::imshow( "Original Image", image);
+            cv::imshow( "Restored Image", modified);
+        make_histogram(image,histImage,histogram,1024);
         cv::imshow( "Original Histogram", histImage);
-        cv::waitKey(0);
+
+//        cv::waitKey(0);
     }
 
 
