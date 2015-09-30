@@ -98,10 +98,6 @@ int main(){
     int n = cv::getOptimalDFTSize( image.cols * 2 ); // on the border add zero values
     cv::copyMakeBorder(image, padded, 0, m - image.rows, 0, n - image.cols, cv::BORDER_CONSTANT, cv::Scalar::all(0));
 
-    //cv::normalize(padded, padded, 0, 1, CV_MINMAX);
-    cv::namedWindow("padded Image", cv::WINDOW_NORMAL);
-    cv::imshow("padded Image", padded);
-
     // put real and imaginary part of image together
     cv::Mat_<cv::Vec2f> image_full;
     std::vector<cv::Mat> image_vec;
@@ -116,9 +112,6 @@ int main(){
 
     // split in two and make phase / magnitude
     cv::Mat_<float> mag, phase;
-    image_vec.clear();
-    image_vec.push_back((cv::Mat::zeros(padded.rows, padded.cols, CV_32F)));
-    image_vec.push_back((cv::Mat::zeros(padded.rows, padded.cols, CV_32F)));
 
     cv::split(image_full, image_vec);
     cv::cartToPolar(image_vec[0], image_vec[1], mag, phase);
@@ -131,27 +124,34 @@ int main(){
     cv::log(mag, mag);
     cv::normalize(mag, mag, 0, 1, CV_MINMAX);
 
-    // show stuff
-    cv::namedWindow("Magnitude plot", cv::WINDOW_NORMAL);
-    cv::imshow("Magnitude plot", mag);
-    cv::namedWindow("Phase plot", cv::WINDOW_NORMAL);
-    cv::imshow("Phase plot", phase);
-
     // make mask for frequency domain
     cv::Mat_<float> mask = cv::Mat::ones(mag.rows, mag.cols, CV_32F);
 
-    butterFilter(mask, 300, 300, 50, 2);
-    butterFilter(mask, 150, -150, 20, 2);
+    butterFilter(mask, 615, 615, 50, 2);
+    butterFilter(mask, 200, -200, 20, 2);
 
-    cv::namedWindow("Butter filter", cv::WINDOW_NORMAL);
-    cv::imshow("Butter filter", mask);
-
-    cv::mulSpectrums(mag, mask, mag, 0);
+    //cv::namedWindow("Butter filter", cv::WINDOW_NORMAL);
+    //cv::imshow("Butter filter", mask);
 
     // apply mask
+    cv::mulSpectrums(mag, mask, mag, 0);
+    cv::namedWindow("Applied filter", cv::WINDOW_NORMAL);
+    cv::imshow("Applied filter", mag);
 
+    // merge them back
+    dftshift(mag);
+    cv::polarToCart(mag, phase, image_vec[0], image_vec[1]);
+    cv::merge(image_vec,image_full);
+
+    // inverse dft
+    cv::Mat_<float> final_image;
+    cv::dft(image_full, final_image, cv::DFT_INVERSE + cv::DFT_SCALE + cv::DFT_REAL_OUTPUT);
 
     // output image
+    final_image = final_image(cv::Rect(0,0,final_image.cols/2,final_image.rows/2));
+    cv::normalize(final_image, final_image, 0, 1, CV_MINMAX);
+    cv::namedWindow("Final image", cv::WINDOW_NORMAL);
+    cv::imshow("Final image", final_image);
 
 #endif
 
