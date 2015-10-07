@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 
 #include <rw/math/Q.hpp>
 #include <rw/rw.hpp>
@@ -38,18 +39,28 @@ void outputLuaPath(rw::trajectory::QPath &path, string &robot){
 
 int main()
 {
-    cout << "Hello World!" << endl;
+    // name of the device in the WC
+    string deviceName = "KukaKr16";
 
-    string robot = "KukaKr16";
-
+    // final start and end positions
     rw::math::Q start_pos(6,-3.142,-0.827,-3.002,-3.143,0.099,-1.573);
     rw::math::Q end_pos(6,1.571,0.006,0.030,0.153,0.762,4.490);
 
+    // test trejectory
     rw::trajectory::QPath path_test;
     path_test.emplace_back(start_pos);
     path_test.emplace_back(end_pos);
 
-    outputLuaPath(path_test, robot);
+
+    // change output stuff
+    std::ofstream out("out.txt");
+    std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
+    std::cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!
+
+    outputLuaPath(path_test, deviceName);
+
+    std::cout.rdbuf(coutbuf); //reset to standard output again
+
 
     return 0;
 }
