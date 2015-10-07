@@ -15,8 +15,8 @@ void outputLuaPath(rw::trajectory::QPath &path, string &robot){
     // output default stuff
     cout << "wc = rws.getRobWorkStudio():getWorkCell()\n"
             "state = wc:getDefaultState()\n"
-            "device = wc:findDevice("
-            << robot << ")\n\n"
+            "device = wc:findDevice(\""
+            << robot << "\")\n\n"
             "function setQ(q)\n"
             "qq = rw.Q(#q,q[1],q[2],q[3],q[4],q[5],q[6])\n"
             "device:setQ(qq,state)\n"
