@@ -18,18 +18,35 @@
 
 
 
-void outputLuaPath(rw::trajectory::QPath &path, std::string &robot){
+void outputLuaPath(rw::trajectory::QPath &path, std::string &robot, rw::math::Q &start_frame, std::string &item, std::string &tool_frame){
     // output default stuff
     std::cout << "wc = rws.getRobWorkStudio():getWorkCell()\n"
                  "state = wc:getDefaultState()\n"
                  "device = wc:findDevice(\""
-              << robot << "\")\n\n"
+              << robot << "\")\n"
+                 "item = wc:findFrame(\""
+              << item <<
+                    "\")\n"
                  "function setQ(q)\n"
                  "qq = rw.Q(#q,q[1],q[2],q[3],q[4],q[5],q[6])\n"
                  "device:setQ(qq,state)\n"
                  "rws.getRobWorkStudio():setState(state)\n"
-                 "rw.sleep(1)\n"
-                 "end\n\n";
+                 "rw.sleep(0.5)\n"
+                 "end\n\n"
+                 "setQ({"
+                 << start_frame[0];
+    // add the start frame
+    for(int i = 1; i < start_frame.size(); i++){
+        std::cout << "," << start_frame[i];
+    }
+    // end start frame and grip item onto tool_frame
+    std::cout << "})\n"
+                 "tool_frame = wc:findFrame(\""
+              << tool_frame <<
+                 "\")\n"
+                 "rw.gripFrame(item, tool_frame, state)\n\n";
+
+
 
     for (rw::trajectory::QPath::iterator it = path.begin(); it < path.end(); it++) {
         std::cout << "setQ({"
@@ -47,6 +64,8 @@ int main()
 {
     // name of the device in the WC
     std::string deviceName = "KukaKr16";
+    std::string itemName = "Bottle";
+    std::string toolMount = "ToolMount";
     // path to WC, must be with respect to /home, ~/ is not valid
     const std::string wcFile = "/home/lukas/workcells/Kr16WallWorkCell/Scene.wc.xml";
 
@@ -64,12 +83,19 @@ int main()
 
     rw::models::WorkCell::Ptr wc = rw::loaders::WorkCellLoader::Factory::load(wcFile);
     rw::models::Device::Ptr device = wc->findDevice(deviceName);
+
+    // find the bottle frame
+    rw::kinematics::Frame* item = wc->findFrame(itemName);
+    rw::kinematics::Frame* tool_frame = wc->findFrame(toolMount);
     if (device == NULL) {
         std::cerr << "Device: " << deviceName << " not found!" << std::endl;
         return 0;
     }
-    const rw::kinematics::State state = wc->getDefaultState();
+    rw::kinematics::State state = wc->getDefaultState();
+    // grip frame
+    rw::kinematics::Kinematics::gripFrame(item, tool_frame, state);
 
+    // ...
     rw::proximity::CollisionDetector detector(wc, rwlibs::proximitystrategies::ProximityStrategyFactory::makeDefaultCollisionStrategy());
     rw::pathplanning::PlannerConstraint constraint = rw::pathplanning::PlannerConstraint::make(&detector,device,state);
 
@@ -93,7 +119,7 @@ int main()
     std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
     std::cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!
 
-    outputLuaPath(path, deviceName);
+    outputLuaPath(path, deviceName,from, itemName, toolMount);
 
     std::cout.rdbuf(coutbuf); //reset to standard output again
 
