@@ -103,6 +103,7 @@ int main()
         sampler: QSampler::makeUniform(device)
         metric: PlannerUtil::normalizingInfinityMetric(device->getBounds())
         extend: 0.05 */
+    double epsilon = 0.05;
     rw::pathplanning::QToQPlanner::Ptr planner = rwlibs::pathplanners::RRTPlanner::makeQToQPlanner(constraint, device, rwlibs::pathplanners::RRTPlanner::RRTConnect);
 
 
@@ -112,6 +113,8 @@ int main()
     t.resetAndResume();
     planner->query(from,to,path,MAXTIME);
     t.pause();
+
+    std::cout << "path length (steps): " << path.size() << "\n";
 
 
     // change output stuff
