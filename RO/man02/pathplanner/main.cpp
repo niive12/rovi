@@ -117,12 +117,11 @@ int main()
     rw::proximity::CollisionDetector detector(wc, rwlibs::proximitystrategies::ProximityStrategyFactory::makeDefaultCollisionStrategy());
     rw::pathplanning::PlannerConstraint constraint = rw::pathplanning::PlannerConstraint::make(&detector,device,state);
 
-    /** Most easy way: uses default parameters based on given device
-        sampler: QSampler::makeUniform(device)
-        metric: PlannerUtil::normalizingInfinityMetric(device->getBounds())
-        extend: 0.05 */
-    double epsilon = 0.05;
-    rw::pathplanning::QToQPlanner::Ptr planner = rwlibs::pathplanners::RRTPlanner::makeQToQPlanner(constraint, device, rwlibs::pathplanners::RRTPlanner::RRTConnect);
+    /** More complex way: allows more detailed definition of parameters and methods */
+    rw::pathplanning::QSampler::Ptr sampler = rw::pathplanning::QSampler::makeConstrained(rw::pathplanning::QSampler::makeUniform(device),constraint.getQConstraintPtr());
+    rw::math::QMetric::Ptr metric = rw::math::MetricFactory::makeEuclidean< rw::math::Q >();
+    double epsilon = 0.1;
+    rw::pathplanning::QToQPlanner::Ptr planner = rwlibs::pathplanners::RRTPlanner::makeQToQPlanner(constraint, sampler, metric, epsilon, rwlibs::pathplanners::RRTPlanner::RRTConnect);
 
     rw::pathplanning::PathAnalyzer analysis(device, state);
     std::cout << "Planning from " << from << " to " << to << std::endl;
