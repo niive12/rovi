@@ -15,7 +15,7 @@
 #include <rw/pathplanning/PathAnalyzer.hpp>
 
 
-#define MAXTIME 10.
+#define MAXTIME 60.
 
 
 // Kinematics::gripFrame()
@@ -117,41 +117,64 @@ int main()
     rw::proximity::CollisionDetector detector(wc, rwlibs::proximitystrategies::ProximityStrategyFactory::makeDefaultCollisionStrategy());
     rw::pathplanning::PlannerConstraint constraint = rw::pathplanning::PlannerConstraint::make(&detector,device,state);
 
-    /** More complex way: allows more detailed definition of parameters and methods */
-    rw::pathplanning::QSampler::Ptr sampler = rw::pathplanning::QSampler::makeConstrained(rw::pathplanning::QSampler::makeUniform(device),constraint.getQConstraintPtr());
-    rw::math::QMetric::Ptr metric = rw::math::MetricFactory::makeEuclidean< rw::math::Q >();
-    double epsilon = 0.1;
-    rw::pathplanning::QToQPlanner::Ptr planner = rwlibs::pathplanners::RRTPlanner::makeQToQPlanner(constraint, sampler, metric, epsilon, rwlibs::pathplanners::RRTPlanner::RRTConnect);
+    std::ofstream file_time("time.csv");
+    std::ofstream file_length("length.csv");
 
-    rw::pathplanning::PathAnalyzer analysis(device, state);
-    std::cout << "Planning from " << from << " to " << to << std::endl;
-    rw::trajectory::QPath best_path;
-    rw::trajectory::QPath path;
-    rw::common::Timer t;
+    // loop through different epsilons
+    for(double epsilon = 0.1; epsilon < 2; epsilon += 0.1 ){
 
-    double best_length = 200;
-    for(int i = 0; i < 10; ++i){
-        t.resetAndResume();
-        planner->query(from,to,path,MAXTIME);
-        t.pause();
-        std::cout << "Time in Ms " << t.getTimeMs() << '\t';
-        rw::pathplanning::PathAnalyzer::CartesianAnalysis result = analysis.analyzeCartesian(path, tool_frame);
-        std::cout << "Path length: " << result.length << '\n';
-        if(result.length < best_length){
-            std::cout << "better solution..." << result.length << '\n';
-            best_length = result.length;
-            best_path = path;
+        /** More complex way: allows more detailed definition of parameters and methods */
+        rw::pathplanning::QSampler::Ptr sampler = rw::pathplanning::QSampler::makeConstrained(rw::pathplanning::QSampler::makeUniform(device),constraint.getQConstraintPtr());
+        rw::math::QMetric::Ptr metric = rw::math::MetricFactory::makeEuclidean< rw::math::Q >();
+//        double epsilon = 0.1;
+        rw::pathplanning::QToQPlanner::Ptr planner = rwlibs::pathplanners::RRTPlanner::makeQToQPlanner(constraint, sampler, metric, epsilon, rwlibs::pathplanners::RRTPlanner::RRTConnect);
+
+        rw::pathplanning::PathAnalyzer analysis(device, state);
+        //std::cout << "Planning from " << from << " to " << to << std::endl;
+        rw::trajectory::QPath best_path;
+        rw::trajectory::QPath path;
+        rw::common::Timer t;
+
+
+        file_time << epsilon << ",";
+        file_length << epsilon << ",";
+
+        double best_length = std::numeric_limits<double>::max();
+        int repeats = 10;
+        for(int i = 0; i < repeats; ++i){
+            t.resetAndResume();
+            planner->query(from,to,path,MAXTIME);
+            t.pause();
+            std::cout << "Time in Ms " << t.getTimeMs() << '\t';
+            file_time << t.getTimeMs();
+            rw::pathplanning::PathAnalyzer::CartesianAnalysis result = analysis.analyzeCartesian(path, tool_frame);
+            std::cout << "Path length: " << result.length << '\n';
+            file_length << result.length;
+            if(result.length < best_length){
+                std::cout << "better solution..." << result.length << '\n';
+                best_length = result.length;
+                best_path = path;
+            }
+            if( i != repeats-1){
+                file_time << ",";
+                file_length << ",";
+            }
         }
+        file_time << "\n";
+        file_length << "\n";
     }
 
-    // change output stuff
-    std::ofstream out("out.txt");
-    std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
-    std::cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!
+    file_length.close();
+    file_time.close();
 
-    outputLuaPath(best_path, deviceName,from, itemName, toolMount);
+//    // change output stuff
+//    std::ofstream out("out.txt");
+//    std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
+//    std::cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!
 
-    std::cout.rdbuf(coutbuf); //reset to standard output again
+//    outputLuaPath(best_path, deviceName,from, itemName, toolMount);
+
+//    std::cout.rdbuf(coutbuf); //reset to standard output again
 
     return 0;
 }
