@@ -6,8 +6,14 @@
 #include <rwlibs/pathplanners/rrt/RRTPlanner.hpp>
 #include <rwlibs/pathplanners/rrt/RRTQToQPlanner.hpp>
 #include <rwlibs/proximitystrategies/ProximityStrategyFactory.hpp>
+#include <rw/math/Math.hpp> //set seed
 
 #include <string>
+
+#include <rw/kinematics/FKTable.hpp>
+#include <rw/math/MetricUtil.hpp>
+#include <rw/pathplanning/PathAnalyzer.hpp>
+
 
 #define MAXTIME 10.
 
@@ -36,7 +42,7 @@ void outputLuaPath(rw::trajectory::QPath &path, std::string &robot, rw::math::Q 
                  "setQ({"
                  << start_frame[0];
     // add the start frame
-    for(int i = 1; i < start_frame.size(); i++){
+    for(uint i = 1; i < start_frame.size(); i++){
         std::cout << "," << start_frame[i];
     }
     // end start frame and grip item onto tool_frame
@@ -52,28 +58,40 @@ void outputLuaPath(rw::trajectory::QPath &path, std::string &robot, rw::math::Q 
         std::cout << "setQ({"
                   << (*it)[0];
 
-        for(int i = 1; i < (*it).size(); i++){
+        for(uint i = 1; i < (*it).size(); i++){
             std::cout << "," << (*it)[i];
         }
         std::cout << "})\n";
     }
 }
 
+double path_length(rw::trajectory::QPath &path){
+    rw::trajectory::QPath::iterator previous = path.begin();
+    for (rw::trajectory::QPath::iterator it = previous + 1; it < path.end(); it++) {
+        std::cout << rw::math::MetricUtil::dist2((*previous), (*it) ) << '\n';
+        previous = it;
+    }
+}
 
 int main()
 {
+    rw::math::Math::seed();
     // name of the device in the WC
     std::string deviceName = "KukaKr16";
     std::string itemName = "Bottle";
     std::string toolMount = "ToolMount";
     // path to WC, must be with respect to /home, ~/ is not valid
     const std::string wcFile = "/home/lukas/workcells/Kr16WallWorkCell/Scene.wc.xml";
+//    const std::string wcFile = "/home/niko/kode/rovi/robotic/Kr16WallWorkCell/Scene.wc.xml";
+
 
     // final start and end positions
+//    rw::math::Q from(6,-3.142,-0.827,-3.002,-3.143,0.099,-1.573);
+//    rw::math::Q to(6,1.571,0.006,0.030,0.153,0.762,4.490);
     rw::math::Q from(6,-3.142,-0.827,-3.002,-3.143,0.099,-1.573);
     rw::math::Q to(6,1.571,0.006,0.030,0.153,0.762,4.490);
 //    rw::math::Q from(6,-0.2,-0.6,1.5,0.0,0.6,1.2);
-//    //Q to(6,1.7,0.6,-0.8,0.3,0.7,-0.5); // Very difficult for planner
+//    rw::math::Q to(6,1.7,0.6,-0.8,0.3,0.7,-0.5); // Very difficult for planner
 //    rw::math::Q to(6,1.4,-1.3,1.5,0.3,1.3,1.6);
 
     // test trejectory
@@ -106,26 +124,35 @@ int main()
     double epsilon = 0.05;
     rw::pathplanning::QToQPlanner::Ptr planner = rwlibs::pathplanners::RRTPlanner::makeQToQPlanner(constraint, device, rwlibs::pathplanners::RRTPlanner::RRTConnect);
 
-
+    rw::pathplanning::PathAnalyzer analysis(device, state);
     std::cout << "Planning from " << from << " to " << to << std::endl;
+    rw::trajectory::QPath best_path;
     rw::trajectory::QPath path;
     rw::common::Timer t;
-    t.resetAndResume();
-    planner->query(from,to,path,MAXTIME);
-    t.pause();
 
-    std::cout << "path length (steps): " << path.size() << "\n";
-
+    double best_length = 200;
+    for(int i = 0; i < 10; ++i){
+        t.resetAndResume();
+        planner->query(from,to,path,MAXTIME);
+        t.pause();
+        std::cout << "Time in Ms " << t.getTimeMs() << '\t';
+        rw::pathplanning::PathAnalyzer::CartesianAnalysis result = analysis.analyzeCartesian(path, tool_frame);
+        std::cout << "Path length: " << result.length << '\n';
+        if(result.length < best_length){
+            std::cout << "better solution..." << result.length << '\n';
+            best_length = result.length;
+            best_path = path;
+        }
+    }
 
     // change output stuff
     std::ofstream out("out.txt");
     std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
     std::cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!
 
-    outputLuaPath(path, deviceName,from, itemName, toolMount);
+    outputLuaPath(best_path, deviceName,from, itemName, toolMount);
 
     std::cout.rdbuf(coutbuf); //reset to standard output again
-
 
     return 0;
 }
