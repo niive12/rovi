@@ -15,7 +15,7 @@
 #include <rw/pathplanning/PathAnalyzer.hpp>
 
 
-#define MAXTIME 10.
+#define MAXTIME 15.
 
 
 // Kinematics::gripFrame()
@@ -65,13 +65,41 @@ void outputLuaPath(rw::trajectory::QPath &path, std::string &robot, rw::math::Q 
     }
 }
 
-double path_length(rw::trajectory::QPath &path){
-    rw::trajectory::QPath::iterator previous = path.begin();
-    for (rw::trajectory::QPath::iterator it = previous + 1; it < path.end(); it++) {
-        std::cout << rw::math::MetricUtil::dist2((*previous), (*it) ) << '\n';
-        previous = it;
+rw::trajectory::QPath test_planner(
+        rw::pathplanning::QToQPlanner::Ptr planner,
+        rw::math::Q from, rw::math::Q to,
+        rw::pathplanning::PathAnalyzer analysis,
+        rw::kinematics::Frame* tool_frame,
+        std::string output,
+        int samples = 30){
+    rw::trajectory::QPath best_path;
+    rw::trajectory::QPath path;
+    rw::common::Timer t;
+
+    //redirect if not debugging
+    std::ofstream out(output);
+    std::streambuf *coutbuf = std::cout.rdbuf(); //save old buffer
+    if(output != "debug")
+        std::cout.rdbuf(out.rdbuf()); //redirect std::cout to csv file
+
+    double best_length = 200;
+    for(int i = 0; i < samples; ++i){
+        t.resetAndResume();
+        planner->query(from,to,path,MAXTIME);
+        t.pause();
+        rw::pathplanning::PathAnalyzer::CartesianAnalysis result = analysis.analyzeCartesian(path, tool_frame);
+        std::cout << t.getTimeMs() << ",\t"
+                  << result.length << '\n';
+        if(result.length < best_length){
+            best_length = result.length;
+            best_path = path;
+        }
+        path.clear();
     }
+    std::cout.rdbuf(coutbuf); //reset to standard output again
+    return best_path;
 }
+
 
 int main()
 {
@@ -81,23 +109,16 @@ int main()
     std::string itemName = "Bottle";
     std::string toolMount = "ToolMount";
     // path to WC, must be with respect to /home, ~/ is not valid
-    const std::string wcFile = "/home/lukas/workcells/Kr16WallWorkCell/Scene.wc.xml";
-//    const std::string wcFile = "/home/niko/kode/rovi/robotic/Kr16WallWorkCell/Scene.wc.xml";
+//    const std::string wcFile = "/home/lukas/workcells/Kr16WallWorkCell/Scene.wc.xml";
+    const std::string wcFile = "/home/niko/kode/rovi/robotic/Kr16WallWorkCell/Scene.wc.xml";
 
 
     // final start and end positions
-//    rw::math::Q from(6,-3.142,-0.827,-3.002,-3.143,0.099,-1.573);
-//    rw::math::Q to(6,1.571,0.006,0.030,0.153,0.762,4.490);
     rw::math::Q from(6,-3.142,-0.827,-3.002,-3.143,0.099,-1.573);
     rw::math::Q to(6,1.571,0.006,0.030,0.153,0.762,4.490);
 //    rw::math::Q from(6,-0.2,-0.6,1.5,0.0,0.6,1.2);
 //    rw::math::Q to(6,1.7,0.6,-0.8,0.3,0.7,-0.5); // Very difficult for planner
 //    rw::math::Q to(6,1.4,-1.3,1.5,0.3,1.3,1.6);
-
-    // test trejectory
-//    rw::trajectory::QPath path_test;
-//    path_test.emplace_back(start_pos);
-//    path_test.emplace_back(end_pos);
 
     rw::models::WorkCell::Ptr wc = rw::loaders::WorkCellLoader::Factory::load(wcFile);
     rw::models::Device::Ptr device = wc->findDevice(deviceName);
@@ -120,36 +141,30 @@ int main()
     /** More complex way: allows more detailed definition of parameters and methods */
     rw::pathplanning::QSampler::Ptr sampler = rw::pathplanning::QSampler::makeConstrained(rw::pathplanning::QSampler::makeUniform(device),constraint.getQConstraintPtr());
     rw::math::QMetric::Ptr metric = rw::math::MetricFactory::makeEuclidean< rw::math::Q >();
-    double epsilon = 0.1;
-    rw::pathplanning::QToQPlanner::Ptr planner = rwlibs::pathplanners::RRTPlanner::makeQToQPlanner(constraint, sampler, metric, epsilon, rwlibs::pathplanners::RRTPlanner::RRTConnect);
-
+    double epsilon = 0.5;
+//    rw::pathplanning::QToQPlanner::Ptr planner = rwlibs::pathplanners::RRTPlanner::makeQToQPlanner(constraint, sampler, metric, epsilon, rwlibs::pathplanners::RRTPlanner::RRTConnect);
     rw::pathplanning::PathAnalyzer analysis(device, state);
-    std::cout << "Planning from " << from << " to " << to << std::endl;
-    rw::trajectory::QPath best_path;
-    rw::trajectory::QPath path;
-    rw::common::Timer t;
 
-    double best_length = 200;
-    for(int i = 0; i < 10; ++i){
-        t.resetAndResume();
-        planner->query(from,to,path,MAXTIME);
-        t.pause();
-        std::cout << "Time in Ms " << t.getTimeMs() << '\t';
-        rw::pathplanning::PathAnalyzer::CartesianAnalysis result = analysis.analyzeCartesian(path, tool_frame);
-        std::cout << "Path length: " << result.length << '\n';
-        if(result.length < best_length){
-            std::cout << "better solution..." << result.length << '\n';
-            best_length = result.length;
-            best_path = path;
-        }
+    std::cout << "Planning from " << from << " to " << to << std::endl;
+
+    rw::trajectory::QPath path;
+    std::string file_name;
+    for(double eps = 0.1; eps < 0.9; eps+=0.1){
+        rw::pathplanning::QToQPlanner::Ptr planner = rwlibs::pathplanners::RRTPlanner::makeQToQPlanner(constraint, sampler, metric, eps, rwlibs::pathplanners::RRTPlanner::RRTConnect);
+        file_name = "eps" + std::to_string(eps) + ".csv";
+        std::cout << "Testing: " << file_name << '\n';
+        path = test_planner(planner, from, to, analysis, tool_frame, file_name, 30);
+//        path = test_planner(planner, from, to, analysis, tool_frame, "debug", 10);
+        std::cout << "Test complete\n";
     }
+
 
     // change output stuff
     std::ofstream out("out.txt");
     std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
     std::cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!
 
-    outputLuaPath(best_path, deviceName,from, itemName, toolMount);
+    outputLuaPath(path, deviceName,from, itemName, toolMount);
 
     std::cout.rdbuf(coutbuf); //reset to standard output again
 
