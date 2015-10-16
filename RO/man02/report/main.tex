@@ -1,0 +1,37 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+
+\usepackage{fullpage}
+
+\usepackage{float}
+
+\begin{document}
+
+\section{Pathplanning using RRT in RobWorks}
+For this project, the RRT planner in RobWorks was used.
+Here the path was planned from and to the two given configurations $q_{pick}$ and $q_{place}$ in the given scene.
+In order to optimize the epsilon of the path planner, this was tested with respect to the time it takes to compute the path and path travelled by the tool frame.
+
+Since the RRT planner is a probabilistic approach to finding a path between the two configurations, then the path was computed \textbf{ten} times of which the average, maximum and minimum is plotted.
+The data gathered for the timing of the algorithm can be seen in figure \ref{fig:timeVSepsilon} and the distance travelled by the tool in figure \ref{fig:distVSepsilon}.
+
+
+% remember to remove 0 from the files (overextended timing periode)
+\begin{figure}[H]
+\caption{figure of time vs epsilon}
+\label{fig:timeVSepsilon}
+\end{figure}
+
+
+\begin{figure}[H]
+\caption{figure of tool-frame path length vs epsilon}
+\label{fig:distVSepsilon}
+\end{figure}
+
+
+\end{document}

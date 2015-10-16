@@ -14,9 +14,7 @@
 #include <rw/math/MetricUtil.hpp>
 #include <rw/pathplanning/PathAnalyzer.hpp>
 
-
 #define MAXTIME 15.
-
 
 // Kinematics::gripFrame()
 // new state
@@ -65,13 +63,7 @@ void outputLuaPath(rw::trajectory::QPath &path, std::string &robot, rw::math::Q 
     }
 }
 
-rw::trajectory::QPath test_planner(
-        rw::pathplanning::QToQPlanner::Ptr planner,
-        rw::math::Q from, rw::math::Q to,
-        rw::pathplanning::PathAnalyzer analysis,
-        rw::kinematics::Frame* tool_frame,
-        std::string output,
-        int samples = 30){
+rw::trajectory::QPath test_planner(rw::pathplanning::QToQPlanner::Ptr planner, rw::math::Q from, rw::math::Q to, rw::pathplanning::PathAnalyzer analysis, rw::kinematics::Frame* tool_frame, std::string output, samples = 30){
     rw::trajectory::QPath best_path;
     rw::trajectory::QPath path;
     rw::common::Timer t;
@@ -82,6 +74,7 @@ rw::trajectory::QPath test_planner(
     if(output != "debug")
         std::cout.rdbuf(out.rdbuf()); //redirect std::cout to csv file
 
+    std::cout << "time,\tlength\n";
     double best_length = 200;
     for(int i = 0; i < samples; ++i){
         t.resetAndResume();
@@ -141,8 +134,6 @@ int main()
     /** More complex way: allows more detailed definition of parameters and methods */
     rw::pathplanning::QSampler::Ptr sampler = rw::pathplanning::QSampler::makeConstrained(rw::pathplanning::QSampler::makeUniform(device),constraint.getQConstraintPtr());
     rw::math::QMetric::Ptr metric = rw::math::MetricFactory::makeEuclidean< rw::math::Q >();
-    double epsilon = 0.5;
-//    rw::pathplanning::QToQPlanner::Ptr planner = rwlibs::pathplanners::RRTPlanner::makeQToQPlanner(constraint, sampler, metric, epsilon, rwlibs::pathplanners::RRTPlanner::RRTConnect);
     rw::pathplanning::PathAnalyzer analysis(device, state);
 
     std::cout << "Planning from " << from << " to " << to << std::endl;
@@ -151,13 +142,13 @@ int main()
     std::string file_name;
     for(double eps = 0.1; eps < 0.9; eps+=0.1){
         rw::pathplanning::QToQPlanner::Ptr planner = rwlibs::pathplanners::RRTPlanner::makeQToQPlanner(constraint, sampler, metric, eps, rwlibs::pathplanners::RRTPlanner::RRTConnect);
+//        file_name = "../statistics/eps" + std::to_string(eps) + ".csv";
         file_name = "eps" + std::to_string(eps) + ".csv";
         std::cout << "Testing: " << file_name << '\n';
         path = test_planner(planner, from, to, analysis, tool_frame, file_name, 30);
 //        path = test_planner(planner, from, to, analysis, tool_frame, "debug", 10);
         std::cout << "Test complete\n";
     }
-
 
     // change output stuff
     std::ofstream out("out.txt");
