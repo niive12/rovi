@@ -32,8 +32,15 @@ for(i in 1:9){
 	time[,i] = y$time
 	length[,i] = y$length
 }
+setEPS()
+postscript("timeVSepsilon.eps",height = 4, width = 8)
 mean_bar_plot(time,xlab="epsilon", ylab="Average Time [ms]", labels=seq(0.1,0.9,0.1),error=FALSE)
+q = dev.off()
+
+setEPS()
+postscript("distVSepsilon.eps",height = 4, width = 8)
 mean_bar_plot(length,xlab="epsilon", ylab="Average Path Length [m]", labels=seq(0.1,0.9,0.1),error=TRUE)
+q = dev.off()
 
 
 valid_paths = array(30,9)
@@ -47,4 +54,7 @@ for(c in 1:9){
 print(valid_mean(length[,1]))
 print(valid_paths)
 valid_paths_p = valid_paths/30 * 100
+setEPS()
+postscript("successfulVSepsilon.eps",height = 4, width = 8)
 barplot(valid_paths_p, names.arg=seq(0.1,0.9,0.1),ylim=c(0,100), col="gray", axis.lty=1, xlab="epsilon", ylab="Valid outputs [%]")
+q = dev.off()
