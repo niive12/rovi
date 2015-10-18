@@ -22,39 +22,40 @@ mean_bar_plot <- function(input, labels=1, xlab=NULL, ylab=NULL,main=NULL, error
 	}
 }
 
-
-time = matrix(0,30,9)
-length = matrix(0,30,9)
-for(i in 1:9){
-	file_name = paste(c("eps0.",i,"00000.csv"),collapse="")
-# 	print(file_name)
+eps_tested = seq(0.1,2.0,0.1)
+number_of_tets = 30
+time = matrix(0,number_of_tets,length(eps_tested))
+length = matrix(0,number_of_tets,length(eps_tested))
+for(i in 1:length(eps_tested)){
+	file_name = paste(c("eps",format(eps_tested[i],nsmall=6),".csv"),collapse="")
+	print(file_name)
 	y = read.csv(file_name)
 	time[,i] = y$time
 	length[,i] = y$length
 }
+valid_paths = array(number_of_tets,length(eps_tested))
+for(c in 1:length(eps_tested)){
+	for(r in 1:number_of_tets){
+		if(length[r,c] == 0){
+			valid_paths[c] = valid_paths[c] - 1
+			time[r,c] = 0; #remove time from no solution found results
+		}
+	}
+}
+
 setEPS()
 postscript("timeVSepsilon.eps",height = 4, width = 8)
-mean_bar_plot(time,xlab="epsilon", ylab="Average Time [ms]", labels=seq(0.1,0.9,0.1),error=FALSE)
+mean_bar_plot(time,xlab="epsilon", ylab="Average Time [ms]", labels=eps_tested,error=FALSE)
 q = dev.off()
 
 setEPS()
 postscript("distVSepsilon.eps",height = 4, width = 8)
-mean_bar_plot(length,xlab="epsilon", ylab="Average Path Length [m]", labels=seq(0.1,0.9,0.1),error=TRUE)
+mean_bar_plot(length,xlab="epsilon", ylab="Average Path Length [m]", labels=eps_tested,error=TRUE)
 q = dev.off()
 
-
-valid_paths = array(30,9)
-for(c in 1:9){
-	for(r in 1:30){
-		if(length[r,c] == 0){
-			valid_paths[c] = valid_paths[c] - 1
-		}
-	}
-}
-print(valid_mean(length[,1]))
-print(valid_paths)
-valid_paths_p = valid_paths/30 * 100
+cat(c("valid paths", valid_paths, "\n"))
+valid_paths_p = valid_paths/number_of_tets * 100
 setEPS()
 postscript("successfulVSepsilon.eps",height = 4, width = 8)
-barplot(valid_paths_p, names.arg=seq(0.1,0.9,0.1),ylim=c(0,100), col="gray", axis.lty=1, xlab="epsilon", ylab="Valid outputs [%]")
+barplot(valid_paths_p, names.arg=eps_tested,ylim=c(0,100), col="gray", axis.lty=1, xlab="epsilon", ylab="Valid outputs [%]")
 q = dev.off()
