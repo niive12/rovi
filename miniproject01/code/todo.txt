@@ -1,0 +1,18 @@
+visualize (analyse) (output image (cv::Mat &out))
+ - frequency
+     - Magnitude (Mat, cv::Mat &out)
+ - normal (Mat)
+ - histogram (Mat, cv::Mat &out)
+
+save
+ - image (Mat &image, std::string save_name)
+
+tasks
+ - part01
+ - part02
+ - part03
+ - part04
+ 
+ cutout (cv::Mat &image, cv::Mat &out, int area)
+ 
+ 

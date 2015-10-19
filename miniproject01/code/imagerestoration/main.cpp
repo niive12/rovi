@@ -56,6 +56,8 @@ void butterFilter(cv::Mat_<float> &dst, int u, int v, float D0, int n){
 }
 
 
+//void part04(cv::Mat<float> &original_image, cv::Mat<float> &output_image);
+
 
 int main(){
     std::cout << "Hello World!" << "\n";
@@ -71,7 +73,10 @@ int main(){
 
     cv::Mat_<float> image = cv::imread( image_names.at(3) , CV_LOAD_IMAGE_GRAYSCALE );
     cv::Mat modified = image.clone();
-    //namedWindow("Restored Image", cv::WINDOW_NORMAL);
+
+    cv::normalize(image, image, 0, 1, CV_MINMAX);
+    namedWindow("Restored Image", cv::WINDOW_NORMAL);
+    cv::imshow("Image", image);
 
     std::cout << "Image loaded\n";
 
@@ -89,8 +94,6 @@ int main(){
     std::cout << "Running for the 4th image!\n";
     // make padded image
 
-    cv::normalize(image, image, 0, 1, CV_MINMAX);
-    cv::imshow("Image", image);
 
     cv::Mat_<float> padded;
 
@@ -120,9 +123,9 @@ int main(){
     dftshift(mag);
 
     // log / normailze
-    mag = mag + cv::Mat::ones(mag.rows, mag.cols, CV_32F);
-    cv::log(mag, mag);
-    cv::normalize(mag, mag, 0, 1, CV_MINMAX);
+    //mag = mag + cv::Mat::ones(mag.rows, mag.cols, CV_32F);
+    //cv::log(mag, mag);
+    //cv::normalize(mag, mag, 0, 1, CV_MINMAX);
 
     // make mask for frequency domain
     cv::Mat_<float> mask = cv::Mat::ones(mag.rows, mag.cols, CV_32F);
@@ -135,8 +138,8 @@ int main(){
 
     // apply mask
     cv::mulSpectrums(mag, mask, mag, 0);
-    cv::namedWindow("Applied filter", cv::WINDOW_NORMAL);
-    cv::imshow("Applied filter", mag);
+    //cv::namedWindow("Applied filter", cv::WINDOW_NORMAL);
+    //cv::imshow("Applied filter", mag);
 
     // merge them back
     dftshift(mag);
