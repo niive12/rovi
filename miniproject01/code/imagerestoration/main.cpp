@@ -56,7 +56,9 @@ void butterFilter(cv::Mat_<float> &dst, int u, int v, float D0, int n){
 }
 
 
-//void part04(cv::Mat<float> &original_image, cv::Mat<float> &output_image);
+void part04(cv::Mat_<float> &original_image, cv::Mat_<float> &output_image);
+
+void visualize_frequency(cv::Mat_<float> &original_image, cv::Mat_<float> &output_image);
 
 
 int main(){
@@ -80,7 +82,8 @@ int main(){
 
     std::cout << "Image loaded\n";
 
-#if RUN == IMG_1
+
+    /*
 //    median_filter(image,modified,7,1);
     cv::medianBlur(image,modified,7);
     cv::imshow( "Restored Image", modified);
@@ -89,17 +92,35 @@ int main(){
     cv::Mat histImage( 512, 1024, CV_8UC3 );
     make_histogram(image,histImage,histogram,1024);
 //    cv::imshow( "Original Histogram", histImage);
-#endif
-#if RUN == IMG_4
+*/
+
+
+    cv::Mat_<float> image_res = image.clone();
+    part04(image, image_res);
+
+    cv::waitKey(0);
+
+    /*
+    for(auto i : image_names){
+        cv::Mat image = cv::imread( i , CV_LOAD_IMAGE_GRAYSCALE );
+        cv::Mat histogram;
+        cv::Mat histImage( 512, 1024, CV_8UC3 );
+        make_histogram(image,histImage,histogram,1024);
+        cv::imshow( "Original Histogram", histImage);
+        cv::waitKey(0);
+    }//*/
+
+    return 0;
+}
+
+void part04(cv::Mat_<float> &original_image, cv::Mat_<float> &output_image){
     std::cout << "Running for the 4th image!\n";
     // make padded image
-
-
     cv::Mat_<float> padded;
 
-    int m = cv::getOptimalDFTSize( image.rows * 2 );
-    int n = cv::getOptimalDFTSize( image.cols * 2 ); // on the border add zero values
-    cv::copyMakeBorder(image, padded, 0, m - image.rows, 0, n - image.cols, cv::BORDER_CONSTANT, cv::Scalar::all(0));
+    int m = cv::getOptimalDFTSize( original_image.rows * 2 );
+    int n = cv::getOptimalDFTSize( original_image.cols * 2 ); // on the border add zero values
+    cv::copyMakeBorder(original_image, padded, 0, m - v.rows, 0, n - original_image.cols, cv::BORDER_CONSTANT, cv::Scalar::all(0));
 
     // put real and imaginary part of image together
     cv::Mat_<cv::Vec2f> image_full;
@@ -122,24 +143,14 @@ int main(){
     // shift the quarters
     dftshift(mag);
 
-    // log / normailze
-    //mag = mag + cv::Mat::ones(mag.rows, mag.cols, CV_32F);
-    //cv::log(mag, mag);
-    //cv::normalize(mag, mag, 0, 1, CV_MINMAX);
-
     // make mask for frequency domain
     cv::Mat_<float> mask = cv::Mat::ones(mag.rows, mag.cols, CV_32F);
 
     butterFilter(mask, 615, 615, 50, 2);
     butterFilter(mask, 200, -200, 20, 2);
 
-    //cv::namedWindow("Butter filter", cv::WINDOW_NORMAL);
-    //cv::imshow("Butter filter", mask);
-
     // apply mask
     cv::mulSpectrums(mag, mask, mag, 0);
-    //cv::namedWindow("Applied filter", cv::WINDOW_NORMAL);
-    //cv::imshow("Applied filter", mag);
 
     // merge them back
     dftshift(mag);
@@ -153,21 +164,49 @@ int main(){
     // output image
     final_image = final_image(cv::Rect(0,0,final_image.cols/2,final_image.rows/2));
     cv::normalize(final_image, final_image, 0, 1, CV_MINMAX);
-    cv::namedWindow("Final image", cv::WINDOW_NORMAL);
-    cv::imshow("Final image", final_image);
 
-#endif
-
-    cv::waitKey(0);
-    /*
-    for(auto i : image_names){
-        cv::Mat image = cv::imread( i , CV_LOAD_IMAGE_GRAYSCALE );
-        cv::Mat histogram;
-        cv::Mat histImage( 512, 1024, CV_8UC3 );
-        make_histogram(image,histImage,histogram,1024);
-        cv::imshow( "Original Histogram", histImage);
-        cv::waitKey(0);
-    }//*/
-    return 0;
+    output_image = final_image;
 }
 
+
+// takes in a real image returns the frequency image
+void visualize_frequency(cv::Mat_<float> &original_image, cv::Mat_<float> &output_image){
+    std::cout << "Visualize image in frequency domain!\n";
+    // make padded image
+    cv::Mat_<float> padded;
+
+    int m = cv::getOptimalDFTSize( original_image.rows * 2 );
+    int n = cv::getOptimalDFTSize( original_image.cols * 2 ); // on the border add zero values
+    cv::copyMakeBorder(original_image, padded, 0, m - v.rows, 0, n - original_image.cols, cv::BORDER_CONSTANT, cv::Scalar::all(0));
+
+    // put real and imaginary part of image together
+    cv::Mat_<cv::Vec2f> image_full; // used to store real and imaginary part
+    std::vector<cv::Mat> image_vec;
+    image_vec.push_back(padded.clone());
+    image_vec.push_back((cv::Mat::zeros(padded.rows, padded.cols, CV_32F)));
+
+    // merge the two images
+    cv::merge(image_vec,image_full);
+
+    // make frequency domain image
+    cv::dft(image_full,image_full);
+
+    // split in two and make phase / magnitude
+    cv::Mat_<float> mag, phase;
+
+    cv::split(image_full, image_vec);
+    cv::cartToPolar(image_vec[0], image_vec[1], mag, phase);
+
+    // shift the quarters
+    dftshift(mag);
+
+    // log / normailze
+    mag = mag + cv::Mat::ones(mag.rows, mag.cols, CV_32F);
+    cv::log(mag, mag);
+    cv::normalize(mag, mag, 0, 1, CV_MINMAX);
+
+    cv::namedWindow("Frequency Magnitude Plot", cv::WINDOW_NORMAL);
+    cv::imshow("Frequency Magnitude Plot", mag);
+
+    output_image = mag;
+}
