@@ -105,8 +105,8 @@ int main(){
     std::string deviceName = "KukaKr16";
     std::string itemName = "Bottle";
     std::string toolMount = "ToolMount";
-//    const std::string wcFile = "/home/lukas/workcells/Kr16WallWorkCell/Scene.wc.xml";
-    const std::string wcFile = "/home/niko/kode/rovi/robotic/Kr16WallWorkCell/Scene.wc.xml";
+    const std::string wcFile = "/home/lukas/workcells/Kr16WallWorkCell/Scene.wc.xml";
+//    const std::string wcFile = "/home/niko/kode/rovi/robotic/Kr16WallWorkCell/Scene.wc.xml";
 
     rw::math::Q from(6,-3.142,-0.827,-3.002,-3.143,0.099,-1.573);
     rw::math::Q to(6,1.571,0.006,0.030,0.153,0.762,4.490);
@@ -138,7 +138,8 @@ int main(){
     double best_length = 200;
     rw::trajectory::QPath path, best_path;
     std::string file_name;
-    for(double eps = 0.1; eps < 0.9; eps+=0.1){
+//    for(double eps = 0.1; eps < 0.9; eps+=0.1){
+    double eps = 0.8;
         rw::pathplanning::QToQPlanner::Ptr planner = rwlibs::pathplanners::RRTPlanner::makeQToQPlanner(constraint, sampler, metric, eps, rwlibs::pathplanners::RRTPlanner::RRTConnect);
         file_name = "../statistics/eps" + std::to_string(eps) + ".csv";
         std::cout << "Testing: " << file_name << '\n';
@@ -149,7 +150,7 @@ int main(){
             best_length = result.length;
             best_path = path;
         }
-    }
+ //   }
 
     // change output stuff
     std::ofstream out("out.txt");
