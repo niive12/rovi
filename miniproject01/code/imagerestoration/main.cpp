@@ -69,7 +69,7 @@ int main(){
     cv::Mat modified = image.clone();
 
     cv::normalize(image, image, 0, 1, CV_MINMAX);
-    namedWindow("Restored Image", cv::WINDOW_NORMAL);
+    namedWindow("Image", cv::WINDOW_NORMAL);
     cv::imshow("Image", image);
 
     std::cout << "Image loaded\n";
@@ -86,9 +86,20 @@ int main(){
 //    cv::imshow( "Original Histogram", histImage);
 */
 
+    // part 4
+    // analysis
+    cv::Mat_<float> image_freq_04;
+    visualize_frequency(image,image_freq_04);
+    cv::normalize(image_freq_04, image_freq_04, 0, 255, CV_MINMAX);
+    cv::imwrite("../images/frequency_analysis_04.png", image_freq_04);
+    // compute resulting image
+    cv::Mat_<float> image_res_04 = image.clone();
+    part04(image, image_res_04);
+    cv::normalize(image_res_04, image_res_04, 0, 255, CV_MINMAX);
+    cv::imwrite("../images/image_result_04.png",image_res_04);
 
-    cv::Mat_<float> image_res = image.clone();
-    part04(image, image_res);
+    namedWindow("Restored Image", cv::WINDOW_NORMAL);
+    cv::imshow("Restored Image", image_res_04);
 
     cv::waitKey(0);
 
@@ -138,8 +149,11 @@ void part04(cv::Mat_<float> &original_image, cv::Mat_<float> &output_image){
     // make mask for frequency domain
     cv::Mat_<float> mask = cv::Mat::ones(mag.rows, mag.cols, CV_32F);
 
-    butterFilter(mask, 615, 615, 50, 2);
-    butterFilter(mask, 200, -200, 20, 2);
+    double size_factor = 2;
+    int power = 1;
+    butterFilter(mask, 604, 623, 15*size_factor, power);
+    butterFilter(mask, 201, -206, 30*size_factor, power);
+    cv::normalize(mask,mask, 0,1, CV_MINMAX);
 
     // apply mask
     cv::mulSpectrums(mag, mask, mag, 0);

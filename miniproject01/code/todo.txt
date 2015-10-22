@@ -6,7 +6,7 @@ visualize (analyse) (output image (cv::Mat &out))
 
 tasks
  - part01 (pepper) - N
- - part02 (salt) - N
+ - part02 (gaussian) - N
  - part03 (noise) - L
  - part04 (lines) - done, but needs adjustments - L
  - part05 (opt) - 
