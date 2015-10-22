@@ -1,18 +1,16 @@
 visualize (analyse) (output image (cv::Mat &out))
  - frequency
-     - Magnitude (Mat, cv::Mat &out)
- - normal (Mat)
- - histogram (Mat, cv::Mat &out)
-
-save
- - image (Mat &image, std::string save_name)
+     - Magnitude (Mat, cv::Mat &out) - DONE!
+ - normal (Mat) - DONE!
+ - histogram (Mat, cv::Mat &out) - DONE!
 
 tasks
- - part01
- - part02
- - part03
- - part04
+ - part01 (pepper) - N
+ - part02 (salt) - N
+ - part03 (noise) - L
+ - part04 (lines) - done, but needs adjustments - L
+ - part05 (opt) - 
  
- cutout (cv::Mat &image, cv::Mat &out, int area)
+ cutout (cv::Mat &image, cv::Mat &out, int area) - Nikolaj!
  
- 
+

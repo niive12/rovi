@@ -2,6 +2,10 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
+// input
+// output = the image
+// hist = vector of raw data
+// hist_XX = dimensions of 'output'
 void make_histogram(cv::Mat &input, cv::Mat &output, cv::Mat &histogram, int hist_width, int hist_height){
 
     int histSize = 256;

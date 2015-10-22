@@ -7,14 +7,6 @@
 #include "median_filter.h"
 #include <vector>
 
-#define IMG_1 0
-#define IMG_2 1
-#define IMG_3 2
-#define IMG_4 3
-#define RUN IMG_4
-
-#define WIDTH 1000
-#define HEIGHT 500
 
 
 void dftshift(cv::Mat_<float>& magnitude) {
@@ -120,7 +112,7 @@ void part04(cv::Mat_<float> &original_image, cv::Mat_<float> &output_image){
 
     int m = cv::getOptimalDFTSize( original_image.rows * 2 );
     int n = cv::getOptimalDFTSize( original_image.cols * 2 ); // on the border add zero values
-    cv::copyMakeBorder(original_image, padded, 0, m - v.rows, 0, n - original_image.cols, cv::BORDER_CONSTANT, cv::Scalar::all(0));
+    cv::copyMakeBorder(original_image, padded, 0, m - original_image.rows, 0, n - original_image.cols, cv::BORDER_CONSTANT, cv::Scalar::all(0));
 
     // put real and imaginary part of image together
     cv::Mat_<cv::Vec2f> image_full;
@@ -177,7 +169,7 @@ void visualize_frequency(cv::Mat_<float> &original_image, cv::Mat_<float> &outpu
 
     int m = cv::getOptimalDFTSize( original_image.rows * 2 );
     int n = cv::getOptimalDFTSize( original_image.cols * 2 ); // on the border add zero values
-    cv::copyMakeBorder(original_image, padded, 0, m - v.rows, 0, n - original_image.cols, cv::BORDER_CONSTANT, cv::Scalar::all(0));
+    cv::copyMakeBorder(original_image, padded, 0, m - original_image.rows, 0, n - original_image.cols, cv::BORDER_CONSTANT, cv::Scalar::all(0));
 
     // put real and imaginary part of image together
     cv::Mat_<cv::Vec2f> image_full; // used to store real and imaginary part
