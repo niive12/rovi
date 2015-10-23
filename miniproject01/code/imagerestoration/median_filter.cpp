@@ -1,16 +1,17 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
-
-void median_filter(cv::Mat &input, cv::Mat &output, int kernel_size, int mean_width){
-    if( (input.type() + output.type()) != 0){
-        throw("error");
-    }
+#include <iostream>
+void median_filter(const cv::Mat &input, cv::Mat &output, int kernel_size, int mean_width, double offset){
+//    if( (input.type() + output.type()) != 0){
+//        std::cerr << "Median_filter: The images must be <uchar>\n";
+//        throw("wrong_type");
+//    }
     int length = kernel_size*kernel_size;
-    uchar neighbours[length];
-    uchar temp;
+    float neighbours[length];
+    float temp;
     int j;
-    int middel_value = (length) / 2;
+    int middel_value = int(double(length) * offset);
     int middel_offset = mean_width / 2;
     int kernel_offset = kernel_size / 2;
     int mean;
@@ -20,7 +21,7 @@ void median_filter(cv::Mat &input, cv::Mat &output, int kernel_size, int mean_wi
             //gather neighbouring pixels in array
             for(int k_x=0;k_x<kernel_size;++k_x){
                 for(int k_y=0; k_y<kernel_size; ++k_y){
-                    neighbours[k_x+k_y*kernel_size] = input.at<uchar>(y+(k_y-kernel_offset),x+(k_x-kernel_offset));
+                    neighbours[k_x+k_y*kernel_size] = input.at<float>(y+(k_y-kernel_offset),x+(k_x-kernel_offset));
                 }
             }
             //sort the array
@@ -38,7 +39,7 @@ void median_filter(cv::Mat &input, cv::Mat &output, int kernel_size, int mean_wi
                 mean += neighbours[i];
             }
             mean = mean / mean_width;
-            output.at<uchar>(y, x) = mean;
+            output.at<float>(y, x) = (float) mean;
         }
     }
 }
