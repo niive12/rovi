@@ -1,4 +1,4 @@
-\documentclass[12pt,a4paper]{article}
+\documentclass[12pt,a4paper,conference]{IEEEtran}
 \usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
 \usepackage{amsmath}
@@ -9,19 +9,19 @@
 \usepackage{float}
 \usepackage{fullpage}
 
+\usepackage{tikz}
+
 \input{todoextend}
 
 \begin{document}
-
+\raggedbottom
 
 \title{Image Restoration\\ \large{ROVI - Miniproject}}
 \author{Nicolaj Iversen and Lukas Schwartz}
 \date{9$^{th}$ November 2015}
 
-
 \maketitle
 
-\pagebreak
 
 
 
@@ -31,33 +31,15 @@ This report sets to describe the how the \textbf{4} given images from the ROVI l
 Each image is separately dealt with in each their section.
 
 
-\subsection{Pepper Noise}
-Pepper noise is when a set of pixels on an image are complete black, without the actual photographed scene has these elements.
-This is illustrated in figure \ref{fig:hist_pepper}.
+\input{sections/pepper.tex}
 
-\begin{figure}[H]
-\includegraphics[width = 8cm]{graphics/hist.png}
-\caption{Histogram of the original ``Image1.png'' showing pepper noise.}
-\label{fig:hist_pepper}
-\end{figure}
+\input{sections/gaussian.tex}
 
+\input{sections/noise.tex}
 
+\input{sections/lines.tex}
 
-The first image has a lot of pepper noise.
-In figure \ref{hist_img1} can it be seen that a majority of pixels are completely black.
-This type of damage can be undone, using a median filter.
-
-\subsection{Salt Noise}
-
-
-\subsection{Gaussian Noise?}
-
-
-\subsection{Frequency Noise}
-
-
-
-\section{Conclusion}
+\input{sections/conclusion.tex}
 
 
 \end{document}
