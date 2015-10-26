@@ -18,6 +18,8 @@
 #define AREA_SIMPLE  cv::Rect(900,1225,300,300)
 #define AREA_COMPLEX cv::Rect(1225,250,300,300)
 
+#define PART(x) 1<<x
+
 void part01(cv::Mat_<float> &original_image, cv::Mat_<float> &output_image);
 
 int main(){
@@ -29,15 +31,19 @@ int main(){
     image_names.push_back("../images/Image4_2.png"       );
     image_names.push_back("../images/Image5_optional.png");
 
-    cv::Mat_<float> image = cv::imread( image_names.at(0) , CV_LOAD_IMAGE_GRAYSCALE );
+    cv::Mat_<float> image = cv::imread( image_names.at(3) , CV_LOAD_IMAGE_GRAYSCALE );
+    std::cout << "Image loaded\n";
     cv::Mat_<float> modified = image.clone();
     cv::Mat_<float> out = image.clone();
-    part01(modified,out);
-    namedWindow("Restored Image", cv::WINDOW_NORMAL);
-    cv::normalize(image,image,0,1,CV_MINMAX);
-    cv::imshow("Image", image);
 
-    std::cout << "Image loaded\n";
+    int to_run = PART(1) | PART(4);
+
+    if(to_run & PART(1)){
+        part01(modified,out);
+        namedWindow("Restored Image", cv::WINDOW_NORMAL);
+        cv::normalize(image,image,0,1,CV_MINMAX);
+        cv::imshow("Image", image);
+      }
 
 
     /*
@@ -52,19 +58,29 @@ int main(){
 */
 
     // part 4
-    // analysis
-    cv::Mat_<float> image_freq_04;
-    visualize_frequency(image,image_freq_04);
-    cv::normalize(image_freq_04, image_freq_04, 0, 255, CV_MINMAX);
-    cv::imwrite("../images/frequency_analysis_04.png", image_freq_04);
-    // compute resulting image
-    cv::Mat_<float> image_res_04 = image.clone();
-    part04(image, image_res_04);
-    namedWindow("Restored Image", cv::WINDOW_NORMAL);
-    cv::imshow("Restored Image", image_res_04);
-    cv::normalize(image_res_04, image_res_04, 0, 255, CV_MINMAX);
-    cv::imwrite("../images/image_result_04.png",image_res_04);
+    if(to_run & PART(4)){
+        cv::normalize(image,image,0,1,CV_MINMAX);
 
+        // analysis
+        cv::Mat_<float> image_freq_04;
+        visualize_frequency(image,image_freq_04);
+        cv::normalize(image_freq_04, image_freq_04, 0, 255, CV_MINMAX);
+        cv::imwrite("../images/frequency_analysis_04.png", image_freq_04);
+
+        cv::Mat_<float> image_uniform_04(image.clone(), AREA_UNIFORM);
+        cv::Mat_<float> image_freq_uniform_04;
+        visualize_frequency(image_uniform_04,image_freq_uniform_04);
+        cv::normalize(image_freq_uniform_04, image_freq_uniform_04, 0, 255, CV_MINMAX);
+        cv::imwrite("../images/frequency_analysis_uniform_04.png", image_freq_uniform_04);
+
+        // compute resulting image
+        cv::Mat_<float> image_res_04 = image.clone();
+        part04(image, image_res_04);
+        namedWindow("Restored Image", cv::WINDOW_NORMAL);
+        cv::imshow("Restored Image", image_res_04);
+        cv::normalize(image_res_04, image_res_04, 0, 255, CV_MINMAX);
+        cv::imwrite("../images/image_result_04.png",image_res_04);
+      }
     /*
     for(auto i : image_names){
         cv::Mat image = cv::imread( i , CV_LOAD_IMAGE_GRAYSCALE );
