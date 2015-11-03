@@ -16,6 +16,7 @@
 #include <iostream>
 #include <vector>
 
+#define PART(x) 1<<x
 
 int main(){
     std::vector<std::string> image_names;
@@ -26,52 +27,46 @@ int main(){
     image_names.push_back("../images/Image4_2.png"       );
     image_names.push_back("../images/Image5_optional.png");
 
-    cv::Mat_<float> image = cv::imread( image_names.at(0) , CV_LOAD_IMAGE_GRAYSCALE );
-    cv::Mat_<float> modified = image.clone();
-    cv::Mat_<float> out = image.clone();
-    std::cout << "org size: " << image.rows << " " << image.cols << "\n";
-    part01(modified,out);
-    namedWindow("Restored Image", cv::WINDOW_NORMAL);
-    cv::normalize(image,image,0,1,CV_MINMAX);
-    cv::imshow("Image", image);
-    return 0;
-    std::cout << "Image loaded\n";
+    cv::Mat_<float> image;
+    cv::Mat_<float> out;
 
 
-    /*
-//    median_filter(image,modified,7,1);
-    cv::medianBlur(image,modified,7);
-    cv::imshow( "Restored Image", modified);
-    cv::resizeWindow("Restored Image", WIDTH, HEIGHT);
-    cv::Mat histogram;
-    cv::Mat histImage( 512, 1024, CV_8UC3 );
-    make_histogram(image,histImage,histogram,1024);
-//    cv::imshow( "Original Histogram", histImage);
-*/
+    int to_run = PART(1) | PART(4);
 
+    // part 1
+    if(to_run & PART(1)){
+        image = cv::imread( image_names.at(0) , CV_LOAD_IMAGE_GRAYSCALE );
+
+        part01(image,out);
+
+        cv::normalize(out,out,0,255,CV_MINMAX);
+        cv::imwrite("../images/image_result_1.png",out);
+      }
     // part 4
-    // analysis
-    cv::Mat_<float> image_freq_04;
-    visualize_frequency(image,image_freq_04);
-    cv::normalize(image_freq_04, image_freq_04, 0, 255, CV_MINMAX);
-    cv::imwrite("../images/frequency_analysis_04.png", image_freq_04);
-    // compute resulting image
-    cv::Mat_<float> image_res_04 = image.clone();
-    part04(image, image_res_04);
-    namedWindow("Restored Image", cv::WINDOW_NORMAL);
-    cv::imshow("Restored Image", image_res_04);
-    cv::normalize(image_res_04, image_res_04, 0, 255, CV_MINMAX);
-    cv::imwrite("../images/image_result_04.png",image_res_04);
+    if(to_run & PART(4)){
+        image = cv::imread( image_names.at(3) , CV_LOAD_IMAGE_GRAYSCALE );
+        cv::normalize(image,image,0,1,CV_MINMAX);
 
-    /*
-    for(auto i : image_names){
-        cv::Mat image = cv::imread( i , CV_LOAD_IMAGE_GRAYSCALE );
-        cv::Mat histogram;
-        cv::Mat histImage( 512, 1024, CV_8UC3 );
-        make_histogram(image,histImage,histogram,1024);
-        cv::imshow( "Original Histogram", histImage);
-        cv::waitKey(0);
-    }//*/
+        // analysis
+        cv::Mat_<float> image_freq_04;
+        visualize_frequency(image,image_freq_04);
+        cv::normalize(image_freq_04, image_freq_04, 0, 255, CV_MINMAX);
+        cv::imwrite("../images/frequency_analysis_04.png", image_freq_04);
+
+        cv::Mat_<float> image_uniform_04(image.clone(), AREA_UNIFORM);
+        cv::Mat_<float> image_freq_uniform_04;
+        visualize_frequency(image_uniform_04,image_freq_uniform_04);
+        cv::normalize(image_freq_uniform_04, image_freq_uniform_04, 0, 255, CV_MINMAX);
+        cv::imwrite("../images/frequency_analysis_uniform_04.png", image_freq_uniform_04);
+
+        // compute resulting image
+        cv::Mat_<float> image_res_04 = image.clone();
+        part04(image, image_res_04);
+        namedWindow("Restored Image", cv::WINDOW_NORMAL);
+        cv::imshow("Restored Image", image_res_04);
+        cv::normalize(image_res_04, image_res_04, 0, 255, CV_MINMAX);
+        cv::imwrite("../images/image_result_04.png",image_res_04);
+      }
 
     return 0;
 }
