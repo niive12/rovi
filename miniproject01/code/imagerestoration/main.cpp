@@ -31,7 +31,8 @@ int main(){
     cv::Mat_<float> out;
 
 
-    int to_run = PART(1) | PART(4);
+//    int to_run = PART(1) | PART(4);
+    int to_run = PART(2);
 
     // part 1
     if(to_run & PART(1)){
@@ -41,6 +42,34 @@ int main(){
 
         cv::normalize(out,out,0,255,CV_MINMAX);
         cv::imwrite("../images/image_result_1.png",out);
+    }
+    // part 2
+    if(to_run & PART(2)){
+        image = cv::imread( image_names.at(1) , CV_LOAD_IMAGE_GRAYSCALE );
+        out = image.clone();
+        cv::Mat temp;
+        cv::Mat org = image.clone();
+        cv::normalize(image,image,0,255,CV_MINMAX);
+        cv::Mat uniform(org,AREA_UNIFORM);
+        cv::normalize(uniform,uniform,0,255,CV_MINMAX);
+        uniform.convertTo(uniform,CV_8U);
+        double quantile = what_is_the_S_P_damage(uniform,"histogram of uniform area");
+        cv::imshow("img", uniform);
+        cv::waitKey(0);
+        uniform.convertTo(uniform,CV_32F);
+        temp = uniform.clone();
+        median_filter(uniform, temp,3,1,quantile);
+        cv::normalize(temp,temp,0,255,CV_MINMAX);
+        temp.convertTo(temp,CV_8U);
+//I found an error: I do not detect white in histogram.
+        what_is_the_S_P_damage(temp,"new hist");
+        cv::imshow("new", temp);
+        cv::waitKey(0);
+        return 0;
+        //apply to large image
+        median_filter(image, out,5,1,quantile);
+        cv::normalize(out,out,0,255,CV_MINMAX);
+        cv::imwrite("../images/image_result_2.png",out);
       }
     // part 4
     if(to_run & PART(4)){

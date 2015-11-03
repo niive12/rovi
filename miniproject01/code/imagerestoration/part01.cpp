@@ -50,6 +50,7 @@ double what_is_the_S_P_damage(cv::Mat &img, std::string frame){
     double salt, pebber;
     cv::Mat histogram;
     cv::Mat histImage( 256, 512, CV_8UC3 );
+    std::cout << '\n';
     make_histogram(img,histImage,histogram,512,256);
     if(frame != "none")
         cv::imshow(frame,histImage);
@@ -61,4 +62,3 @@ double what_is_the_S_P_damage(cv::Mat &img, std::string frame){
     std::cout << "quantile: " << quantile << '\n';
     return quantile;
 }
-
