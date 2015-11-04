@@ -138,8 +138,7 @@ int main(){
     double best_length = 200;
     rw::trajectory::QPath path, best_path;
     std::string file_name;
-//    for(double eps = 0.1; eps < 0.9; eps+=0.1){
-    double eps = 0.8;
+    for(double eps = 0.1; eps < 0.9; eps+=0.1){
         rw::pathplanning::QToQPlanner::Ptr planner = rwlibs::pathplanners::RRTPlanner::makeQToQPlanner(constraint, sampler, metric, eps, rwlibs::pathplanners::RRTPlanner::RRTConnect);
         file_name = "../statistics/eps" + std::to_string(eps) + ".csv";
         std::cout << "Testing: " << file_name << '\n';
@@ -150,8 +149,7 @@ int main(){
             best_length = result.length;
             best_path = path;
         }
- //   }
-
+    }
     // change output stuff
     std::ofstream out("out.txt");
     std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
