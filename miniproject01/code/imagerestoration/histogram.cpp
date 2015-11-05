@@ -47,7 +47,7 @@ void make_histogram_equalization(cv::Mat &image,
 
     int current_sum = 0;
     int new_bin[histSize];
-    int new_hist[histSize] = {};
+    int new_hist[histSize];
     int current_color = 0;
     int over_flow_error = 0;
     for(int array_index = 0; array_index < histSize; ++array_index){
