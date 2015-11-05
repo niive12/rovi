@@ -8,7 +8,7 @@
 void make_histogram(cv::Mat &input, cv::Mat &output, cv::Mat &histogram, int hist_width, int hist_height){
 
     int histSize = 256;
-    float range[] = { 0, 255 } ;
+    float range[] = { 0, 256 } ;
     const float* histRange = { range };
 
     cv::Mat hist;
