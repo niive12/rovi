@@ -59,23 +59,45 @@ int main(){
     if(to_run & PART(3)){
         image = cv::imread( image_names.at(2) , CV_LOAD_IMAGE_GRAYSCALE );
 
-        cv::Mat_<float> i_har, i_geo, i_ari, h_har, h_geo, h_ari; // i_ = images, h_ = histograms
-        part03(image,i_geo, i_har, i_ari, h_geo, h_har, h_ari);
+        cv::Mat_<float> i_har, i_geo, i_ari, h_har, h_geo, h_ari, h_pre; // i_ = images, h_ = histograms
+        part03(image, h_pre, i_geo, i_har, i_ari, h_geo, h_har, h_ari);
 
-//        cv::normalize(histImage, histImage, 0, 255, CV_MINMAX);
-//        cv::imwrite("../images/histogram_uniform_03.png", histImage);
+        cv::imwrite("../images/histogram_uniform_harmonic_03.png", h_har);
+        cv::imwrite("../images/histogram_uniform_geometrical_03.png", h_geo);
+        cv::imwrite("../images/histogram_uniform_arithmetic_03.png", h_ari);
+        cv::imwrite("../images/histogram_uniform_03.png", h_pre);
+        cv::imwrite("../images/image_harmonic_03.png", i_har);
+        cv::imwrite("../images/image_geometrical_03.png", i_geo);
+        cv::imwrite("../images/image_arithmetic_03.png", i_ari);
 
-        //        cv::normalize(image_harmonic, image_harmonic, 0, 1, CV_MINMAX);
-        //        namedWindow("image_harmonic", cv::WINDOW_NORMAL);
-        //        cv::imshow("image_harmonic",image_harmonic);
+        cv::Mat_<float> diff = (i_har - i_geo) + 127;
+        cv::Mat_<float> diff_complex(diff.clone(), AREA_COMPLEX);
+        cv::imwrite("../images/image_harVSgeo_complex_03.png", diff_complex);
 
-        //        cv::normalize(image_geometric, image_geometric, 0, 1, CV_MINMAX);
-        //        namedWindow("image_geometric", cv::WINDOW_NORMAL);
-        //        cv::imshow("image_geometric",image_geometric);
 
-        //        cv::normalize(image_arithmetic, image_arithmetic, 0, 1, CV_MINMAX);
-        //        namedWindow("image_arithmetic", cv::WINDOW_NORMAL);
-        //        cv::imshow("image_arithmetic",image_arithmetic);
+//        namedWindow("image_harmonic", cv::WINDOW_NORMAL);
+//        cv::normalize(i_har, i_har, 0, 1, CV_MINMAX);
+//        cv::imshow("image_harmonic",i_har);
+
+//        namedWindow("image_arithmetic", cv::WINDOW_NORMAL);
+//        cv::normalize(i_ari, i_ari, 0, 1, CV_MINMAX);
+//        cv::imshow("image_arithmetic",i_ari);
+
+//        namedWindow("image_geometric", cv::WINDOW_NORMAL);
+//        cv::normalize(i_geo, i_geo, 0, 1, CV_MINMAX);
+//        cv::imshow("image_geometric",i_geo);
+
+//        namedWindow("hist har", cv::WINDOW_NORMAL);
+//        cv::imshow("hist har",h_har);
+
+//        namedWindow("hist ari", cv::WINDOW_NORMAL);
+//        cv::imshow("hist ari",h_ari);
+
+//        namedWindow("hist geo", cv::WINDOW_NORMAL);
+//        cv::imshow("hist geo",h_geo);
+
+//        namedWindow("hist normal", cv::WINDOW_NORMAL);
+//        cv::imshow("hist normal",h_pre);
 
         cv::waitKey(0);
 

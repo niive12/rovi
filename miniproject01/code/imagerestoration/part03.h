@@ -9,6 +9,7 @@
 #pragma once
 
 void part03(cv::Mat_<float> &original_image,
+            cv::Mat_<float> &out_hist_normal,
             cv::Mat_<float> &out_image_geo,
             cv::Mat_<float> &out_image_har,
             cv::Mat_<float> &out_image_ari,

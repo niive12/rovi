@@ -5,13 +5,14 @@
 // output = the image
 // hist = vector of raw data
 // hist_XX = dimensions of 'output'
-void make_histogram(cv::Mat &input, cv::Mat &output, cv::Mat &histogram, int hist_width, int hist_height){
+void make_histogram(cv::Mat &input, cv::Mat &hist_output_image, cv::Mat &histogram_data, int hist_width, int hist_height){
 
     int histSize = 256;
     float range[] = { 0, 256 } ;
     const float* histRange = { range };
 
     cv::Mat hist;
+    cv::Mat histImage(hist_height, hist_width, CV_8UC3 );
 
     cv::calcHist( &input, 1, 0, cv::Mat(), hist, 1, &histSize, &histRange);
 
@@ -20,9 +21,9 @@ void make_histogram(cv::Mat &input, cv::Mat &output, cv::Mat &histogram, int his
     cv::minMaxLoc(hist, nullptr, &max);
 
     double scale = double(hist_height)/max ;
-    output.setTo(cv::Scalar::all(255));
+    histImage.setTo(cv::Scalar::all(255));
     for( int i = 0; i < histSize; ++i ){
-        cv::rectangle(output,
+        cv::rectangle(histImage,
                       cv::Rect(bin_w*(i),
                                hist_height-cvRound(scale * hist.at<float>(i)),
                                bin_w,
@@ -31,9 +32,9 @@ void make_histogram(cv::Mat &input, cv::Mat &output, cv::Mat &histogram, int his
                       CV_FILLED);
     }
     cv::Mat hist_image;
-    cv::copyMakeBorder(output, hist_image,1,1,1,1,cv::BORDER_CONSTANT, cv::Scalar::all(0));
-    output = hist_image.clone();
-    histogram = hist.clone();
+    cv::copyMakeBorder(histImage, hist_image,1,1,1,1,cv::BORDER_CONSTANT, cv::Scalar::all(0));
+    hist_output_image = hist_image.clone();
+    histogram_data = hist.clone();
 }
 
 void make_histogram_equalization(cv::Mat &image,
