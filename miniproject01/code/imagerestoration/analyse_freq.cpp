@@ -20,6 +20,7 @@ void visualize_frequency(cv::Mat_<float> &original_image, cv::Mat_<float> &outpu
     cv::merge(image_vec,image_full);
 
     // make frequency domain image
+    cv::normalize(image_full, image_full, 0, 1, CV_MINMAX);
     cv::dft(image_full,image_full);
 
     // split in two and make phase / magnitude
