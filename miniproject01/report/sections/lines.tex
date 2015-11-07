@@ -8,15 +8,15 @@ The magnitude plot of a cutout of the uniform area of image 4.1 is seen in figur
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}
-\node {\includegraphics[width = 0.9 \linewidth]{../code/images/frequency_analysis_uni_04.png}};
+\node {\includegraphics[width = 0.9 \linewidth]{../code/images/frequency_analysis_uniform_04.png}};
 
-\node[circle, draw, minimum width = 0.3cm,red,very thick] at (1.45, 1.41) {};
+\node[circle, draw, minimum width = 0.3cm,red,very thick] at (1.45, 0.9) {};
 
-\node[circle, draw, minimum width = 0.3cm,red,very thick] at (-1.30, -1.42) {};
+\node[circle, draw, minimum width = 0.3cm,red,very thick] at (-1.30, -0.92) {};
 
-\node[circle, draw, minimum width = 0.3cm,blue,very thick] at (-0.39, 0.46) {};
+\node[circle, draw, minimum width = 0.3cm,blue,very thick] at (-0.39, 0.3) {};
 
-\node[circle, draw, minimum width = 0.3cm,blue,very thick] at (0.54, -0.48) {};
+\node[circle, draw, minimum width = 0.3cm,blue,very thick] at (0.54, -0.32) {};
 \end{tikzpicture}
 \caption{Magnitude plot of the uniform area of image 4.1 in the frequency domain.}
 \label{fig:freq_analysis_uni_p4}
@@ -54,14 +54,27 @@ In figure \ref{fig:freq_analysis_p4} the disturbance pairs are marked in the sam
 
 
 In order to remove the disturbances, it was chosen to use a Butterworth filter located at the origin of the disturbances.
-The cut-off frequency was chosen to be the distance from the center of the disturbance to its furthest clearly visible edge.
+The cut-off frequency was chosen by testing a range of values and the best then chosen.
 
-When the filters were applied to the image and the images then turned back into the spacial domain, figure \ref{fig:result_04} was the result of the filtering.
+When the filters are applied to the image and the images is turned back into the spacial domain, figure \ref{fig:result_04} is gained.
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = 0.9 \linewidth]{../code/images/image_result_freq_04.png}
+\caption{Resulting image after filtering the disturbance from image 4.1 in the frequency domain.}
+\label{fig:result_04}
+\end{figure}
+
+Furthermore a new magnitude plot can be made, this is shown in figure \ref{fig:result_freq_04}.
+It can here be seen that the points were not completely removed by the filter.
+This is also visible on the resulting image, figure \ref{fig:result_04}, where the lines are still slightly visible in the borders of the image.
+It can also be seen on figure \ref{fig:result_04} that the filtering introduced slight ringing effects around the bottom and outlet of the watering can.
 
 
 \begin{figure}[H]
 \centering
 \includegraphics[width = 0.9 \linewidth]{../code/images/image_result_04.png}
 \caption{Resulting image after filtering the disturbance from image 4.1 in the frequency domain.}
-\label{fig:result_04}
+\label{fig:result_freq_04}
 \end{figure}

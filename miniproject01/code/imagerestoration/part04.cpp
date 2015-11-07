@@ -33,14 +33,13 @@ void part04(cv::Mat_<float> &original_image, cv::Mat_<float> &output_image){
     // make mask for frequency domain
     cv::Mat_<float> mask = cv::Mat::ones(mag.rows, mag.cols, CV_32F);
 
-    double size_factor = 2;
+    double size_factor = 3;
     int power = 1;
-    butterFilter(mask, 604, 623, 15*size_factor, power);
-    butterFilter(mask, 201, -206, 30*size_factor, power);
-    cv::normalize(mask,mask, 0,1, CV_MINMAX);
+    butterFilter(mask, 206, -201, 15*size_factor, power);
+    butterFilter(mask, 623, 604, 30*size_factor, power);
 
     // apply mask
-    cv::mulSpectrums(mag, mask, mag, 0);
+    cv::multiply(mag, mask, mag);
 
     // merge them back
     dftshift(mag);
@@ -49,11 +48,10 @@ void part04(cv::Mat_<float> &original_image, cv::Mat_<float> &output_image){
 
     // inverse dft
     cv::Mat_<float> final_image;
-    cv::dft(image_full, final_image, cv::DFT_INVERSE + cv::DFT_SCALE + cv::DFT_REAL_OUTPUT);
+    cv::dft(image_full, final_image, cv::DFT_INVERSE + cv::DFT_REAL_OUTPUT );
 
     // output image
-    final_image = final_image(cv::Rect(0,0,final_image.cols/2,final_image.rows/2));
-    cv::normalize(final_image, final_image, 0, 1, CV_MINMAX);
+    final_image = final_image(cv::Rect(0,0,original_image.cols,original_image.rows));
 
     output_image = final_image;
 }
