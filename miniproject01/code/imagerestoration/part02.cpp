@@ -37,13 +37,13 @@ void part02(cv::Mat image, cv::Mat out){
 
     //investigate uniform area
     double quantile = what_is_the_S_P_damage(uniform,"histogram of uniform area");
-    cv::imshow("Uniform area", uniform/255);
+        cv::imshow("Uniform area", uniform/255);
     temp = uniform.clone();
     median_filter(uniform, temp,5,1,quantile);
     temp2 = temp.clone();
-    cv::imshow("median filter 5,1", temp / 255);
+        cv::imshow("median filter 5,1", temp / 255);
     applyHomomorphicBlur(temp2,temp,5);
-    cv::imshow("homomophic blured", temp / 255);
+        cv::imshow("homomophic blured", temp / 255);
     temp2 = temp.clone();
     double mean,var;
     stat(temp2,temp,mean,var);
