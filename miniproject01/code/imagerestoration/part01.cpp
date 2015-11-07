@@ -1,5 +1,6 @@
 #include "part01.h"
 #include "analyse_freq.h"
+#include "mean_filter.h"
 
 void part01(cv::Mat_<float> &original_image, cv::Mat_<float> &output_image){
     cv::Mat org = original_image.clone();
@@ -32,11 +33,18 @@ void part01(cv::Mat_<float> &original_image, cv::Mat_<float> &output_image){
     cv::imshow("3x3 median filter", out);
 
     median_filter(complex, temp_image, 7, 3, quantile);
-    complex = temp_image.clone();
 
-    cv::normalize(temp_image,temp_image,0,255,CV_MINMAX);
-    temp_image.convertTo(temp_image,CV_8U);
+    complex = temp_image.clone();
+    cv::normalize(temp_image,temp_image,0,1,CV_MINMAX);
     cv::imshow("7x7 median filter, mean of 3", temp_image);
+
+    cv::blur(complex,temp_image,cv::Size(5,5));
+    cv::normalize(temp_image,temp_image,0,1,CV_MINMAX);
+    cv::imshow("alm smooth",temp_image);
+
+    applyHomomorphicBlur(complex,temp_image,5);
+    cv::normalize(temp_image,temp_image,0,1,CV_MINMAX);
+    cv::imshow("homomorphic filtered",temp_image);
 
     cv::waitKey(0);
     //Apply all this to the large image:
@@ -44,6 +52,8 @@ void part01(cv::Mat_<float> &original_image, cv::Mat_<float> &output_image){
     median_filter(original_image, output_image,3,1,quantile);
     temp_image = output_image.clone();
     median_filter(temp_image, output_image,7,3,quantile);
+    temp_image = output_image.clone();
+    applyHomomorphicBlur(temp_image,output_image,5);
 }
 
 double what_is_the_S_P_damage(cv::Mat &img, std::string frame){

@@ -5,5 +5,6 @@ void make_histogram(cv::Mat &input, cv::Mat &output, cv::Mat &histogram, int his
 
 void make_histogram_equalization(cv::Mat &image, cv::Mat &histogram);
 
+void applyHistogramEqualization(cv::Mat &img_src, cv::Mat &img_out, int border = 5);
 #endif // HISTOGRAM_H
 

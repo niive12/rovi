@@ -31,7 +31,7 @@ void make_histogram(cv::Mat &input, cv::Mat &output, cv::Mat &histogram, int his
                       CV_FILLED);
     }
     cv::Mat hist_image;
-    cv::copyMakeBorder(output, hist_image,1,1,1,1,cv::BORDER_CONSTANT, cv::Scalar::all(0));
+    cv::copyMakeBorder(output, hist_image,5,5,5,5,cv::BORDER_CONSTANT, cv::Scalar::all(0));
     output = hist_image.clone();
     histogram = hist.clone();
 }
@@ -66,7 +66,19 @@ void make_histogram_equalization(cv::Mat &image,
 
     for(int x=0; x<image.cols; ++x){
         for(int y=0; y<image.rows; ++y){
-            image.at<uchar>(y, x) = cv::saturate_cast<uchar>(new_bin[image.at<uchar>(y, x)]);
+            image.at<float>(y, x) = cv::saturate_cast<float>(new_bin[cvRound(image.at<float>(y, x))]);
         }
     }
+}
+
+void applyHistogramEqualization(cv::Mat &img_src, cv::Mat &img_out, int border){
+    cv::Mat temp = img_src.clone();
+    cv::Mat img = temp(cv::Rect(border,border,img_src.cols-2*border, img_src.rows-2*border));
+    temp = img.clone();
+    cv::Mat histogram;
+    cv::Mat histImage( 512, 512, CV_8UC3, cv::Scalar::all(255) );
+
+    make_histogram(img,histImage,histogram,512,512);
+    img_out = img.clone();
+    make_histogram_equalization(img_out, histogram);
 }

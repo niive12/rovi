@@ -5,6 +5,7 @@
 #include "areas.h"
 #include "histogram.h"
 #include "median_filter.h"
+#include "mean_filter.h"
 
 #pragma once
 

@@ -11,6 +11,10 @@
 
 void applyGeometricMean(cv::Mat_<float> &img_src, cv::Mat_<float> &img_dst, int kernelsize);
 
-void applyHarmonicMean(cv::Mat_<float> &img_src, cv::Mat_<float> &img_dst, int kernelsize);
+void applyHarmonicMean(cv::Mat &img_src, cv::Mat &img_dst, int kernelsize);
 
 void applyArithmeticMean(cv::Mat_<float> &img_src, cv::Mat_<float> &img_dst, int kernelsize);
+
+void applyHomomorphicBlur(cv::Mat &img_src, cv::Mat &img_dst, int kernelsize);
+void applyHomomorphicBilatteral(cv::Mat &img_src, cv::Mat &img_dst, int kernelsize, double var, int depth);
+

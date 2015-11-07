@@ -27,8 +27,8 @@ void part03(cv::Mat_<float> &original_image,
 
 
     cv::Mat_<float> image_uniform_03_har(image_harmonic.clone(), AREA_UNIFORM);
-    cv::Mat histogram_har;
-    make_histogram(image_uniform_03_har,histImage_har,histogram_har,512,256);
+//    cv::Mat histogram_har;
+//    make_histogram(image_uniform_03_har,histImage_har,histogram_har,512,256);
 
     cv::Mat_<float> image_uniform_03_geo(image_geometric.clone(), AREA_UNIFORM);
     cv::Mat histogram_geo;

@@ -26,7 +26,7 @@ void applyGeometricMean(cv::Mat_<float> &img_src, cv::Mat_<float> &img_dst, int 
     }
 }
 
-void applyHarmonicMean(cv::Mat_<float> &img_src, cv::Mat_<float> &img_dst, int kernelsize){
+void applyHarmonicMean(cv::Mat &img_src, cv::Mat &img_dst, int kernelsize){
     // mn/(sum(1/g()))
     cv::Mat_<float> img_result(img_src.clone());
     img_dst.copySize(img_src);
@@ -57,3 +57,16 @@ void applyArithmeticMean(cv::Mat_<float> &img_src, cv::Mat_<float> &img_dst, int
     cv::blur(img_src, img_dst, cv::Size(kernelsize,kernelsize));
 }
 
+void applyHomomorphicBlur(cv::Mat &img_src, cv::Mat &img_dst, int kernelsize){
+        cv::Mat temp_image = img_src.clone();
+        cv::log(temp_image,img_dst);
+        cv::blur(img_dst,temp_image,cv::Size(kernelsize,kernelsize));
+        cv::exp(temp_image,img_dst);
+}
+
+void applyHomomorphicBilatteral(cv::Mat &img_src, cv::Mat &img_dst, int kernelsize, double var, int depth){
+    cv::Mat temp_image = img_src.clone();
+    cv::log(temp_image,img_dst);
+    cv::bilateralFilter(img_dst,temp_image,kernelsize,var,depth);
+    cv::exp(temp_image,img_dst);
+}
