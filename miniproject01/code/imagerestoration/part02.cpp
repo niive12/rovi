@@ -68,13 +68,19 @@ void part02(cv::Mat image, cv::Mat out){
     temp2 = temp.clone();
         cv::imshow("harmonic mean", temp / 255);
     applyHomomorphicBilatteral(temp2,temp,11,var,3);
+        cv::imwrite("../../report/graphics/complex2_bilatteral.png",temp);
         cv::imshow("bilateral 11, 3, homomorphic", temp / 255);
     temp2 = temp.clone();
+    applyHistogramEqualization(temp2,temp,15);
+    cv::imwrite("../../report/graphics/complex2_histeq.png",temp);
+    cv::imshow("hist eq", temp / 255);
+    temp = temp2.clone();
     median_filter(temp2,temp,7,3);
         cv::imshow("median 2", temp / 255);
     temp2 = temp.clone();
     applyHistogramEqualization(temp2,temp,15);
-        cv::imshow("hist eq", temp / 255);
+    cv::imwrite("../../report/graphics/complex2_histeq_smoothed.png",temp);
+        cv::imshow("hist eq after", temp / 255);
     cv::waitKey(0);
     return;
     //apply to large image
