@@ -1,13 +1,13 @@
 \subsection{Pepper Noise}\label{image_1}
 Pepper noise is when a set of pixels on an image are complete black, without the actual photographed scene has these elements.
-To find the noise in an image, an uniform area is selected and analyzed.
-In figure \ref{fig:hist_pepper} can it be seen that the image suffers from pepper noise.
+To find the noise in an image, an uniform area is selected and analysed.
+In figure \ref{fig:hist_pepper_im01} can it be seen that the image suffers from pepper noise.
 It is assumed that the amount of pepper in the uniform is the same all over the image.
 
 \begin{figure}[H]
 \includegraphics[width = 0.4 \textwidth]{graphics/hist.png}
 \caption{Histogram of the original ``Image1.png'' showing pepper noise in a uniform area.}
-\label{fig:hist_pepper}
+\label{fig:hist_pepper_im01}
 \end{figure}
 
 A median filter is good to combat salt and pepper noise as it takes the midpoint and thus avoids extreme values.
