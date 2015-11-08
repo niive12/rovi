@@ -26,7 +26,7 @@ void part01(cv::Mat_<float> &original_image, cv::Mat_<float> &output_image){
 
     cv::imshow("uniform area", uniform / 255);
     cv::imshow("filtered uniform area", out / 255);
-    cv::waitKey(0);
+//    cv::waitKey(0);
 //    cv::destroyAllWindows();
     cv::Mat complex(org,AREA_COMPLEX);
 
@@ -56,7 +56,7 @@ void part01(cv::Mat_<float> &original_image, cv::Mat_<float> &output_image){
     complex = ((out   - temp_image)*50 + 127);
     cv::imwrite("../../report/graphics/complex1_blurr_difference_50.png",complex);
 
-    cv::waitKey(0);
+//    cv::waitKey(0);
     //Apply all this to the large image:
     output_image = original_image.clone();
     median_filter(original_image, output_image,3,1,quantile);

@@ -96,9 +96,11 @@ The histogram of the uniform area of the resulting image is plotted in figure  \
 
 It can from figure \ref{fig:hist_uni_har_im03} be seen that the process correctly shifts the mean to the left, by the amount chosen for the intensity correction, and then filters the image into a narrower normal distribution than that seen in figure \ref{fig:hist_uni_im03}, yielding a visually better image than initially.
 
-
-
-
+The resulting process is thus:
+\begin{itemize}
+ \item Intensity shift of -25.
+ \item Harmonic Mean filter, kernel size of 5x5.
+\end{itemize}
 
 %\begin{figure}[H]
 %\centering

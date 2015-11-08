@@ -39,7 +39,7 @@ void part02(cv::Mat &image, cv::Mat &out){
     cv::imshow("histogram after",temp);
     std::cout << "mean: " << mean << " var: " << new_var << '\n';
     temp = temp2.clone();
-    cv::waitKey(0);
+//    cv::waitKey(0);
 
     cvDestroyAllWindows();
     cv::Mat complex(org,AREA_COMPLEX);
@@ -65,8 +65,10 @@ void part02(cv::Mat &image, cv::Mat &out){
     applyHistogramEqualization(temp2,temp,15);
     cv::imwrite("../../report/graphics/complex2_histeq_smoothed.png",temp);
         cv::imshow("hist eq after", temp / 255);
-    cv::waitKey(0);
+//    cv::waitKey(0);
+
     //apply to large image
+    return;
     median_filter(image, out,5,1,quantile);
     applyHarmonicMean(out, temp, 5);
     applyHomomorphicBilatteral(temp,out,11,var,3);

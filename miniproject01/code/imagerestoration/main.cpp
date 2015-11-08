@@ -34,17 +34,13 @@ int main(){
     cv::Mat_<float> out;
 
 
-//    int to_run = PART(1) | PART(4);
-//    int to_run = PART(3);
-    int to_run = PART(2);
-//    int to_run = PART(1) | PART(2) | PART(3) | PART(4);
+    int to_run = PART(1) | PART(2) | PART(3) | PART(4);
 
     // part 1
     if(to_run & PART(1)){
         image = cv::imread( image_names.at(0) , CV_LOAD_IMAGE_GRAYSCALE );
 
         part01(image,out);
-        return 0;
         cv::imwrite("../images/image_result_1.png",out);
     }
     // part 2
@@ -52,7 +48,6 @@ int main(){
         image = cv::imread( image_names.at(1) , CV_LOAD_IMAGE_GRAYSCALE );
         out = image.clone();
         part02(image, out);
-//        return 0;
         cv::imwrite("../images/image_result_2.png",out);
       }
     // part 3
@@ -72,13 +67,6 @@ int main(){
         cv::imwrite("../images/image_geometrical_03.png", i_geo);
         cv::imwrite("../images/image_arithmetic_03.png", i_ari);
         cv::imwrite("../images/image_harVSgeo_complex_03.png", i_harVSgeo);
-
-
-
-
-//        cv::waitKey(0);
-
-
     }
     // part 4
     if(to_run & PART(4)){
@@ -116,11 +104,7 @@ int main(){
 
         cv::normalize(image_res_04, image_res_04, 0, 255, CV_MINMAX);
         cv::imwrite("../images/image_result_04.png",image_res_04);
-
-//        cv::waitKey(0);
       }
-
-
     return 0;
 }
 
