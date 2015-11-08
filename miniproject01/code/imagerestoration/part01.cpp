@@ -46,13 +46,17 @@ void part01(cv::Mat_<float> &original_image, cv::Mat_<float> &output_image){
     cv::imshow("7x7 median filter, mean of 3", temp_image / 255);
 
     cv::blur(complex,temp_image,cv::Size(5,5));
+    cv::imwrite("../../report/graphics/complex1_blurred.png", temp_image);
     cv::imshow("alm smooth",temp_image / 255);
 
-    applyHomomorphicBlur(complex,temp_image,5);
-    cv::imshow("homomorphic filtered",temp_image / 255);
+    applyHomomorphicBlur(complex,out,5);
+    cv::imwrite("../../report/graphics/complex1_homomorphic_blurred.png", out);
+    cv::imshow("homomorphic filtered",out / 255);
+//              white - black
+    complex = ((out   - temp_image)*50 + 127);
+    cv::imwrite("../../report/graphics/complex1_blurr_difference_50.png",complex);
 
     cv::waitKey(0);
-    return;
     //Apply all this to the large image:
     output_image = original_image.clone();
     median_filter(original_image, output_image,3,1,quantile);

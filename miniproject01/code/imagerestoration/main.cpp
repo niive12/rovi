@@ -35,8 +35,9 @@ int main(){
 
 
 //    int to_run = PART(1) | PART(4);
-    int to_run = PART(1);
 //    int to_run = PART(3);
+    int to_run = PART(2);
+//    int to_run = PART(1) | PART(2) | PART(3) | PART(4);
 
     // part 1
     if(to_run & PART(1)){
@@ -52,7 +53,7 @@ int main(){
         out = image.clone();
         part02(image, out);
         cv::imwrite("../images/image_result_2.png",out);
-        return 0;
+        //return 0;
       }
     // part 3
     if(to_run & PART(3)){
@@ -116,7 +117,7 @@ int main(){
         cv::normalize(image_res_04, image_res_04, 0, 255, CV_MINMAX);
         cv::imwrite("../images/image_result_04.png",image_res_04);
 
-        cv::waitKey(0);
+//        cv::waitKey(0);
       }
 
 

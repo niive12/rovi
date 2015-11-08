@@ -6,7 +6,7 @@ It was found that a 5x5 filter removed the extreme values but was not efficient 
 
 \begin{figure}[H]
 \centering
-\includegraphics[width = 0.8 \linewidth]{graphics/hist2_uniform.png}
+\includegraphics[width = \histogramWidth]{graphics/hist2_uniform.png}
 \caption{Histogram of the original ``Image2.png'' showing salt and pepper noise in a uniform area.}
 \label{fig:hist2_uniform}
 \end{figure}
@@ -16,7 +16,7 @@ In figure \ref{fig:hist2_median} can it be seen that the removal of salt and pep
 
 \begin{figure}[H]
 \centering
-\includegraphics[width = 0.8 \linewidth]{graphics/hist2_after_median.png}
+\includegraphics[width = \histogramWidth]{graphics/hist2_after_median.png}
 \caption{Histogram of the uniform area after median filter.}
 \label{fig:hist2_median}
 \end{figure}
@@ -26,7 +26,7 @@ In figure \ref{fig:hist2_bilateral} can it be seen that the variance has decreas
 
 \begin{figure}[H]
 \centering
-\includegraphics[width = 0.8 \linewidth]{graphics/hist2_after_bilatteral.png}
+\includegraphics[width = \histogramWidth]{graphics/hist2_after_bilatteral.png}
 \caption{Histogram of the uniform area after bilateral filter.}
 \label{fig:hist2_bilateral}
 \end{figure}
@@ -36,7 +36,7 @@ In figure \ref{fig:complex2_bilatteral} can the image be seen after a median fil
 
 \begin{figure}[H]
 \centering
-\includegraphics[width = 0.5 \linewidth]{graphics/complex2_bilatteral.png}
+\includegraphics[width = \cutOutWidth]{graphics/complex2_bilatteral.png}
 \caption{The complex area after bilatteral filter.}
 \label{fig:complex2_bilatteral}
 \end{figure}
@@ -46,7 +46,7 @@ In figure \ref{fig:complex2_histeq} can the image be seen after histogram equali
 
 \begin{figure}[H]
 \centering
-\includegraphics[width = 0.5 \linewidth]{graphics/complex2_histeq.png}
+\includegraphics[width = \cutOutWidth]{graphics/complex2_histeq.png}
 \caption{Histogram equalization of the complex area.}
 \label{fig:complex2_histeq}
 \end{figure}
@@ -58,7 +58,7 @@ In figure \ref{fig:complex2_histeq_smoothed} can the image be seen after alpha t
 
 \begin{figure}[H]
 \centering
-\includegraphics[width = 0.5 \linewidth]{graphics/complex2_histeq_smoothed.png}
+\includegraphics[width = \cutOutWidth]{graphics/complex2_histeq_smoothed.png}
 \caption{Histogram equalization of the smoothed compex area.}
 \label{fig:complex2_histeq_smoothed}
 \end{figure}
@@ -67,7 +67,7 @@ The resulting image restoration of image 2 can be seen in figure \ref{fig:image_
 
 \begin{figure}[H]
 \centering
-\includegraphics[width = 0.8 \linewidth]{../code/images/image_result_2.png}
+\includegraphics[width = \fullImageWidth]{../code/images/image_result_2.png}
 \caption{The restored image 2.}
 \label{fig:image_2_restored}
 \end{figure}

@@ -5,13 +5,21 @@
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{graphicx}
+\usepackage{subcaption}
 
 \usepackage{float}
 \usepackage{fullpage}
 
+\usepackage[hidelinks]{hyperref}
+
 \usepackage{tikz}
 
 \input{todoextend}
+
+\newcommand{\cutOutWidth}{0.4 \linewidth}
+\newcommand{\histogramWidth}{0.8 \linewidth}
+\newcommand{\fullImageWidth}{0.8 \linewidth}
+
 
 \begin{document}
 \raggedbottom
@@ -23,9 +31,16 @@
 \maketitle
 
 \section{Image Restoration}
-This report sets to describe the how the \textbf{4} given images from the ROVI lecture are restored to better display the image content.
-Each image is separately dealt with in each their section.
+This report sets to describe the how the four given images from the ROVI lecture are restored to better display the image content.
+Each image is separately dealt with in each their own section.
 
+For simplicity, three areas/zones of the images are defined beforehand to display results and analyse sub-areas of the image.
+\todo[inline,color=red!10]{As I see it, we only use uniform and complex... am I wrong?}
+These three parts are called uniform, complex and simple area.
+% Where complex is a cutout of the fingers of the robot, uniform is a blank surface for which the image should contain only one uniform color and simple is \textbf{WHAT?} .
+The complex area is a cutout of the fingers of the robot, showing a more detailed image used to see if the processing destroys the image.
+The uniform area is a cutout where it is suspected that there is a single or a narrow span of colors.
+The simple area is a cutout of a shadow, thus having a visible edge.
 
 \input{sections/pepper.tex}
 

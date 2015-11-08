@@ -7,7 +7,7 @@ This is seen in figure \ref{fig:hist_pre_im03} and \ref{fig:hist_uni_im03}.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width= 0.9 \linewidth]{../code/images/histogram_full_pre_03}
+\includegraphics[width= \histogramWidth]{../code/images/histogram_full_pre_03}
 \caption{Histogram of the uniform area of image 3.}
 \label{fig:hist_pre_im03}
 \end{figure}
@@ -20,7 +20,7 @@ Uniform because of the flat top of the noise distribution in figure \ref{fig:his
 
 \begin{figure}[H]
 \centering
-\includegraphics[width= 0.9 \linewidth]{../code/images/histogram_uniform_03}
+\includegraphics[width= \histogramWidth]{../code/images/histogram_uniform_03}
 \caption{Histogram of the full image 3.}
 \label{fig:hist_uni_im03}
 \end{figure}
@@ -50,7 +50,7 @@ In order to compare the results from the geometric and harmonic images, the diff
 
 \begin{figure}[H]
 \centering
-\includegraphics[width= 0.9 \linewidth]{../code/images/image_harVSgeo_complex_03}
+\includegraphics[width= \cutOutWidth]{../code/images/image_harVSgeo_complex_03}
 \caption{Image difference between harmonic and geometric mean filtering in the complex area of image 3.}
 \label{fig:diff_harVSgeo_im03}
 \end{figure}
@@ -65,34 +65,36 @@ I_{diff} = \left( I_{har} - I_{geo} \right) * A + 127
 \end{equation}
 
 For this image a $A$ of five was used.
-Figure \ref{fig:diff_harVSgeo_im03} displays in dark/black the pixels of which the geometric mean filter gave the highest return, white for which it was the harmonic and grey for the values which are approximately equal.
+Figure \ref{fig:diff_harVSgeo_im03} displays in dark/black the pixels of which the geometric mean filter gave the highest intensity, white for which it was the harmonic and grey for the values which are approximately equal.
 
-It can from this be concluded that the geometric filter preserves the edges, as expected, more than the harmonic mean filter.
-Therefore it was decided to use the geometric mean filter to restore the image.
+On figure \ref{fig:diff_harVSgeo_im03} the edges are indicated in black.
+Since it is wanted to have the clearest edges as possible on the image, the lowest possible intensity is wanted.
+It can from this be concluded that the harmonic filter preserves the edges better than the geometric filter for this image.
+Therefore it was decided to use the harmonic mean filter to restore the image.
 
 
 \begin{figure}[H]
 \centering
-\includegraphics[width= 0.9 \linewidth]{../code/images/image_geometrical_03}
-\caption{Resulting image after filtering using the geometric mean and kernel size of five on image 3 with intensity correction.}
+\includegraphics[width= \fullImageWidth]{../code/images/image_harmonic_03}
+\caption{Resulting image after filtering using the harmonic mean and kernel size of five on image 3 with intensity correction.}
 \label{fig:img_result_im03}
 \end{figure}
 
 
-The resulting picture using both the intensity adjustment and geometric filter is seen in figure \ref{fig:img_result_im03}.
+The resulting picture using both the intensity adjustment and harmonic filter is seen in figure \ref{fig:img_result_im03}.
 %From here both the histogram of the full image and the uniform area of the image is plotted resulting in figure \ref{fig:hist_post_im03} and \ref{fig:hist_uni_geo_im03} respectively.
-The histogram of the uniform area of the resulting image is plotted in figure  \ref{fig:hist_uni_geo_im03}.
+The histogram of the uniform area of the resulting image is plotted in figure  \ref{fig:hist_uni_har_im03}.
 
 
 \begin{figure}[H]
 \centering
-\includegraphics[width= 0.9 \linewidth]{../code/images/histogram_uniform_geometrical_03}
-\caption{Histogram of the uniform area of image 3 after applying geometric mean filter with kernel size of five.}
-\label{fig:hist_uni_geo_im03}
+\includegraphics[width= \fullImageWidth]{../code/images/histogram_uniform_harmonic_03}
+\caption{Histogram of the uniform area of image 3 after applying harmonic mean filter with kernel size of five.}
+\label{fig:hist_uni_har_im03}
 \end{figure}
 
 
-It can from figure \ref{fig:hist_uni_geo_im03} be seen that the process correctly shifts the mean to the left, by the amount chosen for the intensity correction, and then filters the image into a narrower normal distribution than that seen in figure \ref{fig:hist_uni_im03}, yielding a visually better image than initially.
+It can from figure \ref{fig:hist_uni_har_im03} be seen that the process correctly shifts the mean to the left, by the amount chosen for the intensity correction, and then filters the image into a narrower normal distribution than that seen in figure \ref{fig:hist_uni_im03}, yielding a visually better image than initially.
 
 
 
