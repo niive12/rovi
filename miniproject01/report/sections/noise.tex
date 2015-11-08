@@ -8,7 +8,7 @@ This is seen in figure \ref{fig:hist_pre_im03} and \ref{fig:hist_uni_im03}.
 \begin{figure}[H]
 \centering
 \includegraphics[width= \histogramWidth]{../code/images/histogram_full_pre_03}
-\caption{Histogram of the uniform area of image 3.}
+\caption{Histogram of the full image 3.}
 \label{fig:hist_pre_im03}
 \end{figure}
 
@@ -21,7 +21,7 @@ Uniform because of the flat top of the noise distribution in figure \ref{fig:his
 \begin{figure}[H]
 \centering
 \includegraphics[width= \histogramWidth]{../code/images/histogram_uniform_03}
-\caption{Histogram of the full image 3.}
+\caption{Histogram of the uniform area of image 3.}
 \label{fig:hist_uni_im03}
 \end{figure}
 
@@ -33,7 +33,7 @@ The advantage of the former is that this would also improve the contrast of the 
 When a visual inspection of the two approaches is made, it is clear that the image improves the most with the intensity correction.
 This is because the histogram-equalization also affects the noise present in the image and spreads it out in a broader color range, making the damage look considerably more sever.
 This is also the case when applying the histogram-equalization to the image after reducing the noise, with the method proposed for noise reduction below.
-The magnitude of intensity correction was found by visual inspection to be -30 when the image has a depth of eight bits.
+The magnitude of intensity correction was found by visual inspection to be -25 when the image has a depth of eight bits.
 
 
 In order to reduce the Gaussian/uniform noise present in the image a mean filter is considered.
@@ -89,7 +89,7 @@ The histogram of the uniform area of the resulting image is plotted in figure  \
 \begin{figure}[H]
 \centering
 \includegraphics[width= \fullImageWidth]{../code/images/histogram_uniform_harmonic_03}
-\caption{Histogram of the uniform area of image 3 after applying harmonic mean filter with kernel size of five.}
+\caption{Histogram of the uniform area of image 3 after applying harmonic mean filter with kernel size of five and intensity adjustment.}
 \label{fig:hist_uni_har_im03}
 \end{figure}
 

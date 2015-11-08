@@ -29,16 +29,17 @@ The variance was found in the uniform area to be $37.3$.
 Gaussian noise remains and this was removed with a homomorphic bilateral filter.
 A bilateral filter can simplify an image by removing Gaussian noise.
 If the image suffers from Gaussian noise, it can be assumed different colors within a variance is supposed to be the same color.
-A second parameter for the openCV is the sigma space / intensity space. 
+A second parameter for the OpenCV implementation of the filter is the sigma space / intensity space. 
 This is kept low to avoid all colors from coming together. 
 A value of 3 has been chosen.
 In figure \ref{fig:hist2_bilateral} can it be seen that the variance has decreased to $18.2$ so the filter is deemed appropriate.
 Because the Gaussian noise is multiplicative, the bilateral filter is applied as a homomorphic filter.
+\todo[inline]{same as earlier..}
 
 \begin{figure}[H]
 \centering
 \includegraphics[width = \histogramWidth]{graphics/hist2_after_bilatteral.png}
-\caption{Histogram of the uniform area after bilateral filter.}
+\caption{Histogram of the uniform area after homomorphic bilateral filter.}
 \label{fig:hist2_bilateral}
 \end{figure}
 
@@ -86,6 +87,7 @@ In figure \ref{fig:complex2_histeq_smoothed} can the image be seen after alpha t
 
 This still adds a lot of noise to the image. 
 The contrast improves but since the contrast is too small to begin with, giving high contrast in areas where there should be none.
+It was therefore decided not to use the histogram equalization on the final image.
 
 The resulting sequence is thus:
 \begin{itemize}
