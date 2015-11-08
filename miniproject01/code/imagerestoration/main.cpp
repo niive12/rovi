@@ -34,7 +34,7 @@ int main(){
     cv::Mat_<float> out;
 
 
-    int to_run = PART(1) | PART(2) | PART(3) | PART(4);
+    int to_run = PART(1) | PART(2);// | PART(3) | PART(4);
 
     // part 1
     if(to_run & PART(1)){

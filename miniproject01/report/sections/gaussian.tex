@@ -9,10 +9,9 @@ By analyzing image 2 in an uniform area it can be seen that the image has both s
 \label{fig:hist2_uniform}
 \end{figure}
 
-As in section \ref{image_1} this is removed with a shifted median filter.
 The amount of white in the image is 30\% and the amount of black is 10\%.
-The shifted midpoint was thus chosen to be 40\%.
-It was found that a 5x5 filter removed the extreme values but was not efficient at removing the rest of the noise.
+The salt and pepper noise is removed with an adaptive median filter.
+An adaptive median filter is a filter that starts with a kernel size of 5x5 and automatically makes the kernel size larger if the median is the same as the extreme values.
 A harmonic mean filter is used to remove the remaining salt noise.
 In figure \ref{fig:hist2_median_harmonic} can it be seen that the removal of salt and pepper noise was successful.
 It can be seen that the two filters removed the white noise.
@@ -25,14 +24,14 @@ The black parts is not pepper noise but rather black added from the edge, where 
 \label{fig:hist2_median_harmonic}
 \end{figure}
 
-The variance was found in the uniform area to be $56.5$.
+The variance was found in the uniform area to be $116.6$.
 Gaussian noise remains and this was removed with a bilateral filter.
 A bilateral filter can simplify an image by removing Gaussian noise.
 If the image suffers from Gaussian noise, it can be assumed different colors within a variance is supposed to be the same color.
 A second parameter for the OpenCV implementation of the filter is the sigma space / intensity space. 
 This is kept low to avoid all colors from coming together. 
 A value of 3 has been chosen.
-In figure \ref{fig:hist2_bilateral} can it be seen that the variance has decreased to $20.3$ so the filter is deemed appropriate.
+In figure \ref{fig:hist2_bilateral} can it be seen that the variance has decreased to $36.1$ so the filter is deemed appropriate.
 
 \begin{figure}[H]
 \centering
@@ -42,7 +41,7 @@ In figure \ref{fig:hist2_bilateral} can it be seen that the variance has decreas
 \end{figure}
 
 To see the effect of on the complex area, the same filters have been applied to that region.
-First the median filter is applied, leading to the image shown in figure \ref{fig:complex2_median}.
+First the adaptive median filter is applied, leading to the image shown in figure \ref{fig:complex2_median}.
 Then the harmonic filter is applied, shown in figure \ref{fig:complex2_harmonic}.
 Then the bilateral filter is applied, shown in figure \ref{fig:complex2_bilatteral}.
 
@@ -51,7 +50,7 @@ Then the bilateral filter is applied, shown in figure \ref{fig:complex2_bilatter
   \begin{subfigure}{\linewidth}
   \centering
     \includegraphics[width = \cutOutWidth]{graphics/complex2_median.png}
-    \caption{After median filter.}
+    \caption{After adaptive median filter.}
     \label{fig:complex2_median}
   \end{subfigure}
   
@@ -89,9 +88,9 @@ It was therefore decided not to use the histogram equalization on the final imag
 
 The resulting sequence is thus:
 \begin{itemize}
- \item Shifted median filter, kernel size 5x5, shifted midpoint to 40\%.
+ \item Adaptive median filter.
  \item Harmonic mean filter, kernel size 5x5.
- \item Bilateral filter, kernel size 11x11, variance of $56.5$, depth of 3.
+ \item Bilateral filter, kernel size 11x11, variance of $116.6$, depth of 3.
 \end{itemize}
 The resulting image restoration of image 2 can be seen in figure \ref{fig:image_2_restored}.
 
