@@ -1,6 +1,6 @@
 \subsection{Pepper Noise}\label{image_1}
-Pepper noise is when a set of pixels on an image are completely black, without the actual photographed scene has these elements.
-To find the noise in an image, an uniform area is selected and analyzed.
+Pepper noise is when a set of pixels on an image are complete black, without the actual photographed scene has these elements.
+To find the noise in an image, an uniform area is selected and analysed.
 In figure \ref{fig:hist_pepper_im01} can it be seen that the image suffers from pepper noise.
 It is assumed that the proportion of pepper in the uniform area is the same as over the whole of the image.
 
@@ -11,13 +11,13 @@ It is assumed that the proportion of pepper in the uniform area is the same as o
 \label{fig:hist_pepper_im01}
 \end{figure}
 
-A median filter is good to combat salt and pepper noise as it takes the middle value and thus avoids extreme values.
-This assumes that the amount of salt or pepper is less than 25\% and the filter is large enough to get values which are neither entire salt or entire pepper.
+A median filter is good to combat salt and pepper noise as it takes the midpoint and thus avoids extreme values.
+This assumes that the amount of salt or pepper is less than 20\% and the filter is large enough to get values which are neither entire salt or entire pepper.
 To remove pepper noise from an image with mostly pepper noise, the amount of pepper damage needs to be found.
 The image was detected to be 60\% pepper.
 This means a median filter is not viable as the median is likely to turn out as pepper.
 
-Knowing the amount of pepper means a quantile can be used instead of the median and thus the color can be shifted towards a lighter shade.
+Knowing this means that the midpoint must be shifted towards a lighter color.
 This method is called alpha trimmed mean.
 Alpha mean takes the mean of n middle values rather than picking a single value.
 Alpha mean with a mean width of 1 is referred to as a shifted median.
@@ -27,7 +27,7 @@ The new quantile which can be calculated using equation \ref{eq:quantile} and wa
  q = (\text{pepper}-\text{salt}+1)/2 \label{eq:quantile}
 \end{equation}
 
-A 3x3 median filter is applied to the image to remove the majority of the damage to the image.
+A 3x3 midpoint filter is applied to the image to remove the majority of the damage to the image.
 Then a 7x7 alpha trimmed mean with a width of 3 is applied to further remove the pepper noise.
 Running a median filter twice gives the effect of overestimating the damage of the pepper and thus results in a brighter image.
 
@@ -55,10 +55,9 @@ To see which is best for the image, both geometric and harmonic mean is applied 
 \label{fig:hist_img1_after_alpha}
 \end{figure}
 
-In figure \ref{fig:complex1_after_blur} can the effect of applying a geometric mean filter to the image be seen.
-In figure \ref{fig:complex1_after_harmonic} can the effect of using a harmonic mean filter be seen.
+In figure \ref{fig:complex1_after_blur} and \ref{fig:complex1_after_harmonic} can the effect of applying a geometric- and harmonic mean filter to the image respectively be seen.
 Both filters have the size of 5x5. 
-The Difference is not that obvious from visual inspection so the difference is calculated using equation \ref{eq:img_diff_harVSgeo}.
+The difference is not that obvious from visual inspection so the difference is calculated using equation \ref{eq:img_diff_harVSgeo}.
 
 \begin{equation}
 I_{diff} = \left( I_{har} - I_{geo} \right) * A + 127
@@ -101,7 +100,7 @@ It is therefore concluded that the harmonic mean filter is the best for this tas
 
 The resulting sequence is thus:
 \begin{itemize}
- \item Shifted median filter, kernel size 3x3, quantile of 80\%.
+ \item Shifted midpoint filter, kernel size 3x3, quantile of 80\%.
  \item Alpha mean filter, kernel size 7x7, quantile of 80\%, mean width of 3.
  \item Harmonic mean filter, kernel size 5x5.
 \end{itemize}
