@@ -15,13 +15,13 @@ A median filter is good to combat salt and pepper noise as it takes the middle v
 This assumes that the amount of salt or pepper is less than 25\% and the filter is large enough to get values which are neither entire salt or entire pepper.
 To remove pepper noise from an image with mostly pepper noise, the amount of pepper damage needs to be found.
 The image was detected to be 60\% pepper.
-This means a median filter is not viable as the midpoint is likely to turn out as pepper.
+This means a median filter is not viable as the median is likely to turn out as pepper.
 
-Knowing the amount of pepper means the midpoint can be shifted towards a lighter color.
+Knowing the amount of pepper means a quantile can be used instead of the median and thus the color can be shifted towards a lighter shade.
 This method is called alpha trimmed mean.
 Alpha mean takes the mean of n middle values rather than picking a single value.
 Alpha mean with a mean width of 1 is referred to as a shifted median.
-The new midpoint which can be calculated using equation \ref{eq:quantile} and was found to be 80\%. 
+The new quantile which can be calculated using equation \ref{eq:quantile} and was found to be 80\%. 
 
 \begin{equation}
  q = (\text{pepper}-\text{salt}+1)/2 \label{eq:quantile}
@@ -45,7 +45,8 @@ It can be seen that there is still noise present in the image.
 To see the noise, another histogram of the uniform area is made.
 In figure \ref{fig:hist_img1_after_alpha} can the histogram of the uniformed area after the two filters be seen.
 The histogram suggest that there is still Gaussian noise in the image.
-Gaussian noise can be removed by applying an arithmetic mean filter.
+Gaussian noise can be removed by applying a mean filter.
+To see which is best for the image, both geometric and harmonic mean is applied to the image.
 
 \begin{figure}[H]
 \centering
@@ -54,10 +55,10 @@ Gaussian noise can be removed by applying an arithmetic mean filter.
 \label{fig:hist_img1_after_alpha}
 \end{figure}
 
-In figure \ref{fig:complex1_after_blur} can the effect of applying arithmetic mean to the image be seen.
-By taking the image into logarithmic space, the noise becomes additive and thus can be separated with a arithmetic mean filter.
-In figure \ref{fig:complex1_after_harmonic} can the effect of using a harmonic mean arithmetic mean filter be seen.
-Both filters have the size of 5x5. The Difference is not that obvious from visual inspection so the difference is calculated using equation \ref{eq:img_diff_harVSgeo}.
+In figure \ref{fig:complex1_after_blur} can the effect of applying a geometric mean filter to the image be seen.
+In figure \ref{fig:complex1_after_harmonic} can the effect of using a harmonic mean filter be seen.
+Both filters have the size of 5x5. 
+The Difference is not that obvious from visual inspection so the difference is calculated using equation \ref{eq:img_diff_harVSgeo}.
 
 \begin{equation}
 I_{diff} = \left( I_{har} - I_{geo} \right) * A + 127
