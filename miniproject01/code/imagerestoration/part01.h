@@ -9,5 +9,3 @@
 #pragma once
 
 void part01(cv::Mat_<float> &original_image, cv::Mat_<float> &output_image);
-
-double what_is_the_S_P_damage(cv::Mat &img, std::string frame="none");

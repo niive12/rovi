@@ -5,7 +5,8 @@ In figure \ref{fig:hist_pepper} can it be seen that the image suffers from peppe
 It is assumed that the amount of pepper in the uniform is the same all over the image.
 
 \begin{figure}[H]
-\includegraphics[width = 0.4 \textwidth]{graphics/hist.png}
+\centering
+\includegraphics[width = 0.8 \linewidth]{graphics/hist1_uniform.png}
 \caption{Histogram of the original ``Image1.png'' showing pepper noise in a uniform area.}
 \label{fig:hist_pepper}
 \end{figure}
@@ -27,14 +28,16 @@ The midpoint is thus chosen to be 80\%.
 
 A 3x3 midpoint filter is applied to the image to remove the majority of the damage to the image.
 Then a 7x7 alpha trimmed mean with a width of 3 is applied to further remove the pepper noise.
+This gives the effect of overestimating the damage of the pepper and thus get a brighter image.
 
 To see if the filters does damage to the original image an area with more complex features are shown.
 In figure \ref{fig:complex1_after_alpha} can the area be seen after the alpha trimmed mean filter has been applied.
 It can be seen that there is still noise present in the image.
 
 \begin{figure}[H]
-\includegraphics[width = 0.4 \textwidth]{graphics/complex1_step1.png}
-\caption{Image in a compex area after alpha trimmed mean filter.}
+\centering
+\includegraphics[width = 0.8 \linewidth]{graphics/complex1_step2.png}
+\caption{Image in a complex area after alpha trimmed mean filter.}
 \label{fig:complex1_after_alpha}
 \end{figure}
 
@@ -45,7 +48,8 @@ Since Gaussian noise is multiplicative instead of additive, an homomorphic blurr
 By taking the image into logarithmic space, the noise becomes additive and thus can be separated with a arithmetic mean filter.
 
 \begin{figure}[H]
-\includegraphics[width = 0.4 \textwidth]{graphics/hist1_step1.png}
+\centering
+\includegraphics[width = 0.8 \linewidth]{graphics/hist1_uniform2.png}
 \caption{Histogram of the filtered uniform area after alpha trimmed mean filter.}
 \label{fig:hist_img1_after_alpha}
 \end{figure}

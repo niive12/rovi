@@ -35,7 +35,7 @@ int main(){
 
 
 //    int to_run = PART(1) | PART(4);
-    int to_run = PART(2);
+    int to_run = PART(1);
 //    int to_run = PART(3);
 
     // part 1
@@ -43,15 +43,14 @@ int main(){
         image = cv::imread( image_names.at(0) , CV_LOAD_IMAGE_GRAYSCALE );
 
         part01(image,out);
-        cv::normalize(out,out,0,255,CV_MINMAX);
-        cv::imwrite("../images/image_result_1_old.png",out);
+        return 0;
+        cv::imwrite("../images/image_result_1.png",out);
     }
     // part 2
     if(to_run & PART(2)){
         image = cv::imread( image_names.at(1) , CV_LOAD_IMAGE_GRAYSCALE );
         out = image.clone();
         part02(image, out);
-//        cv::normalize(out,out,0,255,CV_MINMAX);
         cv::imwrite("../images/image_result_2.png",out);
         return 0;
       }

@@ -1,34 +1,5 @@
 #include "part02.h"
-#include "part01.h" //this is bad, I only needed sp_damage...
 #include "mean_filter.h"
-
-void stat(const cv::Mat &img_src, cv::Mat &histImage, double &mean, double &var, int border=5){
-    cv::Mat temp = img_src.clone();
-    cv::Mat img = temp(cv::Rect(border,border,img_src.cols-2*border, img_src.rows-2*border));
-    temp = img.clone();
-    cv::Mat histogram;
-    cv::Mat histimg( 256, 512, CV_8UC3, cv::Scalar::all(255) );
-
-    make_histogram(img,histimg,histogram,512,256);
-    histImage = histimg.clone();
-
-    int histSize = histogram.rows;
-    long long unsigned sum = 0;
-    for(int x = 0; x < img.cols; ++x){
-        for(int y = 0; y < img.rows; ++y){
-            sum += img.at<float>(cv::Point(x,y));
-        }
-    }
-    mean = sum/(img.rows*img.cols) ;
-
-    sum = 0;
-    for(int x = 0; x < img.cols; ++x){
-        for(int y = 0; y < img.rows; ++y){
-            sum += ((img.at<float>(cv::Point(x,y))-mean)*(img.at<float>(cv::Point(x,y))-mean));
-        }
-    }
-    var = 1.0/((img.rows*img.cols) -1)  * sum;
-}
 
 void part02(cv::Mat image, cv::Mat out){
     cv::Mat temp, temp2;
