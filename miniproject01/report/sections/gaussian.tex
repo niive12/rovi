@@ -11,7 +11,7 @@ By analyzing image 2 in an uniform area it can be seen that the image has both s
 
 As in section \ref{image_1} this is removed with a shifted median filter.
 The amount of white in the image is 30\% and the amount of black is 10\%.
-The quantile was thus chosen to be 40\%.
+The shifted midpoint was thus chosen to be 40\%.
 It was found that a 5x5 filter removed the extreme values but was not efficient at removing the rest of the noise.
 A harmonic mean filter is used to remove the remaining salt noise.
 In figure \ref{fig:hist2_median_harmonic} can it be seen that the removal of salt and pepper noise was successful.
@@ -89,7 +89,7 @@ It was therefore decided not to use the histogram equalization on the final imag
 
 The resulting sequence is thus:
 \begin{itemize}
- \item Shifted median filter, kernel size 5x5, quantile of 40\%.
+ \item Shifted median filter, kernel size 5x5, shifted midpoint to 40\%.
  \item Harmonic mean filter, kernel size 5x5.
  \item Bilateral filter, kernel size 11x11, variance of $56.5$, depth of 3.
 \end{itemize}
