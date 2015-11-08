@@ -68,7 +68,6 @@ void part02(cv::Mat &image, cv::Mat &out){
 //    cv::waitKey(0);
 
     //apply to large image
-    return;
     median_filter(image, out,5,1,quantile);
     applyHarmonicMean(out, temp, 5);
     applyHomomorphicBilatteral(temp,out,11,var,3);
