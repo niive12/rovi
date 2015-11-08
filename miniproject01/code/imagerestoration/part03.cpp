@@ -13,7 +13,7 @@ void part03(cv::Mat_<float> &original_image,
             cv::Mat_<float> &out_im_harVSgeo){
 
     int k = 5;
-
+    std::cout << "Image 3:\n";
 
     cv::Mat histogram, img_intensitycorrected;
     // make hist of total

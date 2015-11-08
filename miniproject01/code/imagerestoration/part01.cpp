@@ -17,17 +17,15 @@ void part01(cv::Mat &original_image,
     cv::Mat out = uniform.clone();
     cv::Mat histImg;
     cv::Mat histogram;
-
+    std::cout << "Image 1:\n";
     make_histogram(uniform,histImg,histogram);
     hist_uniform = histImg.clone();
     double quantile = what_is_the_S_P_damage(uniform);
 
     median_filter(uniform, out,3,1,quantile);
-    what_is_the_S_P_damage(out);
     make_histogram(out,histImg,histogram);
     uniform = out.clone();
     median_filter(uniform, out,7,3,quantile);
-    what_is_the_S_P_damage(out);
     make_histogram(out,histImg,histogram);
     hist_median = histImg.clone();
 

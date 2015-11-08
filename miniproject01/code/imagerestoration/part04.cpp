@@ -1,7 +1,7 @@
 #include "part04.h"
 
 void part04(cv::Mat_<float> &original_image, cv::Mat_<float> &output_image){
-    std::cout << "Running for the 4th image!\n";
+    std::cout << "Image 4:\n";
     // make padded image
     cv::Mat_<float> padded;
 
