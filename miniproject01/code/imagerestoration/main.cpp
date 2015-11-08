@@ -38,17 +38,33 @@ int main(){
 
     // part 1
     if(to_run & PART(1)){
+        cv::Mat hist_uniform, hist_median, complex_median, complex_geometric_blurred, complex_harmonic_blurred, complex_difference;
         image = cv::imread( image_names.at(0) , CV_LOAD_IMAGE_GRAYSCALE );
 
-        part01(image,out);
+        part01(image, out, hist_uniform, hist_median, complex_median, complex_geometric_blurred, complex_harmonic_blurred, complex_difference);
         cv::imwrite("../images/image_result_1.png",out);
+        cv::imwrite("../../report/graphics/hist1_uniform.png", hist_uniform);
+        cv::imwrite("../../report/graphics/hist1_uniform2.png", hist_median);
+        cv::imwrite("../../report/graphics/complex1_step2.png", complex_median);
+        cv::imwrite("../../report/graphics/complex1_blurred.png", complex_geometric_blurred);
+        cv::imwrite("../../report/graphics/complex1_harmonic_blurred.png", complex_harmonic_blurred);
+        cv::imwrite("../../report/graphics/complex1_blurr_difference_50.png",complex_difference);
     }
     // part 2
     if(to_run & PART(2)){
+        cv::Mat hist_uniform, hist_median, hist_bilatteral, complex_median, complex_harmonic, complex_bilatteral, complex_histeq, complex_smoothed_histeq;
         image = cv::imread( image_names.at(1) , CV_LOAD_IMAGE_GRAYSCALE );
         out = image.clone();
-        part02(image, out);
+        part02(image, out, hist_uniform, hist_median, hist_bilatteral, complex_median, complex_harmonic, complex_bilatteral, complex_histeq, complex_smoothed_histeq);
         cv::imwrite("../images/image_result_2.png",out);
+        cv::imwrite("../../report/graphics/hist2_uniform.png",hist_uniform);
+        cv::imwrite("../../report/graphics/hist2_after_median.png",hist_median);
+        cv::imwrite("../../report/graphics/hist2_after_bilatteral.png",hist_bilatteral);
+        cv::imwrite("../../report/graphics/complex2_median.png",complex_median);
+        cv::imwrite("../../report/graphics/complex2_harmonic.png",complex_harmonic);
+        cv::imwrite("../../report/graphics/complex2_bilatteral.png",complex_bilatteral);
+        cv::imwrite("../../report/graphics/complex2_histeq.png",complex_histeq);
+        cv::imwrite("../../report/graphics/complex2_histeq_smoothed.png",complex_smoothed_histeq);
       }
     // part 3
     if(to_run & PART(3)){
@@ -95,12 +111,6 @@ int main(){
 
         cv::normalize(freq_restored, freq_restored, 0, 255, CV_MINMAX);
         cv::imwrite("../images/image_result_freq_04.png",freq_restored);
-
-
-//        namedWindow("Restored Image", cv::WINDOW_NORMAL);
-//        cv::normalize(image_res_04, image_res_04, 0, 1, CV_MINMAX);
-//        cv::imshow("Restored Image", image_res_04);
-
 
         cv::normalize(image_res_04, image_res_04, 0, 255, CV_MINMAX);
         cv::imwrite("../images/image_result_04.png",image_res_04);

@@ -9,4 +9,14 @@
 
 #pragma once
 
-void part02(cv::Mat &image, cv::Mat &out);
+void part02(cv::Mat &image,
+            cv::Mat &final_out,
+            cv::Mat &hist_uniform,
+            cv::Mat &hist_median,
+            cv::Mat &hist_bilatteral,
+            cv::Mat &complex_median,
+            cv::Mat &complex_harmonic,
+            cv::Mat &complex_bilatteral,
+            cv::Mat &complex_histeq,
+            cv::Mat &complex_smoothed_histeq
+            );

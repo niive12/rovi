@@ -53,22 +53,25 @@ Gaussian noise can be removed by applying an arithmetic mean filter.
 \end{figure}
 
 In figure \ref{fig:complex1_after_blur} can the effect of applying arithmetic mean to the image be seen.
-Since Gaussian noise is multiplicative instead of additive, an homomorphic blurring filter is applied.
-\todo[inline]{isn't gaussian additive? \url{https://en.wikipedia.org/wiki/Additive_white_Gaussian_noise}}
 By taking the image into logarithmic space, the noise becomes additive and thus can be separated with a arithmetic mean filter.
-In figure \ref{fig:complex1_after_homomorphic} can the effect of using a homomorphic arithmetic mean filter be seen.
+In figure \ref{fig:complex1_after_harmonic} can the effect of using a harmonic mean arithmetic mean filter be seen.
 Both filters have the size of 5x5. The Difference is not that obvious from visual inspection so the difference is calculated using equation \ref{eq:img_diff_harVSgeo}.
-\todo[inline]{what a refrence :P just 3 pages down...}
+
+\begin{equation}
+I_{diff} = \left( I_{har} - I_{geo} \right) * A + 127
+\label{eq:img_diff_harVSgeo}
+\end{equation}
+
 The difference is shown in figure \ref{fig:complex1_blur_difference}.
 The difference is amplified 50 times in order to get a clear contrast between the two.
 Darker areas means regular blurring contains higher values.
 The most distinct difference between the images is the edges. 
 The edges are brighter after the regular filter. 
 The most visible edges on the difference image occurs where the image goes from a large area of light to a small area of dark.
-Thus the edges are better preserved on the homomorphic filter.
+Thus the edges are better preserved on the harmonic mean filter.
 In the lower right corner, the underside of the gripper is supposed to be dark.
-Therefore having higher values with the regular filter gives unwanted bright spots which the homomorphic filter removes.
-It is therefore concluded that the homomorphic filter is the best for this task.
+Therefore having higher values with the regular filter gives unwanted bright spots which the harmonic mean filter removes.
+It is therefore concluded that the harmonic mean filter is the best for this task.
 
 
 
@@ -83,14 +86,14 @@ It is therefore concluded that the homomorphic filter is the best for this task.
   
   \begin{subfigure}{\cutOutWidth}
     \includegraphics[width = \textwidth]{graphics/complex1_blurred.png}
-    \caption{Arithmetic.}
+    \caption{Geometric Mean.}
     \label{fig:complex1_after_blur}
   \end{subfigure}
 %
   \begin{subfigure}{\cutOutWidth}
-    \includegraphics[width = \textwidth]{graphics/complex1_homomorphic_blurred.png}
-    \caption{Homomorphic.}
-    \label{fig:complex1_after_homomorphic}
+    \includegraphics[width = \textwidth]{graphics/complex1_harmonic_blurred.png}
+    \caption{Harmonic mean.}
+    \label{fig:complex1_after_harmonic}
   \end{subfigure}
 \caption{Image in a complex area after applying different mean filters.}
 \end{figure}
@@ -99,7 +102,7 @@ The resulting sequence is thus:
 \begin{itemize}
  \item Shifted midpoint filter, kernel size 3x3, quantile of 80\%.
  \item Alpha mean filter, kernel size 7x7, quantile of 80\%, mean width of 3.
- \item Homomorphic arithmetic mean filter, kernel size 5x5.
+ \item Harmonic mean filter, kernel size 5x5.
 \end{itemize}
 
 The final image of image 1 can be seen in figure \ref{fig:final_image1}.

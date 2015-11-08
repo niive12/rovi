@@ -8,4 +8,12 @@
 
 #pragma once
 
-void part01(cv::Mat_<float> &original_image, cv::Mat_<float> &output_image);
+void part01(cv::Mat &original_image,
+            cv::Mat &output_image,
+            cv::Mat &hist_uniform,
+            cv::Mat &hist_median,
+            cv::Mat &complex_median,
+            cv::Mat &complex_geometric_blurred,
+            cv::Mat &complex_harmonic_blurred,
+            cv::Mat &complex_difference
+            );

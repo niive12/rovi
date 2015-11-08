@@ -26,20 +26,18 @@ The black parts is not pepper noise but rather black added from the edge, where 
 \end{figure}
 
 The variance was found in the uniform area to be $37.3$.
-Gaussian noise remains and this was removed with a homomorphic bilateral filter.
+Gaussian noise remains and this was removed with a bilateral filter.
 A bilateral filter can simplify an image by removing Gaussian noise.
 If the image suffers from Gaussian noise, it can be assumed different colors within a variance is supposed to be the same color.
 A second parameter for the OpenCV implementation of the filter is the sigma space / intensity space. 
 This is kept low to avoid all colors from coming together. 
 A value of 3 has been chosen.
 In figure \ref{fig:hist2_bilateral} can it be seen that the variance has decreased to $18.2$ so the filter is deemed appropriate.
-Because the Gaussian noise is multiplicative, the bilateral filter is applied as a homomorphic filter.
-\todo[inline]{same as earlier..}
 
 \begin{figure}[H]
 \centering
 \includegraphics[width = \histogramWidth]{graphics/hist2_after_bilatteral.png}
-\caption{Histogram of the uniform area after homomorphic bilateral filter.}
+\caption{Histogram of the uniform area after applying a bilateral filter.}
 \label{fig:hist2_bilateral}
 \end{figure}
 
@@ -93,7 +91,7 @@ The resulting sequence is thus:
 \begin{itemize}
  \item Shifted median filter, kernel size 5x5, quantile of 40\%.
  \item Harmonic mean filter, kernel size 5x5.
- \item Homomorphic bilateral filter, kernel size 11x11, variance of $37.3$, depth of 3.
+ \item Bilateral filter, kernel size 11x11, variance of $37.3$, depth of 3.
 \end{itemize}
 The resulting image restoration of image 2 can be seen in figure \ref{fig:image_2_restored}.
 
