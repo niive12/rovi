@@ -95,7 +95,6 @@ void stat(const cv::Mat &img_src, cv::Mat &histImage, double &mean, double &var,
     make_histogram(img,histimg,histogram,512,256);
     histImage = histimg.clone();
 
-    int histSize = histogram.rows;
     long long unsigned sum = 0;
     for(int x = 0; x < img.cols; ++x){
         for(int y = 0; y < img.rows; ++y){

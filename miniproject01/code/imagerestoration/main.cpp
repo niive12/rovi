@@ -52,8 +52,8 @@ int main(){
         image = cv::imread( image_names.at(1) , CV_LOAD_IMAGE_GRAYSCALE );
         out = image.clone();
         part02(image, out);
+//        return 0;
         cv::imwrite("../images/image_result_2.png",out);
-        //return 0;
       }
     // part 3
     if(to_run & PART(3)){

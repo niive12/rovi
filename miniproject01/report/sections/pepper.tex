@@ -28,7 +28,7 @@ The midpoint is thus chosen to be 80\%.
 
 A 3x3 midpoint filter is applied to the image to remove the majority of the damage to the image.
 Then a 7x7 alpha trimmed mean with a width of 3 is applied to further remove the pepper noise.
-This gives the effect of overestimating the damage of the pepper and thus get a brighter image.
+Running a median filter twice gives the effect of overestimating the damage of the pepper and thus results in a brighter image.
 
 To see if the filters does damage to the original image an area with more complex features are shown.
 In figure \ref{fig:complex1_after_alpha} can the area be seen after the alpha trimmed mean filter has been applied.
@@ -45,6 +45,14 @@ To see the noise, another histogram of the uniform area is made.
 In figure \ref{fig:hist_img1_after_alpha} can the histogram of the uniformed area after the two filters be seen.
 The histogram suggest that there is still Gaussian noise in the image.
 Gaussian noise can be removed by applying an arithmetic mean filter.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = \histogramWidth]{graphics/hist1_uniform2.png}
+\caption{Histogram of the filtered uniform area after alpha trimmed mean filter.}
+\label{fig:hist_img1_after_alpha}
+\end{figure}
+
 In figure \ref{fig:complex1_after_blur} can the effect of applying arithmetic mean to the image be seen.
 Since Gaussian noise is multiplicative instead of additive, an homomorphic blurring filter is applied.
 By taking the image into logarithmic space, the noise becomes additive and thus can be separated with a arithmetic mean filter.
@@ -62,12 +70,6 @@ Therefore having higher values with the regular filter gives unwanted bright spo
 It is therefore concluded that the homomorphic filter is the best for this task.
 
 
-\begin{figure}[H]
-\centering
-\includegraphics[width = \histogramWidth]{graphics/hist1_uniform2.png}
-\caption{Histogram of the filtered uniform area after alpha trimmed mean filter.}
-\label{fig:hist_img1_after_alpha}
-\end{figure}
 
 \begin{figure}[H]
 \centering
@@ -91,6 +93,13 @@ It is therefore concluded that the homomorphic filter is the best for this task.
   \end{subfigure}
 \caption{Image in a complex area after applying an arithmetic mean filter.}
 \end{figure}
+
+The resulting sequence is thus:
+\begin{itemize}
+ \item Shifted midpoint filter, kernel size 3x3, quantile of 80\%.
+ \item Alpha mean filter, kernel size 7x7, quantile of 80\%, mean width of 3.
+ \item Homomorphic arithmetic mean filter, kernel size 5x5.
+\end{itemize}
 
 The final image of image 1 can be seen in figure \ref{fig:final_image1}.
 

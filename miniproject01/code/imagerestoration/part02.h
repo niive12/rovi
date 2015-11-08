@@ -9,4 +9,4 @@
 
 #pragma once
 
-void part02(cv::Mat image, cv::Mat out);
+void part02(cv::Mat &image, cv::Mat &out);
