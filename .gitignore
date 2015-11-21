@@ -6,3 +6,7 @@ miniproject01/code/imagerestoration-build/
 *.pdf
 *.gz
 RO/man02/build-pathplanner-Desktop-Default
+*.dvi
+*.psi
+*~
+*.out
