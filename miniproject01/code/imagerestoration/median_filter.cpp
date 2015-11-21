@@ -41,9 +41,9 @@ void median_filter(const cv::Mat &input, cv::Mat &output, int kernel_size, int m
 }
 
 void adaptive_median_filter(const cv::Mat &input, cv::Mat &output){
-    int kernel_size = 3;
+    int kernel_size = 5;
     int length = kernel_size*kernel_size;
-    const float threshold = 5;
+    const int max_kernel = 25;
     float temp;
     int j;
     int middel_value;
@@ -52,9 +52,9 @@ void adaptive_median_filter(const cv::Mat &input, cv::Mat &output){
     bool finished;
     for(int x=kernel_offset; x<input.cols-kernel_offset; ++x){ //borders are just kept; in a 3 by 3 kernel this means 1st pixel is ignored
         for(int y=kernel_offset; y<input.rows-kernel_offset; ++y){
-            kernel_size = 3;
+            kernel_size = 5;
             finished = false;
-            while(!finished){
+            while(!finished && (kernel_size < max_kernel)){
                 length = kernel_size*kernel_size;
                 middel_value = length/2;
                 float neighbours[length];
@@ -76,7 +76,7 @@ void adaptive_median_filter(const cv::Mat &input, cv::Mat &output){
                 }
                 //if the midpoint is not equal to the extremes, move on, else increase kernel size
                 median = neighbours[middel_value];
-                if( (median < (neighbours[0] - threshold)) || (median > (neighbours[length] + threshold)) ){
+                if( (median > neighbours[0]) || (median < neighbours[length]) ){
                     finished = true;
                 } else if( ( (y - kernel_size) < 0         ) ||
                            ( (y + kernel_size) > input.rows) ||

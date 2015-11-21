@@ -24,11 +24,9 @@ void part02(cv::Mat &image,
 
     temp = uniform.clone();
     temp2 = temp.clone();
-    median_filter(uniform, temp,5,1,quantile);
+    adaptive_median_filter(uniform, temp);
     temp2 = temp.clone();
-//        cv::imshow("median filter 5,1", temp / 255);
     applyHarmonicMean(temp2,temp,5);
-//        cv::imshow("harmonic mean", temp / 255);
         make_histogram(temp,histImg,histogram);
         hist_median = histImg.clone();
     temp2 = temp.clone();
@@ -37,11 +35,8 @@ void part02(cv::Mat &image,
     std::cout << "image 2, after median, \tmean: " << mean << " var: " << var << '\n';
     cv::bilateralFilter(temp2,temp,11,var,3);
     temp2 = temp.clone();
-//        cv::imshow("bilateral 11, 3, uniform", temp / 255);
     make_histogram(temp,histImg,histogram);
         hist_bilatteral = histImg.clone();
-//        cv::imshow("histogram after1",histImg);
-//        cv::imshow("median2", temp2 / 255);
     double new_var;
     stat(temp2,temp,mean,new_var,10);
     std::cout << "image 2, after bilateral, \tmean: " << mean << " var: " << new_var << '\n';
@@ -49,31 +44,23 @@ void part02(cv::Mat &image,
 
 //    Investigate complex area
     cv::Mat complex(org,AREA_COMPLEX);
-    median_filter(complex,temp,5,1,quantile);
-//    cv::imshow("median",temp/255);
+    adaptive_median_filter(complex,temp);
     complex_median = temp.clone();
     applyHarmonicMean(complex_median,temp,5);
-//    cv::imshow("har",temp/255);
     complex_harmonic = temp.clone();
     cv::bilateralFilter(complex_harmonic,temp,11,var,3);
-//    cv::imshow("bilateral",temp/255);
     complex_bilatteral = temp.clone();
     applyHistogramEqualization(complex_bilatteral,temp,15);
-//    cv::imshow("hiseq",temp/255);
     complex_histeq = temp.clone();
 //    See if the image gets better with equalization
     temp2 = temp.clone();
     median_filter(temp2,temp,7,3);
-//    cv::imshow("median2",temp/255);
     temp2 = temp.clone();
     applyHistogramEqualization(temp2,temp,15);
-//    cv::imshow("histeq alt",temp/255);
     complex_smoothed_histeq = temp.clone();
-//    cv::waitKey(0);
-//    cv::destroyAllWindows();
 
 //    apply to large image
-    median_filter(image, final_out,5,1,quantile);
+    adaptive_median_filter(image, final_out);
     applyHarmonicMean(final_out, temp, 5);
     cv::bilateralFilter(temp,final_out,11,var,3);
 }

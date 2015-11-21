@@ -17,11 +17,11 @@ To remove pepper noise from an image with mostly pepper noise, the amount of pep
 The image was detected to be 60\% pepper.
 This means a median filter is not viable as the median is likely to turn out as pepper.
 
-Knowing this means that the midpoint must be shifted towards a lighter color.
+Knowing the amount of pepper means the midpoint can be shifted towards a lighter color.
 This method is called alpha trimmed mean.
-Alpha mean takes the mean of n middle values rather than picking a single value.
+Alpha mean shifts the midpoint and takes the mean of n middle values rather than picking a single value.
 Alpha mean with a mean width of 1 is referred to as a shifted median.
-The new quantile which can be calculated using equation \ref{eq:quantile} and was found to be 80\%. 
+The shifted midpoint, which can be calculated using equation \ref{eq:quantile} and was found to be 80\%. 
 
 \begin{equation}
  q = (\text{pepper}-\text{salt}+1)/2 \label{eq:quantile}
@@ -75,8 +75,6 @@ In the lower right corner, the underside of the gripper is supposed to be dark.
 Therefore having higher values with the regular filter gives unwanted bright spots which the harmonic mean filter removes.
 It is therefore concluded that the harmonic mean filter is the best for this task.
 
-
-
 \begin{figure}[H]
 \centering
   \begin{subfigure}{\linewidth}
@@ -102,11 +100,10 @@ It is therefore concluded that the harmonic mean filter is the best for this tas
 
 The resulting sequence is thus:
 \begin{itemize}
- \item Shifted midpoint filter, kernel size 3x3, quantile of 80\%.
- \item Alpha mean filter, kernel size 7x7, quantile of 80\%, mean width of 3.
+ \item Shifted midpoint filter, kernel size 3x3, shifted midpoint to 80\%.
+ \item Alpha mean filter, kernel size 7x7, shifted midpoint to 80\%, mean width of 3.
  \item Harmonic mean filter, kernel size 5x5.
 \end{itemize}
-
 The final image of image 1 can be seen in figure \ref{fig:final_image1}.
 
 \begin{figure}[H]
