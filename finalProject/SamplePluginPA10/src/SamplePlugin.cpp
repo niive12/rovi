@@ -38,6 +38,18 @@ SamplePlugin::SamplePlugin():
 	Image bgImage(0,0,Image::GRAY,Image::Depth8U);
 	_bgRender = new RenderImage(bgImage,2.5/1000.0);
 	_framegrabber = NULL;
+
+    // load absolute path
+    std::ifstream ifs;
+    ifs.open ("/home/.absolutepath.mypath", std::ifstream::in);
+
+    if(ifs.is_open()){
+        ifs >> _myPath;
+        log().info() << "My path is: " << _myPath << "\n";
+    }else{
+        log().info() << "File could not be opened.\n";
+    }
+
 }
 
 SamplePlugin::~SamplePlugin()
@@ -52,12 +64,12 @@ void SamplePlugin::initialize() {
 	getRobWorkStudio()->stateChangedEvent().add(boost::bind(&SamplePlugin::stateChangedListener, this, _1), this);
 
 	// Auto load workcell
-	WorkCell::Ptr wc = WorkCellLoader::Factory::load("/home/thmi/workspace/rovi/FinalProject/PA10WorkCell/ScenePA10RoVi1.wc.xml");
+    WorkCell::Ptr wc = WorkCellLoader::Factory::load(_myPath + "/finalProject/PA10WorkCell/ScenePA10RoVi1.wc.xml");
 	getRobWorkStudio()->setWorkCell(wc);
 
 	// Load Lena image
 	Mat im, image;
-	im = imread("/home/thmi/workspace/rovi/FinalProject/SamplePluginPA10/src/lena.bmp", CV_LOAD_IMAGE_COLOR); // Read the file
+    im = imread(_myPath + "/finalProject/SamplePluginPA10/src/lena.bmp", CV_LOAD_IMAGE_COLOR); // Read the file
 	cvtColor(im, image, CV_BGR2RGB); // Switch the red and blue color channels
 	if(! image.data ) {
 		RW_THROW("Could not open or find the image: please modify the file path in the source code!");
@@ -140,9 +152,9 @@ void SamplePlugin::btnPressed() {
 		log().info() << "Button 0\n";
 		// Set a new texture (one pixel = 1 mm)
 		Image::Ptr image;
-		image = ImageLoader::Factory::load("/home/thmi/workspace/rovi/FinalProject/SamplePluginPA10/markers/Marker1.ppm");
+        image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/markers/Marker1.ppm");
 		_textureRender->setImage(*image);
-		image = ImageLoader::Factory::load("/home/thmi/workspace/rovi/FinalProject/SamplePluginPA10/backgrounds/color1.ppm");
+        image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/color1.ppm");
 		_bgRender->setImage(*image);
 		getRobWorkStudio()->updateAndRepaint();
 	} else if(obj==_btn1){

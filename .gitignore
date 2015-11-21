@@ -10,3 +10,6 @@ RO/man02/build-pathplanner-Desktop-Default
 *.psi
 *~
 *.out
+finalProject/PA10WorkCell
+finalProject/SamplePluginPA10/build
+finalProject/SamplePluginPA10/libs

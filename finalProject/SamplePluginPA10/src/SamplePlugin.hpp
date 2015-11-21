@@ -11,6 +11,9 @@
 #include <rwlibs/opengl/RenderImage.hpp>
 #include <rwlibs/simulation/GLFrameGrabber.hpp>
 
+#include <string>
+#include <fstream>      // std::ifstream
+
 class SamplePlugin: public rws::RobWorkStudioPlugin, private Ui::SamplePlugin
 {
 Q_OBJECT
@@ -40,6 +43,9 @@ private:
 	rw::kinematics::State _state;
 	rwlibs::opengl::RenderImage *_textureRender, *_bgRender;
 	rwlibs::simulation::GLFrameGrabber* _framegrabber;
+
+    // abosulte path to the projectfolder
+    std::string _myPath;
 };
 
 #endif /*RINGONHOOKPLUGIN_HPP_*/
