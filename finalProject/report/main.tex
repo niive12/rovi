@@ -30,6 +30,27 @@
 
 \maketitle
 
+\begin{tikzpicture}
+% % % % RED % % % %
+% \newcommand{\MinHue}{-10} %angle
+% \newcommand{\MaxHue}{20}
+% \newcommand{\MinSat}{2cm} % 0 - 1 => 0 - 2.65
+% % % % GREEN % % % %
+\newcommand{\MinHue}{105} %angle 
+\newcommand{\MaxHue}{145}
+\newcommand{\MinSat}{1.6cm} % 0 - 1 => 0 - 2.65
+% % % % BLUE % % % %
+% \newcommand{\MinHue}{220} %angle
+% \newcommand{\MaxHue}{260}
+% \newcommand{\MinSat}{2cm} % 0 - 1 => 0 - 2.65
+
+ \node {\includegraphics[scale=1]{graphics/hsv} };
+ \node[name=hsv, draw, circle, minimum width =5.3cm] at (-4,-1.85) {};
+ \draw (hsv.\MinHue) -- (hsv.center) -- (hsv.\MaxHue);
+ \draw[very thick]   ([shift=(\MinHue:\MinSat)] hsv.center) arc(\MinHue:\MaxHue:\MinSat);
+\end{tikzpicture}
+
+
 
 
 \end{document}
