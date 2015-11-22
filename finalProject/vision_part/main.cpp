@@ -17,8 +17,9 @@ std::vector<cv::Point> find_circles(cv::Mat &image, int min_area = 500, int max_
     cv::Mat threshold_output;
     std::vector<cv::Vec4i> hierarchy;
     cv::threshold(image, threshold_output, threshold, 255,  cv::THRESH_BINARY);
-//    cv::imshow( "Threshold.png", threshold_output );
-
+    cv::Mat tmp = threshold_output.clone();
+    cv::blur(tmp,threshold_output,cv::Size(5,5));
+//                    cv::imshow( "Threshold", threshold_output );
     //Find contours
     std::vector<std::vector<cv::Point> > contours;
     cv::findContours( threshold_output, contours, hierarchy, CV_RETR_LIST, cv::CHAIN_APPROX_NONE);
@@ -33,14 +34,14 @@ std::vector<cv::Point> find_circles(cv::Mat &image, int min_area = 500, int max_
         double area = cv::contourArea(contours[i]);
         double circumference = cv::arcLength(contours[i],false);
         double circle_likeness = 4 * M_PI * area / (circumference * circumference);
-        if (circle_likeness > 0.85 && area > min_area && area < max_area) {
+        if (circle_likeness > 0.81 && area > min_area && area < max_area) {
             mu = cv::moments(contours[i],false);
             cv::Point com = cv::Point( mu.m10/mu.m00 , mu.m01/mu.m00 );
             center.push_back(com);
             drawing.at<cv::Vec3b>(com) = cv::Vec3b(255,255,255);
             cv::drawContours( drawing, contours, (int)i, color, 2, 8, hierarchy, 0, cv::Point() );
 //       } else {
-//            if(circumference > 0)
+//            if(area > min_area && circumference > 0)
 //            std::cout << circle_likeness << " " << area << " " << circumference << "\n";
         }
     }
@@ -85,7 +86,8 @@ int main(int argc, char* argv[]){
         org = cv::imread(argv[1]);
     } else {
 //        org = cv::imread("../SamplePluginPA10/markers/Marker1_modified.ppm");
-        org = cv::imread("../SamplePluginPA10/markers/Marker1.ppm");
+//        org = cv::imread("../SamplePluginPA10/markers/Marker1.ppm");
+        org = cv::imread("../marker_color_hard/marker_color_hard_18.png");
     }
     cv::Mat imgBGR[3];
     cv::split(org,imgBGR);
@@ -108,18 +110,19 @@ int main(int argc, char* argv[]){
 //    cv::waitKey(0);
 
     int hue_min, hue_max; //range 0 - 180 degrees
-    int sat_min = 0.4 * 255, sat_max = 1.0 * 255; // range 0 - 255   radius
-    int val_min = 0.1 * 255, val_max = 0.9 * 255; // range 0 - 255 intensity
+    int sat_min = 0.3 * 255, sat_max = 1.0 * 255; // range 0 - 255   radius
+    int val_min = 0.10 * 255, val_max = 0.90 * 255; // range 0 - 255 intensity
 
-    hue_min = 220 / 2 ; hue_max = 260 /2;
+//    hue_min = 220 / 2 ; hue_max = 260 /2;
+    hue_min = 210 / 2 ; hue_max = 270 /2;
     cv::inRange(imghsv, cv::Scalar(hue_min, sat_min, val_min), cv::Scalar(hue_max,sat_max,val_max), imgBGR[0]);
 //    cv::imshow("blue", imgBGR[0]);
 
-    hue_min = 105 / 2; hue_max = 145 / 2;
+    hue_min = 70 / 2; hue_max = 145 / 2;
     cv::inRange(imghsv, cv::Scalar(hue_min, sat_min, val_min), cv::Scalar(hue_max,sat_max,val_max), imgBGR[1]);
 //    cv::imshow("green", imgBGR[1]);
 
-    hue_min = 0 / 2; hue_max = 20/ 2;
+    hue_min = 0 / 2; hue_max = 30/ 2;
     cv::inRange(imghsv, cv::Scalar(hue_min, sat_min, val_min), cv::Scalar(hue_max,sat_max,val_max), imgBGR[2]);
 //    cv::imshow("red", imgBGR[2]);
 
@@ -161,12 +164,14 @@ int main(int argc, char* argv[]){
         //get rotation
         double rot = atan( (double)(red[0].y-midpoint.y)/(red[0].x-midpoint.x) ) - RAD_45;
 
-        std::cout << "center : "<< midpoint << '/' << midpnt_uv << '\t';
-        std::cout << "rotation in degrees: " << rot * 180/M_PI<< '\n';
+        std::cout << "center : "<< midpoint << '/' << midpnt_uv << '\t'
+                  << "rotation in degrees: " << rot * 180/M_PI<< '\n';
 
     } else if(blue.size() < 3) {
         std::cout << "too few markers found\n";
     } else if(blue.size() > 3) {
         std::cout << "too many markers found\n";
+    } else {
+        std::cout << "no red marker found\n";
     }
 }
