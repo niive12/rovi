@@ -138,7 +138,7 @@ The rotation \(W_{rot}\) is found using equation \ref{eq:wrot_general}.
  \end{array}\right] 
 \]
 
-\section{linear trajectory}
+\section{Linear Trajectory}
 
 To find a linear trajectory, a series of points must be interpolated between the two points. 
 The rotations can be found using equation \ref{eq:linear_interpolation}.
@@ -147,5 +147,38 @@ The rotations can be found using equation \ref{eq:linear_interpolation}.
   R_{i-1, i}(t) = R_{eaa} \left( \frac{t-t_i}{t_{i-1} - t_i} W_{rot} (R^{i-1} [R^i]^T)\right) R^i 
   \label{eq:linear_interpolation}
 \end{equation}
+
+
+
+\section{Parabolic Blend}
+
+In order to smooth the movement when switching direction, a parabolic movement is used.
+The parabola is defined in equation \ref{eq:parabola}.
+To find the blend, equation \ref{eq:blend} is used.
+
+\begin{equation}
+ P(t-T,X,v_1,v_2, \tau) = \frac{v_2 - v_1}{4 \tau} (t-T + \tau)^2 + v_1 (t-T) + X
+\label{eq:parabola}
+\end{equation}
+
+\begin{equation}
+ p_{i,\tau_i}(t) = P\left( t-t_i, p^i, \frac{p^{i-1} - p^i}{t_{i-1} - t_i}, \frac{p^{i+1} - p^i}{t_{i+1} - t_i}, \tau_i \right)  
+\label{eq:blend}
+ \end{equation}
+
+The rotation part is found using equation \ref{eq:blend_rotation}.
+
+\begin{equation}
+R_{i,\tau_i}(t) = 
+\left[ R_{eaa} 
+  \left( 
+    P\left( 
+      t-t_i, 0, \frac{W_{rot}(R^{i-1} [R^i]^T)}{t_{i-1} - t_i}, \frac{W_{rot}(R^{i+1} [R^i]^T)}{t_{i+1} - t_i}, \tau_i
+     \right) 
+  \right) 
+\right] R^i
+ \label{eq:blend_rotation}
+\end{equation}
+
 
 \end{document}
