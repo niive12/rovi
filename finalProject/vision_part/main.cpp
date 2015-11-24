@@ -86,8 +86,8 @@ int main(int argc, char* argv[]){
         org = cv::imread(argv[1]);
     } else {
 //        org = cv::imread("../SamplePluginPA10/markers/Marker1_modified.ppm");
-//        org = cv::imread("../SamplePluginPA10/markers/Marker1.ppm");
-        org = cv::imread("../marker_color_hard/marker_color_hard_18.png");
+        org = cv::imread("../SamplePluginPA10/markers/Marker1.ppm");
+//        org = cv::imread("../marker_color_hard/marker_color_hard_18.png");
     }
     cv::Mat imgBGR[3];
     cv::split(org,imgBGR);
@@ -111,7 +111,7 @@ int main(int argc, char* argv[]){
 
     int hue_min, hue_max; //range 0 - 180 degrees
     int sat_min = 0.3 * 255, sat_max = 1.0 * 255; // range 0 - 255   radius
-    int val_min = 0.10 * 255, val_max = 0.90 * 255; // range 0 - 255 intensity
+    int val_min = 0.10 * 255, val_max = 1 * 255; // range 0 - 255 intensity
 
 //    hue_min = 220 / 2 ; hue_max = 260 /2;
     hue_min = 210 / 2 ; hue_max = 270 /2;

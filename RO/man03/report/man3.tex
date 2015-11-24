@@ -1,0 +1,151 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{subcaption}
+
+\title{ROVI - Mandatory project 3}
+\author{Nikolaj Iversen and Lukas Schwartz}
+
+\begin{document}
+
+\maketitle
+
+\section{Find Wrot}
+
+Given the frames:
+\[ 
+F^0 = 
+\left[
+\begin{array}{*{3}{p{0.5cm}}|c}
+    1 & 0 & 0 & 15 \\
+    0 & 1 & 0 &  8 \\
+    0 & 0 & 1 &  3 \\\hline
+    0 & 0 & 0 &  1 \\
+\end{array}
+\right]
+\]
+\[ 
+F^1 = 
+\left[
+\begin{array}{*{3}{p{0.5cm}}|c}
+    0 & 1 & 0 & 10 \\
+   -1 & 0 & 0 &  4 \\
+    0 & 0 & 1 &  2 \\\hline
+    0 & 0 & 0 &  1 \\
+\end{array}
+\right]
+\]
+\[ 
+F^2 = 
+\left[
+\begin{array}{*{3}{p{0.5cm}}|c}
+    0 & 0 & 1 &  6 \\
+   -1 & 0 & 0 &  0 \\
+    0 &-1 & 0 & -2 \\\hline
+    0 & 0 & 0 &  1 \\
+\end{array}
+\right]
+\]
+
+The rotation \(W_{rot}\) is found using equation \ref{eq:wrot_general}. 
+
+\begin{equation}
+ R_d = 
+ \left[ 
+ \begin{array}{c}
+  R_{32} - R_{23}\\
+  R_{13} - R_{31}\\
+  R_{21} - R_{12}\\
+ \end{array}
+ \right]
+\end{equation}
+
+\begin{equation}
+ W_{rot}(R) = \frac{cos^{-1} \left( \frac{R_{11}+R_{22}+R_{33}-1}{2} \right) }{||R_d||} \cdot R_d \label{eq:wrot_general}
+\end{equation}
+
+\(W_{rot}(\left[R^0\right]^T R^1)\) and \(W_{rot}(\left[R^1\right]^T R^2)\) should be found.
+
+\[
+\left[R^0\right]^T R^1
+=
+\left[\begin{array}{*{3}{p{0.5cm}}}
+  1 & 0 & 0\\
+  0 & 1 & 0\\
+  0 & 0 & 1\\
+\end{array}\right]
+\left[\begin{array}{*{3}{p{0.5cm}}}
+  0 & 1 & 0\\
+ -1 & 0 & 0\\
+  0 & 0 & 1\\
+\end{array}\right]
+=
+\left[\begin{array}{*{3}{p{0.5cm}}}
+  0 & 1 & 0\\
+ -1 & 0 & 0\\
+  0 & 0 & 1\\
+\end{array}\right]
+\]
+
+\[
+ W_{rot} = 
+ \frac{cos^{-1}(0)}{2} *  
+ \left[\begin{array}{c}
+  0\\
+  0\\
+  -2\\
+ \end{array}\right] =
+ \left[\begin{array}{c}
+  0\\
+  0\\
+  -\pi/2\\
+ \end{array}\right] 
+\]
+
+\[
+\left[R^1\right]^T R^2
+=
+\left[\begin{array}{*{3}{p{0.5cm}}}
+  0 &-1 & 0\\
+  1 & 0 & 0\\
+  0 & 0 & 1\\
+\end{array}\right]
+\left[\begin{array}{*{3}{p{0.5cm}}}
+  0 & 0 & 1\\
+ -1 & 0 & 0\\
+  0 &-1 & 0\\
+\end{array}\right]
+=
+\left[\begin{array}{*{3}{p{0.5cm}}}
+  1 & 0 & 0\\
+  0 & 0 & 1\\
+  0 &-1 & 0\\
+\end{array}\right]
+\] 
+
+\[
+ W_{rot} = 
+ \frac{cos^{-1}(0)}{2} *
+ \left[\begin{array}{c}
+  -2\\
+  0\\
+  0\\
+ \end{array}\right] 
+ =
+ \left[\begin{array}{c}
+  -\pi/2\\
+  0\\
+  0\\
+ \end{array}\right] 
+\]
+
+\section{linear trajectory}
+
+To find a linear trajectory, a series of points must be interpolated between the two points. 
+The rotations can be found using equation \ref{eq:linear_interpolation}.
+
+\begin{equation}
+  R_{i-1, i}(t) = R_{eaa} \left( \frac{t-t_i}{t_{i-1} - t_i} W_{rot} (R^{i-1} [R^i]^T)\right) R^i 
+  \label{eq:linear_interpolation}
+\end{equation}
+
+\end{document}
