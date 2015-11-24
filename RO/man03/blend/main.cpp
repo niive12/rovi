@@ -64,6 +64,8 @@ rw::math::Rotation3D<double> R_eaa(const rw::math::Vector3D<double> &theta_v){
     double theta = theta_v.norm2();
     rw::math::Vector3D<double> v = theta_v / theta;
 
+    std::cout << " reaa, theta: " << theta << ", v: " << v << ", norm: " << v.norm2() << "\n";
+
     return R_eaa(v, theta);
 }
 
@@ -100,7 +102,7 @@ rw::math::Vector3D<double> parabola(double dt, const rw::math::Vector3D<double> 
 
     P = (v2 - v1);
     P /= (4 * tau);
-    P *= pow(dt + tau, 2);
+    P *= (dt + tau) * (dt + tau);
     P += (v1 * dt);
     P += X;
 
