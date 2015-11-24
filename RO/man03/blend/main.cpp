@@ -24,7 +24,7 @@ rw::math::Vector3D<double> W_rot(const rw::math::Rotation3D<double> &R){
     return W;
 }
 
-rw::math::Vector3D<double> p_linear_int_back(const rw::math::Vector3D<double> &P_i_low, const rw::math::Vector3D<double> &P_i, double &t_i_low, double &t_i, double &t){
+rw::math::Vector3D<double> P_linear_int_back(const rw::math::Vector3D<double> &P_i_low, const rw::math::Vector3D<double> &P_i, double &t_i_low, double &t_i, double &t){
     rw::math::Vector3D<double> P_t(P_i);
     double scale = (t - t_i);
     scale /= (t_i_low - t_i);
@@ -67,22 +67,77 @@ rw::math::Rotation3D<double> R_eaa(const rw::math::Vector3D<double> &theta_v){
     return R_eaa(v, theta);
 }
 
-rw::math::Rotation3D<double> R_linear_int_back(const rw::math::Rotation3D<double> &R_i_low, const rw::math::Rotation3D<double> &R_i, double &t_i_low, double &t_i, double &t){
+rw::math::Rotation3D<double> R_linear_int_back(const rw::math::Rotation3D<double> &R_i_low,
+                                               const rw::math::Rotation3D<double> &R_i,
+                                               double &t_i_low, double &t_i, double &t){
     double scale = (t - t_i);
     scale /= (t_i_low - t_i);
     rw::math::Rotation3D<double> R_W_rot = R_i; // note that this is done because inverse manipulates with the data it is called on...
     R_W_rot = R_W_rot.inverse();
-//    std::cout << " inv: " << R_W_rot << ", r i low: " << R_i_low << "\n";
     R_W_rot = R_i_low * R_W_rot;
     rw::math::Vector3D<double> tmp = scale * W_rot(R_W_rot);
     rw::math::Rotation3D<double> Reaa = R_eaa(tmp);
-
-//    std::cout << "R_lin: Reaa: " << Reaa << ", tmp: " << tmp << ", R_W_rot: " << R_W_rot << ", scale: " << scale << "\n";
 
     rw::math::Rotation3D<double> R_t = Reaa * R_i;
     return R_t;
 }
 
+rw::math::Transform3D<double> linear_segmentation(const rw::math::Transform3D<double> &T_i_low,
+                                                  const rw::math::Transform3D<double> &T_i,
+                                                  double &t_i_low, double &t_i, double &t){
+    rw::math::Transform3D<double> T;
+    T.R() = R_linear_int_back(T_i_low.R(), T_i.R(), t_i_low, t_i, t);
+    T.P() = P_linear_int_back(T_i_low.P(), T_i.P(), t_i_low, t_i, t);
+
+    return T;
+}
+
+rw::math::Vector3D<double> parabola(double dt, const rw::math::Vector3D<double> &X,
+                                    const rw::math::Vector3D<double> &v1,
+                                    const rw::math::Vector3D<double> &v2,
+                                    double tau){
+    rw::math::Vector3D<double> P;
+
+    P = (v2 - v1);
+    P /= (4 * tau);
+    P *= pow(dt + tau, 2);
+    P += (v1 * dt);
+    P += X;
+
+    return P;
+}
+
+rw::math::Transform3D<double> parabolic_blend(const rw::math::Transform3D<double> &T_i,
+                                              const rw::math::Transform3D<double> &T_i_low,
+                                              const rw::math::Transform3D<double> &T_i_high,
+                                              double t_i, double t_i_low, double t_i_high, double t, double tau){
+    rw::math::Transform3D<double> T;
+
+    // consider positional part
+    rw::math::Vector3D<double> P_low = (T_i_low.P() - T_i.P()) / (t_i_low - t_i);
+    rw::math::Vector3D<double> P_high = (T_i_high.P() - T_i.P()) / (t_i_high - t_i);
+
+    T.P() = parabola(t - t_i, T_i.P(), P_low, P_high, tau);
+
+    // consider rotational part
+    rw::math::Rotation3D<double> R_low = T_i.R();
+    R_low = R_low.inverse();
+    rw::math::Rotation3D<double> R_high = R_low;
+    R_low = T_i_low.R() * R_low;
+    R_high = T_i_high.R() * R_high;
+
+    rw::math::Vector3D<double> W_low = W_rot(R_low);
+    rw::math::Vector3D<double> W_high = W_rot(R_high);
+    W_low /= (t_i_low - t_i);
+    W_high /= (t_i_high - t_i);
+
+    rw::math::Vector3D<double> P = parabola(t - t_i, rw::math::Vector3D<double>::zero(), W_low, W_high, tau);
+    rw::math::Rotation3D<double> Reaa = R_eaa(P);
+
+    T.R() = Reaa * T_i.R();
+
+    return T;
+}
 
 int main(){
 
@@ -91,7 +146,7 @@ int main(){
     const rw::math::Transform3D<double> F_1(rw::math::Vector3D<double>(10, 4, 2), rw::math::Rotation3D<double>(0, 1, 0, -1, 0, 0, 0, 0, 1));
     const rw::math::Transform3D<double> F_2(rw::math::Vector3D<double>(6, 0, -2), rw::math::Rotation3D<double>(0, 0, 1, -1, 0, 0, 0, -1, 0));
     // time
-    double t_0 = 0, t_1 = 1, t_2 = 4;
+    double t_0 = 0, t_1 = 1, t_2 = 4, tau = 0.1;
 
 
     rw::math::Rotation3D<double> i = (F_0.R());
@@ -108,19 +163,18 @@ int main(){
 
     double time_step = 0.1;
     for(double t = 0; t < t_2 + time_step; t += time_step){
-        rw::math::Vector3D<double> segment_p;
-        rw::math::Rotation3D<double> segment_r;
+        rw::math::Transform3D<double> segment;
         if( t < t_1){
-            segment_p = p_linear_int_back(F_0.P(), F_1.P(), t_0, t_1, t);
-            segment_r = R_linear_int_back(F_0.R(), F_1.R(), t_0, t_1, t);
+            segment = linear_segmentation(F_0, F_1, t_0, t_1, t);
         }else{
-            segment_p = p_linear_int_back(F_1.P(), F_2.P(), t_1, t_2, t);
-            segment_r = R_linear_int_back(F_1.R(), F_2.R(), t_1, t_2, t);
+            segment = linear_segmentation(F_1, F_2, t_1, t_2, t);
         }
-        std::cout << "t: " << t << ", " << segment_p << "\n";
-        std::cout << "t: " << t << ", " << segment_r << "\n";
-    }
+        rw::math::Transform3D<double> parabolic_segment;
+        parabolic_segment = parabolic_blend(F_1, F_0, F_2, t_1, t_0, t_2, t, tau);
 
+        std::cout << "t_l: " << t << ", " << segment << "\n";
+        std::cout << "t_p: " << t << ", " << parabolic_segment << "\n";
+    }
 
 
     return 0;
