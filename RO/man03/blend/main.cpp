@@ -141,6 +141,17 @@ rw::math::Transform3D<double> parabolic_blend(const rw::math::Transform3D<double
     return T;
 }
 
+// make cubic spline for M datapoints of N dimensions
+template<typename T>
+T cubic_spline(T &P_s, T &P_f, T &V_s, T &V_f, double t, double t_s, double t_f){
+    T dP = P_f - P_s;
+    double dt = t_f - t_s;
+
+    T C = -2 * dP + dt * (V_s + V_f) * pow((t - t_s) / dt, 3) + 3 * dP - dt * (2 * V_s + V_f) * pow((t - t_s) / dt, 2) + V_s * (t - t_s) + P_s;
+
+    return C;
+}
+
 int main(){
 
     // transformations
@@ -177,6 +188,16 @@ int main(){
         std::cout << "t_l: " << t << ", " << segment << "\n";
         std::cout << "t_p: " << t << ", " << parabolic_segment << "\n";
     }
+
+    rw::math::VectorND<2, double> p1, p2, v1, v2;
+    p1[0] = p1[1] = v1[0] = v2[1] = 0;
+    v1[1] = p2[0] = v2[0] = 1;
+    p2[1] = 2;
+    double t1 = 0, t2 = 1;
+
+    rw::math::VectorND<2, double> cubic_segmentation = cubic_spline< rw::math::VectorND<2, double> >(p1, p2, v1, v2, 0.5, t1, t2);
+
+    std::cout << cubic_segmentation << "\n";
 
     return 0;
 }
