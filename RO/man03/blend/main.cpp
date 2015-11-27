@@ -178,7 +178,6 @@ int main(){
         std::cout << "t_p: " << t << ", " << parabolic_segment << "\n";
     }
 
-
     return 0;
 }
 

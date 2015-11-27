@@ -116,7 +116,7 @@ int main(int argc, char* argv[]){
 //    hue_min = 220 / 2 ; hue_max = 260 /2;
     hue_min = 210 / 2 ; hue_max = 270 /2;
     cv::inRange(imghsv, cv::Scalar(hue_min, sat_min, val_min), cv::Scalar(hue_max,sat_max,val_max), imgBGR[0]);
-//    cv::imshow("blue", imgBGR[0]);
+    cv::imshow("blue", imgBGR[0]);
 
     hue_min = 70 / 2; hue_max = 145 / 2;
     cv::inRange(imghsv, cv::Scalar(hue_min, sat_min, val_min), cv::Scalar(hue_max,sat_max,val_max), imgBGR[1]);
@@ -126,7 +126,7 @@ int main(int argc, char* argv[]){
     cv::inRange(imghsv, cv::Scalar(hue_min, sat_min, val_min), cv::Scalar(hue_max,sat_max,val_max), imgBGR[2]);
 //    cv::imshow("red", imgBGR[2]);
 
-//    cv::waitKey(0);
+    cv::waitKey(0);
 
     std::vector<cv::Point> blue =  find_circles(imgBGR[0]);
     std::vector<cv::Point> red = find_circles(imgBGR[2]);
