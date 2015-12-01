@@ -2,6 +2,7 @@
 #define SAMPLEPLUGIN_HPP
 
 #include "../build/ui_SamplePlugin.h"
+#include "visualServoing.hpp"
 
 #include <opencv2/opencv.hpp>
 
@@ -11,8 +12,17 @@
 #include <rwlibs/opengl/RenderImage.hpp>
 #include <rwlibs/simulation/GLFrameGrabber.hpp>
 
+#include <QSlider>
+#include <QString>
+#include <QFileDialog>
+
 #include <string>
 #include <fstream>      // std::ifstream
+#include <vector>
+
+struct point6D{
+    double x, y, z, roll, pitch, yaw;
+};
 
 class SamplePlugin: public rws::RobWorkStudioPlugin, private Ui::SamplePlugin
 {
@@ -34,6 +44,12 @@ private slots:
 
 	void stateChangedListener(const rw::kinematics::State& state);
 
+
+    void rotest_loadMarker();
+    void rotest_computeConfigurations();
+    void rotest_moveRobot();
+
+
 private:
 	static cv::Mat toOpenCVImage(const rw::sensor::Image& img);
 
@@ -46,6 +62,11 @@ private:
 
     // abosulte path to the projectfolder
     std::string _myPath;
+
+    // rotest
+    bool _rotest_coordinatesLoaded;
+    std::vector< point6D > _rotest_markerpos;
+    std::vector< rw::math::Q > _rotest_robotQ;
 };
 
 #endif /*RINGONHOOKPLUGIN_HPP_*/
