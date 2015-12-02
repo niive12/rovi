@@ -297,8 +297,8 @@ void SamplePlugin::rotest_computeConfigurations(){
             /////////////////////////////////////// SOMETHING IS WRONG HERE, NOT THE RIGHT POS GAINED ///////////////////////////////////////////////////////////////////////////////
             rw::math::Vector3D<double> marker_pos = T_toolTmarker.P();
 
-            double x = marker_pos[0];
-            double y = marker_pos[1];
+            double x = -marker_pos[0];
+            double y = -marker_pos[1];
             double z = marker_pos[2];
             double f = 823;
 
@@ -335,6 +335,7 @@ void SamplePlugin::rotest_computeConfigurations(){
                 dq[j] = dq_eig(j);
             }
 
+            rw::common::Log::log().info() << dq << "\n";
             // find the new configuration
             q += dq;
 
