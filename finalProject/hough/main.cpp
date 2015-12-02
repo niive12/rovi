@@ -16,6 +16,7 @@ struct image_in_image_out{
 };
 
 int line_threshold = 94;
+
 cv::Mat edges, lines_img;
 std::string window_name = "Lines";
 
