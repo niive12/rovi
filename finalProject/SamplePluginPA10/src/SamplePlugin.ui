@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>468</width>
-    <height>479</height>
+    <height>505</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,8 +17,20 @@
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
      <widget class="QTabWidget" name="tabWidget">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>200</height>
+       </size>
+      </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -30,7 +42,7 @@
           <x>0</x>
           <y>0</y>
           <width>450</width>
-          <height>181</height>
+          <height>158</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout">
@@ -62,13 +74,6 @@
           <widget class="QSlider" name="_slider">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="_label">
-           <property name="text">
-            <string>Label</string>
            </property>
           </widget>
          </item>
@@ -184,6 +189,13 @@
         </layout>
        </widget>
       </widget>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="_label">
+      <property name="text">
+       <string>Label</string>
+      </property>
      </widget>
     </item>
    </layout>
