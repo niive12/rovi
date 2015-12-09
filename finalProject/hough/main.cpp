@@ -59,6 +59,7 @@ void on_trackbar(int, void*){
     float other_angle;
     merge_similar_lines(lines);
 
+    std::vector<cv::Vec2f> good_lines;
     for( size_t line = 0; line < lines.size(); ++line){
         float rho = lines[line][0], theta = lines[line][1];
         char n_parallel = 0;
@@ -81,11 +82,11 @@ void on_trackbar(int, void*){
             pt2.x = cvRound(x0 - 1000*(-S));
             pt2.y = cvRound(y0 - 1000*(C));
             cv::line( lines_img, pt1, pt2, cv::Scalar(0,0,255), 1, CV_AA);
+            good_lines.push_back(lines[line]);
         }
     }
     cv::imshow(window_name,lines_img);
 }
-
 
 int main(int argc, char* argv[]){
     cv::Mat org;

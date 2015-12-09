@@ -2,7 +2,8 @@
 if [ $# -eq 1 ]
 then
 	dir=$1
-	app=vision_part-build/VisionPart
+	#app=hough-build/Hough
+	app=harris-build/Harris
 
 	echo -n $(for img in $dir/*png; do $app $img; done | grep "center" | wc -l)
 	echo -n " / " 

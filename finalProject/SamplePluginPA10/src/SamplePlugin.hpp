@@ -11,6 +11,7 @@
 #include <rw/kinematics/State.hpp>
 #include <rwlibs/opengl/RenderImage.hpp>
 #include <rwlibs/simulation/GLFrameGrabber.hpp>
+#include <rw/kinematics.hpp>
 
 #include <QSlider>
 #include <QString>
