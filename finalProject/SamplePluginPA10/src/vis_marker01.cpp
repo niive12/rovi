@@ -64,7 +64,7 @@ bool featureextraction::findMarker01(const cv::Mat &img, std::vector<cv::Point> 
 
     hue_min = 0 / 2; hue_max = 30/ 2;
     cv::inRange(imghsv, cv::Scalar(hue_min, sat_min, val_min), cv::Scalar(hue_max,sat_max,val_max), imgBGR[2]);
-    cv::imshow("red", imgBGR[2]);
+//    cv::imshow("red", imgBGR[2]);
 
     cv::waitKey(1);
 
@@ -117,10 +117,6 @@ bool featureextraction::findMarker01(const cv::Mat &img, std::vector<cv::Point> 
     } else {
         rw::common::Log::log().info() << "no red marker found\n";
     }
-
-//    for(int i = 0; i < blue.size();i++){
-//        rw::common::Log::log().info() << blue[i] << "\n";
-//    }
 
     return ret;
 }
