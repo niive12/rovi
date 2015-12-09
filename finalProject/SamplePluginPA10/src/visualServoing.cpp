@@ -15,7 +15,7 @@ rw::math::Q visualServoing::visualServoing(rw::math::Vector2D< double > &uv, dou
                                            rw::kinematics::State &state){
     std::vector< rw::math::Vector2D<double> > v_uv = {uv};
     std::vector< double > v_z = {z};
-    std::vector< cv::Vec2d > mapping = {cv::Vec2d(0,0)};
+    std::vector< cv::Point > mapping = {cv::Point(0,0)};
 
     return visualServoing(v_uv, v_z, f, device, endeffector, state, mapping);
 }
@@ -24,7 +24,7 @@ rw::math::Q visualServoing::visualServoing(rw::math::Vector2D< double > &uv, dou
 rw::math::Q visualServoing::visualServoing(std::vector< double > &x, std::vector< double > &y,
                                            std::vector< double > &z, double f, rw::models::Device::Ptr &device,
                                            rw::kinematics::Frame * &endeffector, rw::kinematics::State &state,
-                                           std::vector< cv::Vec2d > &mapping){
+                                           std::vector< cv::Point > &mapping){
     if(x.size() != z.size() || z.size() != y.size()){
         rw::common::Log::log().error() << "ERROR: Dimensions of the input of x, y and z must agree in visualServoing.\n";
         rw::common::Log::log().error() << " - x: " << x.size() << ", y: " << y.size() << ", z: " << z.size() << "\n";
@@ -38,7 +38,7 @@ rw::math::Q visualServoing::visualServoing(std::vector< double > &x, std::vector
 
 rw::math::Q visualServoing::visualServoing(std::vector< rw::math::Vector2D< double > > &uv, std::vector< double > &z, double f,
                                            rw::models::Device::Ptr &device, rw::kinematics::Frame * &endeffector,
-                                           rw::kinematics::State &state, std::vector< cv::Vec2d > &mapping){
+                                           rw::kinematics::State &state, std::vector< cv::Point > &mapping){
     if(uv.size() != z.size()){
         rw::common::Log::log().error() << "ERROR: Dimensions of the input of uv and z must agree in visualServoing.\n";
         rw::common::Log::log().error() << " - uv: " << uv.size() << ", z: " << z.size() << "\n";
@@ -261,7 +261,7 @@ Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> visualServoing::z_image(rw
 }
 
 
-Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> visualServoing::du_fixed(std::vector< rw::math::Vector2D< double > > &uv, std::vector< cv::Vec2d > &mappings){
+Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> visualServoing::du_fixed(std::vector< rw::math::Vector2D< double > > &uv, std::vector< cv::Point > &mappings){
     if(uv.size() != mappings.size()){
         rw::common::Log::log().error() << "ERROR: uv and mapping not the same size in 'du'.\n";
         rw::common::Log::log().error() << " - uv: " << uv.size() << ", mappings: " << mappings.size() << "\n";
@@ -273,29 +273,29 @@ Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> visualServoing::du_fixed(s
     du_eig.resize(uv.size() * 2, Eigen::NoChange);
     if(uv.size() == 1){
         // if just one point align it with translation only
-        du_eig(0,0) = -uv[0](0) + mappings[0][0];
-        du_eig(1,0) = -uv[0](1) + mappings[0][1];
+        du_eig(0,0) = -uv[0](0) + mappings[0].x;
+        du_eig(1,0) = -uv[0](1) + mappings[0].y;
     } else if (uv.size() == 2){
         // match to closest point (for small displacements it will follow same point, if not it might flip the marker)
-        double dxone = uv[0](0) - mappings[0][0], dyone = uv[0](1) - mappings[0][1];
-        double dxtwo = uv[1](0) - mappings[1][0], dytwo = uv[1](1) - mappings[1][1];
+        double dxone = uv[0](0) - mappings[0].x, dyone = uv[0](1) - mappings[0].y;
+        double dxtwo = uv[1](0) - mappings[1].x, dytwo = uv[1](1) - mappings[1].y;
         double done = sqrt(dxone * dxone + dyone * dyone) + sqrt(dxtwo * dxtwo + dytwo * dytwo);
-        dxone = uv[0](0) - mappings[1][0];
-        dyone = uv[0](1) - mappings[1][1];
-        dxtwo = uv[1](0) - mappings[0][0];
-        dytwo = uv[1](1) - mappings[0][1];
+        dxone = uv[0](0) - mappings[1].x;
+        dyone = uv[0](1) - mappings[1].y;
+        dxtwo = uv[1](0) - mappings[0].x;
+        dytwo = uv[1](1) - mappings[0].y;
         double dtwo = sqrt(dxone * dxone + dyone * dyone) + sqrt(dxtwo * dxtwo + dytwo * dytwo);
 
         if(done < dtwo){ // 1 -> 1, 2 -> 2 mapping
-            du_eig(0,0) = -uv[0](0) + mappings[0][0];
-            du_eig(1,0) = -uv[0](1) + mappings[0][1];
-            du_eig(2,0) = -uv[1](0) + mappings[1][0];
-            du_eig(3,0) = -uv[1](1) + mappings[1][1];
+            du_eig(0,0) = -uv[0](0) + mappings[0].x;
+            du_eig(1,0) = -uv[0](1) + mappings[0].y;
+            du_eig(2,0) = -uv[1](0) + mappings[1].x;
+            du_eig(3,0) = -uv[1](1) + mappings[1].y;
         } else{ // 1 -> 2, 2 -> 1 mapping
-            du_eig(0,0) = -uv[0](0) + mappings[1][0];
-            du_eig(1,0) = -uv[0](1) + mappings[1][1];
-            du_eig(2,0) = -uv[1](0) + mappings[0][0];
-            du_eig(3,0) = -uv[1](1) + mappings[0][1];
+            du_eig(0,0) = -uv[0](0) + mappings[1].x;
+            du_eig(1,0) = -uv[0](1) + mappings[1].y;
+            du_eig(2,0) = -uv[1](0) + mappings[0].x;
+            du_eig(3,0) = -uv[1](1) + mappings[0].y;
         }
 
     } else if (uv.size() == 3){
@@ -308,9 +308,9 @@ Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> visualServoing::du_fixed(s
                 for(unsigned int k = 0; k < uv.size(); k++){
                     if(i != j && i != k && j != k){ // the mappings may not go to the same corner
                         // calculate the distance for the current mapping
-                        double dxone = uv[0](0) - mappings[i][0], dyone = uv[0](1) - mappings[i][1];
-                        double dxtwo = uv[1](0) - mappings[j][0], dytwo = uv[1](1) - mappings[j][1];
-                        double dxthree = uv[2](0) - mappings[k][0], dythree = uv[2](1) - mappings[k][1];
+                        double dxone = uv[0](0) - mappings[i].x, dyone = uv[0](1) - mappings[i].y;
+                        double dxtwo = uv[1](0) - mappings[j].x, dytwo = uv[1](1) - mappings[j].y;
+                        double dxthree = uv[2](0) - mappings[k].x, dythree = uv[2](1) - mappings[k].y;
                         double dist = sqrt(dxone * dxone + dyone * dyone) + sqrt(dxtwo * dxtwo + dytwo * dytwo) + sqrt(dxthree * dxthree + dythree * dythree);
                         if(mindist == -1 || dist < mindist){
                             mindist = dist;
@@ -321,12 +321,12 @@ Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> visualServoing::du_fixed(s
             }
         }
         // computing du
-        du_eig(0,0) = -uv[0](0) + mappings[map(0)][0];
-        du_eig(1,0) = -uv[0](1) + mappings[map(0)][1];
-        du_eig(2,0) = -uv[1](0) + mappings[map(1)][0];
-        du_eig(3,0) = -uv[1](1) + mappings[map(1)][1];
-        du_eig(4,0) = -uv[2](0) + mappings[map(2)][0];
-        du_eig(5,0) = -uv[2](1) + mappings[map(2)][1];
+        du_eig(0,0) = -uv[0](0) + mappings[map(0)].x;
+        du_eig(1,0) = -uv[0](1) + mappings[map(0)].y;
+        du_eig(2,0) = -uv[1](0) + mappings[map(1)].x;
+        du_eig(3,0) = -uv[1](1) + mappings[map(1)].y;
+        du_eig(4,0) = -uv[2](0) + mappings[map(2)].x;
+        du_eig(5,0) = -uv[2](1) + mappings[map(2)].y;
 
     } else{
         // for count >= 4

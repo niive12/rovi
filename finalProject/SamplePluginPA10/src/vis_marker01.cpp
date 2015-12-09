@@ -83,8 +83,8 @@ bool featureextraction::findMarker01(cv::Mat img, std::vector<cv::Point> &points
     cv::Mat imgBGR[3];
     cv::split(org,imgBGR);
 
-//    cv::imshow("marker 1", org);
-//    cv::imshow("blue" , imgBGR[0]);
+    cv::imshow("marker 1", org);
+    cv::imshow("blue orig" , imgBGR[0]);
 //    cv::imshow("green", imgBGR[1]);
 //    cv::imshow("red"  , imgBGR[2]);
 //    cv::waitKey(0);
@@ -107,7 +107,8 @@ bool featureextraction::findMarker01(cv::Mat img, std::vector<cv::Point> &points
 //    hue_min = 220 / 2 ; hue_max = 260 /2;
     hue_min = 210 / 2 ; hue_max = 270 /2;
     cv::inRange(imghsv, cv::Scalar(hue_min, sat_min, val_min), cv::Scalar(hue_max,sat_max,val_max), imgBGR[0]);
-//    cv::imshow("blue", imgBGR[0]);
+    cv::imshow("blue", imgBGR[0]);
+    cv::waitKey(1);
 
     hue_min = 70 / 2; hue_max = 145 / 2;
     cv::inRange(imghsv, cv::Scalar(hue_min, sat_min, val_min), cv::Scalar(hue_max,sat_max,val_max), imgBGR[1]);
@@ -117,7 +118,7 @@ bool featureextraction::findMarker01(cv::Mat img, std::vector<cv::Point> &points
     cv::inRange(imghsv, cv::Scalar(hue_min, sat_min, val_min), cv::Scalar(hue_max,sat_max,val_max), imgBGR[2]);
 //    cv::imshow("red", imgBGR[2]);
 
-    cv::waitKey(0);
+//    cv::waitKey(0);
 
     std::vector<cv::Point> blue =  find_circles(imgBGR[0]);
     std::vector<cv::Point> red = find_circles(imgBGR[2]);
@@ -158,16 +159,20 @@ bool featureextraction::findMarker01(cv::Mat img, std::vector<cv::Point> &points
 //        std::cout << "center : "<< midpoint << '/' << midpnt_uv << '\t'
 //                  << "rotation in degrees: " << rot * 180/M_PI<< '\n';
 
-        points = blue;
+        points = std::vector< cv::Point >{midpnt_uv};
         ret = true;
 
     } else if(blue.size() < 3) {
-        rw::common::Log::log().info() << "Too few markers found. B#: " << blue.size() << ", R#: " << red.size() << "\n";
+//        rw::common::Log::log().info() << "Too few markers found. B#: " << blue.size() << ", R#: " << red.size() << "\n";
     } else if(blue.size() > 3) {
-        rw::common::Log::log().info() << "Too many markers found. B# : " << blue.size() << ", R#: " << red.size() << "\n";
+//        rw::common::Log::log().info() << "Too many markers found. B# : " << blue.size() << ", R#: " << red.size() << "\n";
     } else {
-        rw::common::Log::log().info() << "no red marker found\n";
+//        rw::common::Log::log().info() << "no red marker found\n";
     }
+
+//    for(int i = 0; i < blue.size();i++){
+//        rw::common::Log::log().info() << blue[i] << "\n";
+//    }
 
     return ret;
 }
