@@ -93,8 +93,8 @@ bool featureextraction::findMarker01(cv::Mat img, std::vector<cv::Point> &points
     cv::cvtColor(org, imghsv, CV_BGR2HSV);
 //    separateChannels(imghsv);
 
-    cv::Mat imgHSV[3];
-    cv::split(imghsv, imgHSV);
+//    cv::Mat imgHSV[3];
+//    cv::split(imghsv, imgHSV);
 //    cv::imshow("hue", imgHSV[0]);
 //    cv::imshow("sat", imgHSV[1]);
 //    cv::imshow("val", imgHSV[2]);

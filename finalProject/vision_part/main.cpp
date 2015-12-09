@@ -34,6 +34,7 @@ std::vector<cv::Point> find_circles(cv::Mat &image, int min_area = 500, int max_
         double area = cv::contourArea(contours[i]);
         double circumference = cv::arcLength(contours[i],false);
         double circle_likeness = 4 * M_PI * area / (circumference * circumference);
+        std::cout << area << "\n";
         if (circle_likeness > 0.81 && area > min_area && area < max_area) {
             mu = cv::moments(contours[i],false);
             cv::Point com = cv::Point( mu.m10/mu.m00 , mu.m01/mu.m00 );
@@ -168,7 +169,7 @@ int main(int argc, char* argv[]){
                   << "rotation in degrees: " << rot * 180/M_PI<< '\n';
 
     } else if(blue.size() < 3) {
-        std::cout << "too few markers found\n";
+        std::cout << blue.size() << " " << red.size() << "too few markers found\n";
     } else if(blue.size() > 3) {
         std::cout << "too many markers found\n";
     } else {

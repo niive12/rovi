@@ -523,4 +523,4 @@ void SamplePlugin::stateChangedListener(const State& state) {
     _state = state;
 }
 
-Q_EXPORT_PLUGIN(SamplePlugin);
+Q_EXPORT_PLUGIN(SamplePlugin)
