@@ -205,6 +205,19 @@
          </property>
         </item>
        </widget>
+       <widget class="QPushButton" name="_btn_rovi_processImage">
+        <property name="geometry">
+         <rect>
+          <x>158</x>
+          <y>90</y>
+          <width>201</width>
+          <height>27</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Process Image</string>
+        </property>
+       </widget>
       </widget>
       <widget class="QWidget" name="tab_3">
        <attribute name="title">

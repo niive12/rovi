@@ -41,6 +41,8 @@ SamplePlugin::SamplePlugin():
     connect(_slider_rotest_Q        ,SIGNAL(valueChanged(int)), this, SLOT(rotest_moveRobot()) );
     connect(_comboBox_rovi_marker   ,SIGNAL(activated(int)), this, SLOT(rovi_load_markerImage()) );
     connect(_comboBox_rovi_background   ,SIGNAL(activated(int)), this, SLOT(rovi_load_bgImage()) );
+    connect(_btn_rovi_processImage   ,SIGNAL(pressed()), this, SLOT(rovi_processImage()) );
+
 
     // robotics test tab - init values
     _rotest_coordinatesLoaded = false;
@@ -345,6 +347,10 @@ void SamplePlugin::rotest_computeConfigurations(){
             rw::math::Q dq_temp, dq;
             // calculate the perfect u and v
             std::vector< rw::math::Vector2D<double> > uv = visualServoing::uv(x, y, z_actual, f);
+            rw::common::Log::log().info() << "uv:\n";
+            for(int i = 0; i < uv.size(); i++){
+                rw::common::Log::log().info() << uv[i] << "\n";
+            }
             // do the visual servoing
             dq_temp = visualServoing::visualServoing(uv, z_approx, f, device, tool, _state, mapping);
 
@@ -366,7 +372,7 @@ void SamplePlugin::rotest_computeConfigurations(){
             marker->setTransform(T_wTgoal, _state);
 
 //            marker = (rw::kinematics::MovableFrame*)(_wc->findFrame("Marker2"));
-//            if(marker == NULL) RW_THROW("Device: " << "Marker2" << " not found!\n");
+//            if(marker == NULL) RW_THROW("Device: " << "Marker2" << " not found!\n");rovi_processImage
 //            marker->setTransform(T_wTgoal * rw::math::Transform3D<double>(rw::math::Vector3D<double>(0.1, 0, 0), rw::math::Rotation3D<double>::identity()), _state);
 //            marker = (rw::kinematics::MovableFrame*)(_wc->findFrame("Marker3"));
 //            if(marker == NULL) RW_THROW("Device: " << "Marker3" << " not found!\n");
@@ -487,6 +493,30 @@ void SamplePlugin::rovi_load_bgImage(){
 
     _bgRender->setImage(*image);
     getRobWorkStudio()->updateAndRepaint();
+}
+
+void SamplePlugin::rovi_processImage(){
+    std::vector< cv::Point > points;
+
+    // Get the image as a RW image
+    Frame* cameraFrame = _wc->findFrame("CameraSim");
+    _framegrabber->grab(cameraFrame, _state);
+    const Image& image = _framegrabber->getImage();
+
+    // Convert to OpenCV image
+    Mat im = toOpenCVImage(image);
+    Mat img;
+    cv::flip(im, img, 0);
+    Mat finalImg;
+
+    img.convertTo(finalImg, CV_8UC3);
+    cv::cvtColor(finalImg, finalImg, CV_RGB2BGR);
+
+    if(featureextraction::findMarker01(finalImg, points)){
+        rw::common::Log::log().info() << "Marker Found!\n" << points[0] << "\n" << points[1] << "\n" << points[2] << "\n";
+    } else{
+        rw::common::Log::log().info() << "Marker Not Found!\n";
+    }
 }
 
 void SamplePlugin::stateChangedListener(const State& state) {
