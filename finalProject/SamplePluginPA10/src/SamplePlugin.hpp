@@ -3,6 +3,7 @@
 
 #include "../build/ui_SamplePlugin.h"
 #include "visualServoing.hpp"
+#include "vis_marker01.hpp"
 
 #include <opencv2/opencv.hpp>
 
@@ -49,6 +50,10 @@ private slots:
     void rotest_loadMarker();
     void rotest_computeConfigurations();
     void rotest_moveRobot();
+
+    void rovi_load_markerImage();
+    void rovi_load_bgImage();
+    void rovi_processImage();
 
 
 private:

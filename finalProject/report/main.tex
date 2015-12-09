@@ -31,30 +31,13 @@
 
 \maketitle
 
-\begin{tikzpicture}
- \node {\includegraphics[scale=1]{graphics/hsv} };
- \node[name=hsv, draw, circle, minimum width =5.3cm] at (-4,-1.85) {};
-% % % % RED % % % %
-% \newcommand{\MinHue}{0} %angle
-% \newcommand{\MaxHue}{30}
-% \newcommand{\MinSat}{1.6cm} % 0 - 1 => 0 - 2.65
-%  \draw (hsv.\MinHue) -- (hsv.center) -- (hsv.\MaxHue);
-%  \draw[very thick]   ([shift=(\MinHue:\MinSat)] hsv.center) arc(\MinHue:\MaxHue:\MinSat);
-% % % % GREEN % % % %
-\newcommand{\MinHue}{70} %angle 
-\newcommand{\MaxHue}{145}
-\newcommand{\MinSat}{1.6cm} % 0 - 1 => 0 - 2.65
- \draw (hsv.\MinHue) -- (hsv.center) -- (hsv.\MaxHue);
- \draw[very thick]   ([shift=(\MinHue:\MinSat)] hsv.center) arc(\MinHue:\MaxHue:\MinSat);
-% % % % BLUE % % % %
-% \newcommand{\MinHue}{210} %angle
-% \newcommand{\MaxHue}{270}
-% \newcommand{\MinSat}{1.6cm} % 0 - 1 => 0 - 2.65
-%  \draw (hsv.\MinHue) -- (hsv.center) -- (hsv.\MaxHue);
-%  \draw[very thick]   ([shift=(\MinHue:\MinSat)] hsv.center) arc(\MinHue:\MaxHue:\MinSat);
 
-\end{tikzpicture}
-
+\section{Feature Extraction}
+\input{sections/vis_intro}
+\input{sections/vis_marker01}
+\input{sections/vis_marker02}
+\input{sections/vis_marker03}
+\input{sections/vis_conclusion}
 
 \begin{tikzpicture}
  \newcommand{\angleA}{10}
@@ -79,6 +62,17 @@
  
  \node[draw, circle]  at (\posX,\posY) {};
 \end{tikzpicture}
+
+\section{Point Tracking}
+\input{sections/rob_intro}
+\input{sections/rob_trackingOne}
+\input{sections/rob_trackingMultiple}
+\input{sections/rob_conclusion}
+
+\section{Combined Feature Extraction and Tracking}
+\input{sections/rovi_intro}
+\input{sections/rovi_combined}
+\input{sections/rovi_conclusion}
 
 
 \end{document}
