@@ -15,15 +15,16 @@ struct image_in_image_out{
     cv::Mat *dst;
 };
 
-int line_threshold = 94;
+int hough_votes = 94;
+int threshold_angle = 15;
+int threshold_dist = 30;
 
+cv::Mat org;
 cv::Mat edges, lines_img;
 std::string window_name = "Lines";
 
 //taken from 5th semester cupcollector / R2D2
-void merge_similar_lines(std::vector<cv::Vec2f> &lines){
-    const float threshold_angle = 15 * CV_PI / 180;
-    const float threshold_dist = 30;
+void merge_similar_lines(std::vector<cv::Vec2f> &lines, float threshold_dist, float threshold_angle){
     bool changeHappened = true;
     while(changeHappened){
         changeHappened = false;
@@ -47,21 +48,40 @@ void merge_similar_lines(std::vector<cv::Vec2f> &lines){
     }
 }
 
-void on_trackbar(int, void*){
+void print_lines(std::vector<cv::Vec2f> &lines, cv::Mat &image){
+    for(auto i: lines){
+        cv::Point pt1, pt2;
+        float rho = i[0], theta = i[1];
+
+        float C = cos(theta), S = sin(theta);
+        float x0 = C*rho, y0 = S*rho;
+        pt1.x = cvRound(x0 + 1000*(-S));
+        pt1.y = cvRound(y0 + 1000*(C));
+        pt2.x = cvRound(x0 - 1000*(-S));
+        pt2.y = cvRound(y0 - 1000*(C));
+        cv::line( image, pt1, pt2, cv::Scalar(0,0,255), 1, CV_AA);
+    }
+    cv::imshow(window_name,image);
+}
+
+std::vector<cv::Vec2f> find_lines_hough(int hough_votes){
     lines_img.setTo(0);
     std::vector<cv::Vec2f> lines;
-    if(line_threshold < 1){
-        line_threshold = 1;
+    if(hough_votes < 1){
+        hough_votes = 1;
     }
-    cv::HoughLines(edges, lines, 1, CV_PI /180, line_threshold, 0,0);
+    cv::HoughLines(edges, lines, 1, CV_PI /180, hough_votes, 0,0);
+    return std::move(lines);
+}
+
+std::vector<cv::Vec2f> find_marker_lines(std::vector<cv::Vec2f> lines){
     const float tol_par = 5 * CV_PI / 180;
     const float tol_cross = (90) * CV_PI / 180;
     float other_angle;
-    merge_similar_lines(lines);
 
     std::vector<cv::Vec2f> good_lines;
     for( size_t line = 0; line < lines.size(); ++line){
-        float rho = lines[line][0], theta = lines[line][1];
+        float theta = lines[line][1];
         char n_parallel = 0;
         char n_crossing = 0;
         for( size_t i = 0; i < lines.size(); ++i){
@@ -74,41 +94,64 @@ void on_trackbar(int, void*){
             }
         }
         if( ( n_parallel > 2 && n_parallel <= 4 && n_crossing >= 3 && n_crossing <= 4) ){
-            cv::Point pt1, pt2;
-            double C = cos(theta), S = sin(theta);
-            double x0 = C*rho, y0 = S*rho;
-            pt1.x = cvRound(x0 + 100*(-S));
-            pt1.y = cvRound(y0 + 100*(C));
-            pt2.x = cvRound(x0 - 1000*(-S));
-            pt2.y = cvRound(y0 - 1000*(C));
-            cv::line( lines_img, pt1, pt2, cv::Scalar(0,0,255), 1, CV_AA);
             good_lines.push_back(lines[line]);
         }
     }
-    cv::imshow(window_name,lines_img);
+    return std::move(good_lines);
+}
+
+void on_trackbar(int, void*){
+    std::vector<cv::Vec2f> Hough_lines = find_lines_hough(hough_votes);
+    print_lines(Hough_lines,lines_img);
+    cv::imshow("edges", lines_img);
+    float threshold_angle_rad = threshold_angle * CV_PI / 180;
+    merge_similar_lines(Hough_lines, threshold_dist, threshold_angle_rad);
+    std::vector<cv::Vec2f> lines = find_marker_lines(Hough_lines);
+    print_lines(lines,lines_img);
+
+}
+
+int image_in_set = 7;
+std::vector<cv::Mat> original_images;
+void image_trackbar(int, void*){
+    org = original_images.at(image_in_set).clone();
+    double th_low = 100, th_high = 300;
+
+    cv::imshow("original", org);
+    cv::Canny(org, edges, th_low, th_high);
+
+    lines_img = org.clone();
+    on_trackbar(0,nullptr);
 }
 
 int main(int argc, char* argv[]){
-    cv::Mat org;
     std::vector<cv::Vec2f> lines;
+
+    cv::namedWindow("original", cv::WINDOW_NORMAL);
     if(argc == 2){
-        org = cv::imread(argv[1]);
+        original_images.push_back( cv::imread(argv[1]) );
     } else {
-        org = cv::imread("../marker_thinline/marker_thinline_18.png");
+        std::string filename;
+        char numbera, numberb;
+        for(int i = 1; i <= 30; ++i){
+            numbera = i/10 %10 + '0';
+            numberb = i%10 + '0';
+            filename = "../marker_thinline/marker_thinline_";
+            filename += numbera;
+            filename += numberb;
+            filename += ".png";
+            std::cout << filename << "\n";
+            original_images.push_back( cv::imread(filename) );
+        }
     }
-    double th_low = 100, th_high = 300;
-
-    cv::imshow("org", org);
-    cv::Canny(org, edges, th_low, th_high);
-
-    cv::imshow("org", edges);
-
+    cv::createTrackbar("Selected image", "original",&image_in_set,original_images.size()-1,image_trackbar);
+    image_trackbar(0,nullptr);
     cv::waitKey();
 
-    lines_img = org.clone();
-
     cv::namedWindow(window_name, cv::WINDOW_NORMAL);
-    cv::createTrackbar("hough votes", window_name,&line_threshold,255,on_trackbar);
+    cv::createTrackbar("Hough votes", window_name,&hough_votes,255,on_trackbar);
+    cv::createTrackbar("Line dist", window_name,&threshold_dist,100,on_trackbar);
+    cv::createTrackbar("Line angle", window_name,&threshold_angle,45,on_trackbar);
     on_trackbar(0,nullptr);
     cv::waitKey();
     return 0;

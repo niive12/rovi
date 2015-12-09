@@ -4,11 +4,18 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <cmath>
 #include <iostream>
+#include <queue>
 
 #include <vector>
 #include <algorithm>
 
 #define RAD_45 0.78539816 //45 degrees in radians
+
+struct comparator_functor {
+  bool operator() (const std::vector<cv::Point> a, const std::vector<cv::Point> b) const {
+    return a.size() > b.size();
+  }
+} sorting_func;
 
 std::vector<cv::Point> find_circles(cv::Mat &image, int min_area = 500, int max_area = 60000){
     int threshold = 127;
@@ -26,14 +33,22 @@ std::vector<cv::Point> find_circles(cv::Mat &image, int min_area = 500, int max_
     cv::Mat drawing = cv::Mat::zeros( image.size(), CV_8UC3 );
 //    std::cout << "contour size: " << contours.size() << '\n';
 
+    std::sort(contours.begin(),contours.end(), sorting_func);
+
+    int n = contours.size();
+    if( n > 3 ){
+        n = 3;
+    }
+
     //select circles
     std::vector<cv::Point> center;
     cv::Moments mu; //use moments to get center of mass
     cv::Scalar color = cv::Scalar(255, 255, 255);
-    for( size_t i = 0; i< contours.size(); i++ ){
+    for( size_t i = 0; i< n; i++ ){
         double area = cv::contourArea(contours[i]);
         double circumference = cv::arcLength(contours[i],false);
         double circle_likeness = 4 * M_PI * area / (circumference * circumference);
+        std::cout << area << "\n";
         if (circle_likeness > 0.81 && area > min_area && area < max_area) {
             mu = cv::moments(contours[i],false);
             cv::Point com = cv::Point( mu.m10/mu.m00 , mu.m01/mu.m00 );
@@ -50,44 +65,15 @@ std::vector<cv::Point> find_circles(cv::Mat &image, int min_area = 500, int max_
     return center;
 }
 
-void separateChannels (cv::Mat img) {
-    //initialize a matrix for each channel in img
-    cv::Mat ch1(img.rows, img.cols, CV_8UC1);
-    cv::Mat ch2(img.rows, img.cols, CV_8UC1);
-    cv::Mat ch3(img.rows, img.cols, CV_8UC1);
-
-    //initialize an int array of size 2
-    int from_to[2];
-
-    //copy channel 2 of img to channel 0 of ch1
-    from_to[0] = 2;
-    from_to[1] = 0;
-    cv::mixChannels( &img, 1, &ch1, 1, from_to, 1);
-    cv::imshow("Value", ch1);
-
-    //copy channel 1 of img to channel 0 of ch2
-    from_to[0] = 1;
-    from_to[1] = 0;
-    cv::mixChannels( &img, 1, &ch2, 1, from_to, 1);
-    cv::imshow("Saturation", ch2);
-
-    //copy channel 0 of img to channel 0 of ch3
-    from_to[0] = 0;
-    from_to[1] = 0;
-    cv::mixChannels( &img, 1, &ch3, 1, from_to, 1);
-    cv::imshow("Hue", ch3);
-
-    cv::waitKey(0);
-}
-
 int main(int argc, char* argv[]){
     cv::Mat org;
     if(argc == 2){
         org = cv::imread(argv[1]);
     } else {
 //        org = cv::imread("../SamplePluginPA10/markers/Marker1_modified.ppm");
-        org = cv::imread("../SamplePluginPA10/markers/Marker1.ppm");
+//        org = cv::imread("../SamplePluginPA10/markers/Marker1.ppm");
 //        org = cv::imread("../marker_color_hard/marker_color_hard_18.png");
+        org = cv::imread("../color_bg.png");
     }
     cv::Mat imgBGR[3];
     cv::split(org,imgBGR);
@@ -100,14 +86,6 @@ int main(int argc, char* argv[]){
 
     cv::Mat imghsv;
     cv::cvtColor(org, imghsv, CV_BGR2HSV);
-//    separateChannels(imghsv);
-
-    cv::Mat imgHSV[3];
-    cv::split(imghsv, imgHSV);
-//    cv::imshow("hue", imgHSV[0]);
-//    cv::imshow("sat", imgHSV[1]);
-//    cv::imshow("val", imgHSV[2]);
-//    cv::waitKey(0);
 
     int hue_min, hue_max; //range 0 - 180 degrees
     int sat_min = 0.3 * 255, sat_max = 1.0 * 255; // range 0 - 255   radius
@@ -116,7 +94,7 @@ int main(int argc, char* argv[]){
 //    hue_min = 220 / 2 ; hue_max = 260 /2;
     hue_min = 210 / 2 ; hue_max = 270 /2;
     cv::inRange(imghsv, cv::Scalar(hue_min, sat_min, val_min), cv::Scalar(hue_max,sat_max,val_max), imgBGR[0]);
-    cv::imshow("blue", imgBGR[0]);
+//    cv::imshow("blue", imgBGR[0]);
 
     hue_min = 70 / 2; hue_max = 145 / 2;
     cv::inRange(imghsv, cv::Scalar(hue_min, sat_min, val_min), cv::Scalar(hue_max,sat_max,val_max), imgBGR[1]);
@@ -168,7 +146,7 @@ int main(int argc, char* argv[]){
                   << "rotation in degrees: " << rot * 180/M_PI<< '\n';
 
     } else if(blue.size() < 3) {
-        std::cout << "too few markers found\n";
+        std::cout << blue.size() << " " << red.size() << "too few markers found\n";
     } else if(blue.size() > 3) {
         std::cout << "too many markers found\n";
     } else {

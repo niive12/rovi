@@ -81,14 +81,17 @@ void SamplePlugin::initialize() {
     getRobWorkStudio()->setWorkCell(wc);
 
     // Load Lena image
-    //    Mat im, image;
-    //    im = imread(_myPath + "/finalProject/SamplePluginPA10/src/lena.bmp", CV_LOAD_IMAGE_COLOR); // Read the file
-    //    cvtColor(im, image, CV_BGR2RGB); // Switch the red and blue color channels
-    //    if(! image.data ) {
-    //        RW_THROW("Could not open or find the image: please modify the file path in the source code!");
-    //    }
-    //    QImage img(image.data, image.cols, image.rows, image.step, QImage::Format_RGB888); // Create QImage from the OpenCV image
-    //    _label->setPixmap(QPixmap::fromImage(img)); // Show the image at the label in the plugin
+    Mat im, image;
+    im = imread(_myPath + "/finalProject/SamplePluginPA10/src/lena.bmp", CV_LOAD_IMAGE_COLOR); // Read the file
+    cvtColor(im, image, CV_BGR2RGB); // Switch the red and blue color channels
+    if(! image.data ) {
+        RW_THROW("Could not open or find the image: please modify the file path in the source code!");
+    }
+    int w = _label->width();
+    int h = _label->height();
+    QImage img(image.data, image.cols, image.rows, image.step, QImage::Format_RGB888); // Create QImage from the OpenCV image
+//    _label->setPixmap(QPixmap::fromImage(img)); // Show the image at the label in the plugin
+    _label->setPixmap( QPixmap::fromImage(img).scaled(w,h,Qt::KeepAspectRatio) );
 }
 
 void SamplePlugin::open(WorkCell* workcell)
@@ -202,13 +205,13 @@ void SamplePlugin::loadMarkerMovement(){
     int index = _comboBox_settings_loadMarker->currentIndex();
 
     switch (index) {
-    case 0:
+    case 2:
         file = QString::fromStdString(_myPath) + "/finalProject/SamplePluginPA10/motions/MarkerMotionSlow.txt";
         break;
     case 1:
         file = QString::fromStdString(_myPath) + "/finalProject/SamplePluginPA10/motions/MarkerMotionMedium.txt";
         break;
-    case 2:
+    case 0:
         file = QString::fromStdString(_myPath) + "/finalProject/SamplePluginPA10/motions/MarkerMotionFast.txt";
         break;
     default:
@@ -559,4 +562,4 @@ void SamplePlugin::stateChangedListener(const State& state) {
     _state = state;
 }
 
-Q_EXPORT_PLUGIN(SamplePlugin);
+Q_EXPORT_PLUGIN(SamplePlugin)
