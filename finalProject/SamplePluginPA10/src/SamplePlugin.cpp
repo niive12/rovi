@@ -322,7 +322,7 @@ void SamplePlugin::rotest_computeConfigurations(){
                 y.emplace_back(T_toolTmarker.P()[1]);
                 z_actual.emplace_back(T_toolTmarker.P()[2]);
                 z_approx.emplace_back(-0.5);
-                mapping.emplace_back(100, 0);
+                mapping.emplace_back(160, 0);
 
                 // add the point (0, 0.1, 0)
                 T_toolTmarker = T_wTtool;
@@ -331,7 +331,7 @@ void SamplePlugin::rotest_computeConfigurations(){
                 y.emplace_back(T_toolTmarker.P()[1]);
                 z_actual.emplace_back(T_toolTmarker.P()[2]);
                 z_approx.emplace_back(-0.5);
-                mapping.emplace_back(0, 100);
+                mapping.emplace_back(0, 160);
 
 //                T_toolTmarker = T_wTtool;
 //                rw::math::Transform3D<double>::invMult(T_toolTmarker, T_wTgoal * rw::math::Transform3D<double>(rw::math::Vector3D<double>(0.1, 0.1, 0), rw::math::Rotation3D<double>::identity()));
