@@ -26,78 +26,34 @@
       <property name="maximumSize">
        <size>
         <width>16777215</width>
-        <height>200</height>
+        <height>250</height>
        </size>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
-      <widget class="QWidget" name="tab">
+      <widget class="QWidget" name="tab_4">
        <attribute name="title">
-        <string>Original Plugin</string>
+        <string>ROVI</string>
        </attribute>
-       <widget class="QWidget" name="layoutWidget">
+       <widget class="QPushButton" name="_btn_rovi_processImage">
         <property name="geometry">
          <rect>
-          <x>0</x>
-          <y>10</y>
-          <width>450</width>
-          <height>91</height>
-         </rect>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout">
-         <item>
-          <widget class="QPushButton" name="_btn0">
-           <property name="text">
-            <string>Load Marker</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="_btn1">
-           <property name="text">
-            <string>See Robot View</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </widget>
-      <widget class="QWidget" name="tab_2">
-       <attribute name="title">
-        <string>Robotics Test</string>
-       </attribute>
-       <widget class="QPushButton" name="_btn_rotest_loadMarker">
-        <property name="geometry">
-         <rect>
-          <x>110</x>
-          <y>20</y>
-          <width>231</width>
-          <height>27</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Load Marker Movement</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="_btn_rotest_computeQP1">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>70</y>
+          <x>200</x>
+          <y>120</y>
           <width>201</width>
           <height>27</height>
          </rect>
         </property>
         <property name="text">
-         <string>Compute Q for 1 point</string>
+         <string>Process Image</string>
         </property>
        </widget>
        <widget class="QSlider" name="_slider_rotest_Q">
         <property name="geometry">
          <rect>
           <x>20</x>
-          <y>120</y>
+          <y>90</y>
           <width>411</width>
           <height>29</height>
          </rect>
@@ -112,111 +68,117 @@
          <enum>Qt::Horizontal</enum>
         </property>
        </widget>
-       <widget class="QPushButton" name="_btn_rotest_computeQP3">
+       <widget class="QWidget" name="formLayoutWidget_2">
         <property name="geometry">
          <rect>
-          <x>230</x>
-          <y>70</y>
-          <width>201</width>
-          <height>27</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Compute Q for 3 points</string>
-        </property>
-       </widget>
-      </widget>
-      <widget class="QWidget" name="tab_4">
-       <attribute name="title">
-        <string>ROVI</string>
-       </attribute>
-       <widget class="QComboBox" name="_comboBox_rovi_marker">
-        <property name="geometry">
-         <rect>
-          <x>260</x>
+          <x>20</x>
           <y>10</y>
-          <width>151</width>
-          <height>27</height>
+          <width>411</width>
+          <height>71</height>
          </rect>
         </property>
-        <item>
-         <property name="text">
-          <string>Marker 1</string>
+        <layout class="QFormLayout" name="formLayout_2">
+         <property name="fieldGrowthPolicy">
+          <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
          </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Marker 2 (a)</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Marker 2 (b)</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Marker 3</string>
-         </property>
-        </item>
-       </widget>
-       <widget class="QComboBox" name="_comboBox_rovi_background">
-        <property name="geometry">
-         <rect>
-          <x>40</x>
-          <y>10</y>
-          <width>151</width>
-          <height>27</height>
-         </rect>
-        </property>
-        <item>
-         <property name="text">
-          <string>Many Butterflies</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Color Spots</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>SIngle Butterfly</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Metal</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Carpet</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Mosaik Window</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Waterbed</string>
-         </property>
-        </item>
-       </widget>
-       <widget class="QPushButton" name="_btn_rovi_processImage">
-        <property name="geometry">
-         <rect>
-          <x>158</x>
-          <y>90</y>
-          <width>201</width>
-          <height>27</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Process Image</string>
-        </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="markerLabel_2">
+           <property name="text">
+            <string>Marker</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="_comboBox_rovi_marker">
+           <item>
+            <property name="text">
+             <string>Marker 1</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Marker 2a</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Marker 2b</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Marker 3</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Ideal 1pt</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Ideal 2pt</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Ideal 3pt</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="backgroundLabel">
+           <property name="text">
+            <string>Background</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QComboBox" name="_comboBox_rovi_background">
+           <item>
+            <property name="text">
+             <string>None</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Many Butterflies</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Color Spots</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>One Butterfly</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Metal</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Carpet</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Mosaik Window</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Waterbed</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </widget>
       <widget class="QWidget" name="tab_3">
@@ -229,7 +191,7 @@
           <x>19</x>
           <y>19</y>
           <width>411</width>
-          <height>128</height>
+          <height>188</height>
          </rect>
         </property>
         <layout class="QFormLayout" name="formLayout">
@@ -295,6 +257,46 @@
            </property>
           </widget>
          </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="markerMovementLabel">
+           <property name="text">
+            <string>Marker Movement</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QComboBox" name="_comboBox_settings_loadMarker">
+           <item>
+            <property name="text">
+             <string>Fast</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Medium</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Slow</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="updateCameraviewLabel">
+           <property name="text">
+            <string>Update Cameraview</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QCheckBox" name="_checkBox_settings_updateCameraview">
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </widget>
@@ -304,6 +306,9 @@
      <widget class="QLabel" name="_label">
       <property name="text">
        <string>Label</string>
+      </property>
+      <property name="scaledContents">
+       <bool>false</bool>
       </property>
      </widget>
     </item>

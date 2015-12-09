@@ -17,6 +17,7 @@
 #include <QSlider>
 #include <QString>
 #include <QFileDialog>
+#include <QCheckBox>
 
 #include <string>
 #include <fstream>      // std::ifstream
@@ -41,14 +42,15 @@ public:
 	virtual void initialize();
 
 private slots:
-	void btnPressed();
+    void updateCameraView();
 	void timer();
 
 	void stateChangedListener(const rw::kinematics::State& state);
 
+    void loadMarkerMovement();
 
-    void rotest_loadMarker();
-    void rotest_computeConfigurations();
+    rw::math::Q rotest_computeConfigurations(std::vector< cv::Point > &uv, std::vector< cv::Point > &mapping);
+    void rotest_computeFakeUV(int points, std::vector< cv::Point > &uv);
     void rotest_moveRobot();
 
     void rovi_load_markerImage();
@@ -69,10 +71,12 @@ private:
     // abosulte path to the projectfolder
     std::string _myPath;
 
-    // rotest
-    bool _rotest_coordinatesLoaded;
-    std::vector< point6D > _rotest_markerpos;
-    std::vector< rw::math::Q > _rotest_robotQ;
+    // settings
+    bool _settings_coordinatesLoaded;
+    std::vector< point6D > _settings_markerpos;
+
+    // robot configurations
+    std::vector< rw::math::Q > _robotQ;
 };
 
 #endif /*RINGONHOOKPLUGIN_HPP_*/

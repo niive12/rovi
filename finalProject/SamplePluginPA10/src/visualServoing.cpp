@@ -4,16 +4,16 @@
 rw::math::Q visualServoing::visualServoing(double x, double y, double z, double f,
                                            rw::models::Device::Ptr &device,
                                            rw::kinematics::Frame * &endeffector, rw::kinematics::State &state){
-    rw::math::Vector2D<double> uv = visualServoing::uv(x,y,z,f);
+    cv::Point uv = visualServoing::uv(x,y,z,f);
 
     return visualServoing(uv, z, f, device, endeffector, state);
 }
 
 
-rw::math::Q visualServoing::visualServoing(rw::math::Vector2D< double > &uv, double z, double f,
+rw::math::Q visualServoing::visualServoing(cv::Point &uv, double z, double f,
                                            rw::models::Device::Ptr &device, rw::kinematics::Frame * &endeffector,
                                            rw::kinematics::State &state){
-    std::vector< rw::math::Vector2D<double> > v_uv = {uv};
+    std::vector< cv::Point > v_uv = {uv};
     std::vector< double > v_z = {z};
     std::vector< cv::Point > mapping = {cv::Point(0,0)};
 
@@ -29,14 +29,14 @@ rw::math::Q visualServoing::visualServoing(std::vector< double > &x, std::vector
         rw::common::Log::log().error() << "ERROR: Dimensions of the input of x, y and z must agree in visualServoing.\n";
         rw::common::Log::log().error() << " - x: " << x.size() << ", y: " << y.size() << ", z: " << z.size() << "\n";
     }
-    std::vector< rw::math::Vector2D<double> > v_uv = uv(x,y,z,f);
+    std::vector< cv::Point > v_uv = uv(x,y,z,f);
 
 
     return visualServoing(v_uv, z, f, device, endeffector, state, mapping);
 }
 
 
-rw::math::Q visualServoing::visualServoing(std::vector< rw::math::Vector2D< double > > &uv, std::vector< double > &z, double f,
+rw::math::Q visualServoing::visualServoing(std::vector< cv::Point > &uv, std::vector< double > &z, double f,
                                            rw::models::Device::Ptr &device, rw::kinematics::Frame * &endeffector,
                                            rw::kinematics::State &state, std::vector< cv::Point > &mapping){
     if(uv.size() != z.size()){
@@ -44,6 +44,11 @@ rw::math::Q visualServoing::visualServoing(std::vector< rw::math::Vector2D< doub
         rw::common::Log::log().error() << " - uv: " << uv.size() << ", z: " << z.size() << "\n";
     }
     //    rw::common::Log::log().info() << "-------- New calc --------\n";
+
+    //
+    for(int i = 0; i < uv.size(); i++){
+        uv[i] = -uv[i];
+    }
 
     // J_image, image jacobian
     rw::math::Jacobian j_image = imageJacobian(uv, f, z);
@@ -138,18 +143,20 @@ bool visualServoing::velocityConstraint(rw::math::Q &dq, rw::models::Device::Ptr
 
 
 
-rw::math::Vector2D< double > visualServoing::uv(double x, double y, double z, double f){
-    rw::math::Vector2D<double> uv( f * x / z, f * y / z);
+cv::Point visualServoing::uv(double x, double y, double z, double f){
+    cv::Point uv;
+    uv.x = f * x / z;
+    uv.y = f * y / z;
     return uv;
 }
 
-std::vector< rw::math::Vector2D< double > > visualServoing::uv(std::vector< double > &x, std::vector< double > &y, std::vector< double > &z, double f){
+std::vector< cv::Point > visualServoing::uv(std::vector< double > &x, std::vector< double > &y, std::vector< double > &z, double f){
     if(x.size() != y.size() || y.size() != z.size()){
         rw::common::Log::log().error() << "ERROR: Dimensions of the input of x, y and z must agree in uv.\n";
         rw::common::Log::log().error() << " - x: " << x.size() << ", y: " << y.size() << ", z: " << z.size() << "\n";
     }
 
-    std::vector< rw::math::Vector2D< double > > v_uv;
+    std::vector< cv::Point > v_uv;
     for(unsigned int i = 0; i < x.size(); i++){
         double x_t = x[i], y_t = y[i], z_t = z[i];
         v_uv.emplace_back(uv(x_t, y_t, z_t, f));
@@ -161,13 +168,13 @@ std::vector< rw::math::Vector2D< double > > visualServoing::uv(std::vector< doub
 
 rw::math::Jacobian visualServoing::imageJacobian(double x, double y, double z, double f){
 
-    rw::math::Vector2D< double > uvs = uv(x, y, z, f);
+    cv::Point uvs = uv(x, y, z, f);
 
     return imageJacobian(uvs, f, z);
 }
 
-rw::math::Jacobian visualServoing::imageJacobian(rw::math::Vector2D< double > &uv, double f, double z){
-    std::vector< rw::math::Vector2D< double > > v_uv = {uv};
+rw::math::Jacobian visualServoing::imageJacobian(cv::Point &uv, double f, double z){
+    std::vector< cv::Point > v_uv = {uv};
     std::vector< double > v_z = {z};
 
     return imageJacobian(v_uv, f, v_z);
@@ -179,13 +186,13 @@ rw::math::Jacobian visualServoing::imageJacobian(std::vector< double > &x, std::
         rw::common::Log::log().error() << " - x: " << x.size() << ", y: " << y.size() << ", z: " << z.size() << "\n";
     }
 
-    std::vector< rw::math::Vector2D< double > > v_uv = uv(x, y, z, f);
+    std::vector< cv::Point > v_uv = uv(x, y, z, f);
 
     return imageJacobian(v_uv, f, z);
 }
 
 
-rw::math::Jacobian visualServoing::imageJacobian(std::vector< rw::math::Vector2D< double > > &uv, double f, std::vector< double > &z){
+rw::math::Jacobian visualServoing::imageJacobian(std::vector< cv::Point > &uv, double f, std::vector< double > &z){
     if(uv.size() != z.size()){
         rw::common::Log::log().error() << "ERROR: Dimensions of the input of x, y and z must agree in imageJacobian.\n";
         rw::common::Log::log().error() << " - uv: " << uv.size() << ", z: " << z.size() << "\n";
@@ -195,8 +202,8 @@ rw::math::Jacobian visualServoing::imageJacobian(std::vector< rw::math::Vector2D
     //    imageJ.re
 
     for(unsigned int i = 0; i < uv.size(); i++){
-        double u = uv[i](0);
-        double v = uv[i](1);
+        double u = uv[i].x;
+        double v = uv[i].y;
 
         imageJ(i*2,0) = - f / z[i];
         imageJ(i*2,1) = 0;
@@ -261,7 +268,7 @@ Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> visualServoing::z_image(rw
 }
 
 
-Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> visualServoing::du_fixed(std::vector< rw::math::Vector2D< double > > &uv, std::vector< cv::Point > &mappings){
+Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> visualServoing::du_fixed(std::vector< cv::Point > &uv, std::vector< cv::Point > &mappings){
     if(uv.size() != mappings.size()){
         rw::common::Log::log().error() << "ERROR: uv and mapping not the same size in 'du'.\n";
         rw::common::Log::log().error() << " - uv: " << uv.size() << ", mappings: " << mappings.size() << "\n";
@@ -273,29 +280,29 @@ Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> visualServoing::du_fixed(s
     du_eig.resize(uv.size() * 2, Eigen::NoChange);
     if(uv.size() == 1){
         // if just one point align it with translation only
-        du_eig(0,0) = -uv[0](0) + mappings[0].x;
-        du_eig(1,0) = -uv[0](1) + mappings[0].y;
+        du_eig(0,0) = -uv[0].x + mappings[0].x;
+        du_eig(1,0) = -uv[0].y + mappings[0].y;
     } else if (uv.size() == 2){
         // match to closest point (for small displacements it will follow same point, if not it might flip the marker)
-        double dxone = uv[0](0) - mappings[0].x, dyone = uv[0](1) - mappings[0].y;
-        double dxtwo = uv[1](0) - mappings[1].x, dytwo = uv[1](1) - mappings[1].y;
+        double dxone = uv[0].x - mappings[0].x, dyone = uv[0].y - mappings[0].y;
+        double dxtwo = uv[1].x - mappings[1].x, dytwo = uv[1].y - mappings[1].y;
         double done = sqrt(dxone * dxone + dyone * dyone) + sqrt(dxtwo * dxtwo + dytwo * dytwo);
-        dxone = uv[0](0) - mappings[1].x;
-        dyone = uv[0](1) - mappings[1].y;
-        dxtwo = uv[1](0) - mappings[0].x;
-        dytwo = uv[1](1) - mappings[0].y;
+        dxone = -uv[0].x - mappings[1].x;
+        dyone = -uv[0].y - mappings[1].y;
+        dxtwo = -uv[1].x - mappings[0].x;
+        dytwo = -uv[1].y - mappings[0].y;
         double dtwo = sqrt(dxone * dxone + dyone * dyone) + sqrt(dxtwo * dxtwo + dytwo * dytwo);
 
         if(done < dtwo){ // 1 -> 1, 2 -> 2 mapping
-            du_eig(0,0) = -uv[0](0) + mappings[0].x;
-            du_eig(1,0) = -uv[0](1) + mappings[0].y;
-            du_eig(2,0) = -uv[1](0) + mappings[1].x;
-            du_eig(3,0) = -uv[1](1) + mappings[1].y;
+            du_eig(0,0) = -uv[0].x + mappings[0].x;
+            du_eig(1,0) = -uv[0].y + mappings[0].y;
+            du_eig(2,0) = -uv[1].x + mappings[1].x;
+            du_eig(3,0) = -uv[1].y + mappings[1].y;
         } else{ // 1 -> 2, 2 -> 1 mapping
-            du_eig(0,0) = -uv[0](0) + mappings[1].x;
-            du_eig(1,0) = -uv[0](1) + mappings[1].y;
-            du_eig(2,0) = -uv[1](0) + mappings[0].x;
-            du_eig(3,0) = -uv[1](1) + mappings[0].y;
+            du_eig(0,0) = -uv[0].x + mappings[1].x;
+            du_eig(1,0) = -uv[0].y + mappings[1].y;
+            du_eig(2,0) = -uv[1].x + mappings[0].x;
+            du_eig(3,0) = -uv[1].y + mappings[0].y;
         }
 
     } else if (uv.size() == 3){
@@ -308,9 +315,9 @@ Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> visualServoing::du_fixed(s
                 for(unsigned int k = 0; k < uv.size(); k++){
                     if(i != j && i != k && j != k){ // the mappings may not go to the same corner
                         // calculate the distance for the current mapping
-                        double dxone = uv[0](0) - mappings[i].x, dyone = uv[0](1) - mappings[i].y;
-                        double dxtwo = uv[1](0) - mappings[j].x, dytwo = uv[1](1) - mappings[j].y;
-                        double dxthree = uv[2](0) - mappings[k].x, dythree = uv[2](1) - mappings[k].y;
+                        double dxone = uv[0].x - mappings[i].x, dyone = uv[0].y - mappings[i].y;
+                        double dxtwo = uv[1].x - mappings[j].x, dytwo = uv[1].y - mappings[j].y;
+                        double dxthree = uv[2].x - mappings[k].x, dythree = uv[2].y - mappings[k].y;
                         double dist = sqrt(dxone * dxone + dyone * dyone) + sqrt(dxtwo * dxtwo + dytwo * dytwo) + sqrt(dxthree * dxthree + dythree * dythree);
                         if(mindist == -1 || dist < mindist){
                             mindist = dist;
@@ -321,12 +328,12 @@ Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> visualServoing::du_fixed(s
             }
         }
         // computing du
-        du_eig(0,0) = -uv[0](0) + mappings[map(0)].x;
-        du_eig(1,0) = -uv[0](1) + mappings[map(0)].y;
-        du_eig(2,0) = -uv[1](0) + mappings[map(1)].x;
-        du_eig(3,0) = -uv[1](1) + mappings[map(1)].y;
-        du_eig(4,0) = -uv[2](0) + mappings[map(2)].x;
-        du_eig(5,0) = -uv[2](1) + mappings[map(2)].y;
+        du_eig(0,0) = -uv[0].x + mappings[map(0)].x;
+        du_eig(1,0) = -uv[0].y + mappings[map(0)].y;
+        du_eig(2,0) = -uv[1].x + mappings[map(1)].x;
+        du_eig(3,0) = -uv[1].y + mappings[map(1)].y;
+        du_eig(4,0) = -uv[2].x + mappings[map(2)].x;
+        du_eig(5,0) = -uv[2].y + mappings[map(2)].y;
 
     } else{
         // for count >= 4
@@ -334,7 +341,7 @@ Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> visualServoing::du_fixed(s
         // does NOT need assumption of small changes in the marker
         std::vector< cv::Vec2d > uv_vec2d, dst;
         for(unsigned int i = 0; i < uv.size(); i++){
-            uv_vec2d.emplace_back(uv[i](0), uv[i](1));
+            uv_vec2d.emplace_back(uv[i].x, uv[i].y);
         }
 
         cv::Mat H = cv::findHomography(uv_vec2d, mappings,CV_RANSAC);
@@ -351,14 +358,14 @@ Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> visualServoing::du_fixed(s
     return du_eig;
 }
 
-double visualServoing::approxDist(std::vector< rw::math::Vector2D< double > > &uv, double f, double actualdist){
+double visualServoing::approxDist(std::vector< cv::Point > &uv, double f, double actualdist){
     double retdist = 0.5;
     if (uv.size() == 3){
         // find the size of the obj
         double maxd = 0;
         for(unsigned int i = 0; i < uv.size(); i++){
             for(unsigned int j = i+1; j < uv.size(); j++){
-                double dx = uv[i](0) - uv[j](0), dy = uv[i](1) - uv[j](1);
+                double dx = uv[i].x - uv[j].x, dy = uv[i].y - uv[j].y;
                 double dist = sqrt(dx * dx + dy * dy);
                 //                rw::common::Log::log().info() << "dist: " << dist << "\n";
                 if(dist > maxd){
