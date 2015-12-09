@@ -30,7 +30,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -130,6 +130,81 @@
        <attribute name="title">
         <string>ROVI</string>
        </attribute>
+       <widget class="QComboBox" name="_comboBox_rovi_marker">
+        <property name="geometry">
+         <rect>
+          <x>260</x>
+          <y>10</y>
+          <width>151</width>
+          <height>27</height>
+         </rect>
+        </property>
+        <item>
+         <property name="text">
+          <string>Marker 1</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Marker 2 (a)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Marker 2 (b)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Marker 3</string>
+         </property>
+        </item>
+       </widget>
+       <widget class="QComboBox" name="_comboBox_rovi_background">
+        <property name="geometry">
+         <rect>
+          <x>40</x>
+          <y>10</y>
+          <width>151</width>
+          <height>27</height>
+         </rect>
+        </property>
+        <item>
+         <property name="text">
+          <string>Many Butterflies</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Color Spots</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>SIngle Butterfly</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Metal</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Carpet</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Mosaik Window</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Waterbed</string>
+         </property>
+        </item>
+       </widget>
       </widget>
       <widget class="QWidget" name="tab_3">
        <attribute name="title">

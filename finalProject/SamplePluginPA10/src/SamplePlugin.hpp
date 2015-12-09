@@ -50,6 +50,9 @@ private slots:
     void rotest_computeConfigurations();
     void rotest_moveRobot();
 
+    void rovi_load_markerImage();
+    void rovi_load_bgImage();
+
 
 private:
 	static cv::Mat toOpenCVImage(const rw::sensor::Image& img);

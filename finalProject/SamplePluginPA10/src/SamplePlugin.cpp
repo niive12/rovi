@@ -38,7 +38,9 @@ SamplePlugin::SamplePlugin():
     connect(_btn_rotest_computeQP1  ,SIGNAL(pressed()), this, SLOT(rotest_computeConfigurations()) );
     connect(_btn_rotest_computeQP3  ,SIGNAL(pressed()), this, SLOT(rotest_computeConfigurations()) );
     connect(_btn_rotest_loadMarker  ,SIGNAL(pressed()), this, SLOT(rotest_loadMarker()) );
-    connect(_slider_rotest_Q  ,SIGNAL(valueChanged(int)), this, SLOT(rotest_moveRobot()) );
+    connect(_slider_rotest_Q        ,SIGNAL(valueChanged(int)), this, SLOT(rotest_moveRobot()) );
+    connect(_comboBox_rovi_marker   ,SIGNAL(activated(int)), this, SLOT(rovi_load_markerImage()) );
+    connect(_comboBox_rovi_background   ,SIGNAL(activated(int)), this, SLOT(rovi_load_bgImage()) );
 
     // robotics test tab - init values
     _rotest_coordinatesLoaded = false;
@@ -363,12 +365,12 @@ void SamplePlugin::rotest_computeConfigurations(){
 
             marker->setTransform(T_wTgoal, _state);
 
-            marker = (rw::kinematics::MovableFrame*)(_wc->findFrame("Marker2"));
-            if(marker == NULL) RW_THROW("Device: " << "Marker2" << " not found!\n");
-            marker->setTransform(T_wTgoal * rw::math::Transform3D<double>(rw::math::Vector3D<double>(0.1, 0, 0), rw::math::Rotation3D<double>::identity()), _state);
-            marker = (rw::kinematics::MovableFrame*)(_wc->findFrame("Marker3"));
-            if(marker == NULL) RW_THROW("Device: " << "Marker3" << " not found!\n");
-            marker->setTransform(T_wTgoal * rw::math::Transform3D<double>(rw::math::Vector3D<double>(0, 0.1, 0), rw::math::Rotation3D<double>::identity()), _state);
+//            marker = (rw::kinematics::MovableFrame*)(_wc->findFrame("Marker2"));
+//            if(marker == NULL) RW_THROW("Device: " << "Marker2" << " not found!\n");
+//            marker->setTransform(T_wTgoal * rw::math::Transform3D<double>(rw::math::Vector3D<double>(0.1, 0, 0), rw::math::Rotation3D<double>::identity()), _state);
+//            marker = (rw::kinematics::MovableFrame*)(_wc->findFrame("Marker3"));
+//            if(marker == NULL) RW_THROW("Device: " << "Marker3" << " not found!\n");
+//            marker->setTransform(T_wTgoal * rw::math::Transform3D<double>(rw::math::Vector3D<double>(0, 0.1, 0), rw::math::Rotation3D<double>::identity()), _state);
 
             // store te configuration in the vector
             _rotest_robotQ[i] = q;
@@ -414,19 +416,78 @@ void SamplePlugin::rotest_moveRobot(){
 
         marker->setTransform(T_wTmarker, _state);
 
-        marker = (rw::kinematics::MovableFrame*)(_wc->findFrame("Marker2"));
-        if(marker == NULL) RW_THROW("Device: " << deviceName << " not found!\n");
-        marker->setTransform(T_wTmarker * rw::math::Transform3D<double>(rw::math::Vector3D<double>(0.1, 0, 0), rw::math::Rotation3D<double>::identity()), _state);
-        marker = (rw::kinematics::MovableFrame*)(_wc->findFrame("Marker3"));
-        if(marker == NULL) RW_THROW("Device: " << deviceName << " not found!\n");
-        marker->setTransform(T_wTmarker * rw::math::Transform3D<double>(rw::math::Vector3D<double>(0, 0.1, 0), rw::math::Rotation3D<double>::identity()), _state);
+//        marker = (rw::kinematics::MovableFrame*)(_wc->findFrame("Marker2"));
+//        if(marker == NULL) RW_THROW("Device: " << deviceName << " not found!\n");
+//        marker->setTransform(T_wTmarker * rw::math::Transform3D<double>(rw::math::Vector3D<double>(0.1, 0, 0), rw::math::Rotation3D<double>::identity()), _state);
+//        marker = (rw::kinematics::MovableFrame*)(_wc->findFrame("Marker3"));
+//        if(marker == NULL) RW_THROW("Device: " << deviceName << " not found!\n");
+//        marker->setTransform(T_wTmarker * rw::math::Transform3D<double>(rw::math::Vector3D<double>(0, 0.1, 0), rw::math::Rotation3D<double>::identity()), _state);
         getRobWorkStudio()->setState(_state);
 
 
     }
 }
 
+void SamplePlugin::rovi_load_markerImage(){
+    int marker = _comboBox_rovi_marker->currentIndex();
 
+    Image::Ptr image;
+    switch (marker) {
+    case 0: // marker 1
+        image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/markers/Marker1.ppm");
+        break;
+    case 1: // marker 2a
+        image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/markers/Marker2a.ppm");
+        break;
+    case 2: // marker 2b
+        image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/markers/Marker2b.ppm");
+        break;
+    case 3: // marker 3
+        image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/markers/Marker3.ppm");
+        break;
+    default:
+        image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/markers/Marker1.ppm");
+        break;
+    }
+
+    _textureRender->setImage(*image);
+    getRobWorkStudio()->updateAndRepaint();
+}
+
+void SamplePlugin::rovi_load_bgImage(){
+    int bg = _comboBox_rovi_background->currentIndex();
+
+    Image::Ptr image;
+    switch (bg) {
+    case 0: // marker 1
+        image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/color1.ppm");
+        break;
+    case 1: // marker 2a
+        image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/color2.ppm");
+        break;
+    case 2: // marker 2b
+        image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/color3.ppm");
+        break;
+    case 3: // marker 3
+        image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/lines1.ppm");
+        break;
+    case 4: // marker 3
+        image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/texture1.ppm");
+        break;
+    case 5: // marker 3
+        image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/texture2.ppm");
+        break;
+    case 6: // marker 3
+        image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/texture3.ppm");
+        break;
+    default:
+        image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/color1.ppm");
+        break;
+    }
+
+    _bgRender->setImage(*image);
+    getRobWorkStudio()->updateAndRepaint();
+}
 
 void SamplePlugin::stateChangedListener(const State& state) {
     _state = state;
