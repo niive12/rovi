@@ -156,7 +156,7 @@ void SamplePlugin::close() {
 }
 
 Mat SamplePlugin::toOpenCVImage(const Image& img) {
-    Mat res(img.getHeight(),img.getWidth(), CV_8SC3);
+    Mat res(img.getHeight(),img.getWidth(), CV_8UC3);
     res.data = (uchar*)img.getImageData();
     return res;
 }
@@ -307,7 +307,7 @@ void SamplePlugin::rotest_computeConfigurations(){
 
             // z_actual to find u and v, but z_approx for actual visual servoing
             std::vector< double > x, y, z_actual, z_approx;
-            std::vector< cv::Vec2d > mapping;
+            std::vector< cv::Point > mapping;
             double f = 823;
 
             x.emplace_back(T_toolTmarker.P()[0]);
@@ -507,13 +507,14 @@ void SamplePlugin::rovi_processImage(){
     Mat im = toOpenCVImage(image);
     Mat img;
     cv::flip(im, img, 0);
-    Mat finalImg;
 
-    img.convertTo(finalImg, CV_8UC3);
-    cv::cvtColor(finalImg, finalImg, CV_RGB2BGR);
+    cv::cvtColor(img, img, CV_RGB2BGR);
 
-    if(featureextraction::findMarker01(finalImg, points)){
-        rw::common::Log::log().info() << "Marker Found!\n" << points[0] << "\n" << points[1] << "\n" << points[2] << "\n";
+    if(featureextraction::findMarker01(img, points)){
+        rw::common::Log::log().info() << "Marker Found!\n";
+//        for(int i = 0; i < points.size(); i++){
+//            rw::common::Log::log().info()<< points[i] << "\n";
+//        }
     } else{
         rw::common::Log::log().info() << "Marker Not Found!\n";
     }
