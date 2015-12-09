@@ -1,3 +1,5 @@
+#pragma once
+
 // open cv libs
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -14,10 +16,14 @@
 
 namespace featureextraction {
 
-std::vector<cv::Point> find_circles(cv::Mat &image, int min_area = 500, int max_area = 60000);
+std::vector<cv::Point> find_circles(const cv::Mat &image, size_t max_circles, int min_area = 500, int max_area = 60000);
 
-void separateChannels (cv::Mat img);
-
-bool findMarker01(cv::Mat img, std::vector<cv::Point> &points);
+bool findMarker01(const cv::Mat &img, std::vector<cv::Point> &points);
 
 }
+
+struct comparator_functor {
+  bool operator() (const std::vector<cv::Point> a, const std::vector<cv::Point> b) const {
+    return a.size() > b.size();
+  }
+};

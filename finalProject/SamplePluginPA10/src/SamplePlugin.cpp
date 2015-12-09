@@ -89,8 +89,11 @@ void SamplePlugin::initialize() {
     if(! image.data ) {
         RW_THROW("Could not open or find the image: please modify the file path in the source code!");
     }
+    int w = _label->width();
+    int h = _label->height();
     QImage img(image.data, image.cols, image.rows, image.step, QImage::Format_RGB888); // Create QImage from the OpenCV image
-    _label->setPixmap(QPixmap::fromImage(img)); // Show the image at the label in the plugin
+//    _label->setPixmap(QPixmap::fromImage(img)); // Show the image at the label in the plugin
+    _label->setPixmap( QPixmap::fromImage(img).scaled(w,h,Qt::KeepAspectRatio) );
 }
 
 void SamplePlugin::open(WorkCell* workcell)
