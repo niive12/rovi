@@ -298,25 +298,25 @@ void SamplePlugin::rotest_computeFakeUV(int points, std::vector< cv::Point > &uv
     std::vector< double > x, y, z_actual;
     double f = 823;
 
-    x.emplace_back(-T_toolTmarker.P()[0]);
-    y.emplace_back(-T_toolTmarker.P()[1]);
-    z_actual.emplace_back(T_toolTmarker.P()[2]);
+    x.emplace_back(T_toolTmarker.P()[0]);
+    y.emplace_back(T_toolTmarker.P()[1]);
+    z_actual.emplace_back(-T_toolTmarker.P()[2]);
 
     if( points >= 2 ){
         // add the point (0.1, 0, 0)
         T_toolTmarker = T_wTtool;
         rw::math::Transform3D<double>::invMult(T_toolTmarker, T_wTmarker * rw::math::Transform3D<double>(rw::math::Vector3D<double>(0.1, 0, 0), rw::math::Rotation3D<double>::identity()));
-        x.emplace_back(-T_toolTmarker.P()[0]);
-        y.emplace_back(-T_toolTmarker.P()[1]);
-        z_actual.emplace_back(T_toolTmarker.P()[2]);
+        x.emplace_back(T_toolTmarker.P()[0]);
+        y.emplace_back(T_toolTmarker.P()[1]);
+        z_actual.emplace_back(-T_toolTmarker.P()[2]);
 
         if( points == 3){
             // add the point (0, 0.1, 0)
             T_toolTmarker = T_wTtool;
             rw::math::Transform3D<double>::invMult(T_toolTmarker, T_wTmarker * rw::math::Transform3D<double>(rw::math::Vector3D<double>(0, 0.1, 0), rw::math::Rotation3D<double>::identity()));
-            x.emplace_back(-T_toolTmarker.P()[0]);
-            y.emplace_back(-T_toolTmarker.P()[1]);
-            z_actual.emplace_back(T_toolTmarker.P()[2]);
+            x.emplace_back(T_toolTmarker.P()[0]);
+            y.emplace_back(T_toolTmarker.P()[1]);
+            z_actual.emplace_back(-T_toolTmarker.P()[2]);
         }
     }
 

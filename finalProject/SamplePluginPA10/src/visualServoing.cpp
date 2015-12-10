@@ -287,10 +287,10 @@ Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> visualServoing::du_fixed(s
         double dxone = uv[0].x - mappings[0].x, dyone = uv[0].y - mappings[0].y;
         double dxtwo = uv[1].x - mappings[1].x, dytwo = uv[1].y - mappings[1].y;
         double done = sqrt(dxone * dxone + dyone * dyone) + sqrt(dxtwo * dxtwo + dytwo * dytwo);
-        dxone = -uv[0].x - mappings[1].x;
-        dyone = -uv[0].y - mappings[1].y;
-        dxtwo = -uv[1].x - mappings[0].x;
-        dytwo = -uv[1].y - mappings[0].y;
+        dxone = uv[0].x - mappings[1].x;
+        dyone = uv[0].y - mappings[1].y;
+        dxtwo = uv[1].x - mappings[0].x;
+        dytwo = uv[1].y - mappings[0].y;
         double dtwo = sqrt(dxone * dxone + dyone * dyone) + sqrt(dxtwo * dxtwo + dytwo * dytwo);
 
         if(done < dtwo){ // 1 -> 1, 2 -> 2 mapping
