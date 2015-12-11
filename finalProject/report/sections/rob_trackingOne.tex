@@ -1,2 +1,54 @@
 \subsection{Tracking a Single Point}
+In order to track a single point, then the equations \ref{eq:tsp_visServoing1} and \ref{eq:tsp_visServoing2} (cite Henriks notes) were implemented.
+
+\begin{eqnarray}
+(Z_{image} \cdot Z_{image}^T) y = [du, dv]^T \label{eq:tsp_visServoing1} \\
+dq = Z_{image}^T \cdot y \label{eq:tsp_visServoing2}
+\end{eqnarray}
+
+Furthermore a time scaling was implemented such that the robot would not move faster than its constraints.
+The goal configuration for each frame is furthermore stored such that when a marker is not found in one frame, then the most recent found position is the one the robot moves to.
+
+In order to test the implementation of the algorithm, the marker movement of the three files are stepwise used to update the markers position.
+The $dq$ for every step is then computed and used to update the robot.
+
+To find the simulated $(u,v)$ of the marker in the frame of the camera, then the transformation from the camera to the marker ($T_{world}^{camera}$) is found using equation \ref{eq:tsp_TcameraMarker}.
+
+\begin{equation}
+T_{world}^{marker} = T_{world}^{camera} \cdot T_{camera}^{marker} \label{eq:tsp_TcameraMarker}
+\end{equation}
+
+From $T_{camera}^{marker}$ the positional part is then extracted and used with equation \ref{eq:tsp_u} and \ref{eq:tsp_v} to find $(u,v)$ using the pinhole model.
+Where $f$ is the focal length in pixel.
+
+\begin{eqnarray}
+u = \frac{f \cdot x}{z} \label{eq:tsp_u} \\
+v = \frac{f \cdot y}{z} \label{eq:tsp_v}
+\end{eqnarray}
+
+
+\subsubsection{Testing the Point Tracking}
+
+The system was tested on the three marker movements provided and the configuration of the robot is plotted in figure \ref{fig:robotconfig_ideal}.
+The tool pose was likewise plotted in figure \ref{fig:toolpose_ideal}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width= 0.9 \linewidth]{graphics/robotconfig_ideal}
+\caption{Robot configuration when calculating the ideal $(u,v)$ for the marker placement in the image.}
+\label{fig:robotconfig_ideal}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width= 0.9 \linewidth]{graphics/toolpose_ideal}
+\caption{Tool pose when calculating the ideal $(u,v)$ for the marker placement in the image.}
+\label{fig:toolpose_ideal}
+\end{figure}
+
+
+Since these numbers should be the closest to ground truth achievable, then these will also be used in comparisons in section \ref{sec:combinedSystem} when the whole system is brought together in the simulation.
+
+It was found that in none of the cases was the velocity constraint violated for all of the datasets down to a $\Delta t$ of 0.05 seconds in between each frame.
+
 
