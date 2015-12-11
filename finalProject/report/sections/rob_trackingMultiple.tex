@@ -1,2 +1,8 @@
 \subsection{Tracking Multiple Points}
 
+When tracking multiple points the same procedure as for one point is used.
+Here only the image jacobians and $[du, dv]^T$ are stacked to $2 \cdot k \times 6$ and $2 \cdot k \times 1$ matrix, where $k$ is the number of points tracked.
+
+The implementation of the algorithm allows for a vector of points to be used when tracking multiple points.
+This is used to specify the set of locations in the image the different points are to be tracked to relative to the center of the image.
+

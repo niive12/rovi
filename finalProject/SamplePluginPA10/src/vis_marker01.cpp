@@ -44,9 +44,6 @@ bool featureextraction::findMarker01(const cv::Mat &img, std::vector<cv::Point> 
     cv::Mat imgBGR[3];
     cv::split(img,imgBGR);
 
-//    cv::imshow("marker 1", org);
-//    cv::waitKey(0);
-
     cv::Mat imghsv;
     cv::cvtColor(img, imghsv, CV_BGR2HSV);
 
@@ -56,17 +53,12 @@ bool featureextraction::findMarker01(const cv::Mat &img, std::vector<cv::Point> 
 
     hue_min = 210 / 2 ; hue_max = 270 /2;
     cv::inRange(imghsv, cv::Scalar(hue_min, sat_min, val_min), cv::Scalar(hue_max,sat_max,val_max), imgBGR[0]);
-//    cv::imshow("blue", imgBGR[0]);
 
     hue_min = 70 / 2; hue_max = 145 / 2;
     cv::inRange(imghsv, cv::Scalar(hue_min, sat_min, val_min), cv::Scalar(hue_max,sat_max,val_max), imgBGR[1]);
-//    cv::imshow("green", imgBGR[1]);
 
     hue_min = 0 / 2; hue_max = 30/ 2;
     cv::inRange(imghsv, cv::Scalar(hue_min, sat_min, val_min), cv::Scalar(hue_max,sat_max,val_max), imgBGR[2]);
-//    cv::imshow("red", imgBGR[2]);
-
-    cv::waitKey(1);
 
     std::vector<cv::Point> blue =  find_circles(imgBGR[0], 3);
     std::vector<cv::Point> red = find_circles(imgBGR[2], 1);
@@ -97,7 +89,7 @@ bool featureextraction::findMarker01(const cv::Mat &img, std::vector<cv::Point> 
         midpoint.y = (most_right - most_left)/ 2 + most_left;
 
         cv::Point midpnt_uv;
-        midpnt_uv.x = img.cols / 2 - midpoint.x;
+        midpnt_uv.x = midpoint.x - img.cols / 2;
         midpnt_uv.y = img.rows / 2 - midpoint.y;
 
 

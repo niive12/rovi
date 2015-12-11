@@ -30,22 +30,17 @@ SamplePlugin::SamplePlugin():
     _timer = new QTimer(this);
     connect(_timer, SIGNAL(timeout()), this, SLOT(timer()));
 
-    // now connect stuff from the ui component
-    connect(_btn0    ,SIGNAL(pressed()), this, SLOT(btnPressed()) );
-    connect(_btn1    ,SIGNAL(pressed()), this, SLOT(btnPressed()) );
-
     // robotics test tab - connect gui
-    connect(_btn_rotest_computeQP1  ,SIGNAL(pressed()), this, SLOT(rotest_computeConfigurations()) );
-    connect(_btn_rotest_computeQP3  ,SIGNAL(pressed()), this, SLOT(rotest_computeConfigurations()) );
-    connect(_btn_rotest_loadMarker  ,SIGNAL(pressed()), this, SLOT(rotest_loadMarker()) );
+    connect(_comboBox_settings_loadMarker  ,SIGNAL(activated(int)), this, SLOT(loadMarkerMovement()) );
     connect(_slider_rotest_Q        ,SIGNAL(valueChanged(int)), this, SLOT(rotest_moveRobot()) );
     connect(_comboBox_rovi_marker   ,SIGNAL(activated(int)), this, SLOT(rovi_load_markerImage()) );
     connect(_comboBox_rovi_background   ,SIGNAL(activated(int)), this, SLOT(rovi_load_bgImage()) );
     connect(_btn_rovi_processImage   ,SIGNAL(pressed()), this, SLOT(rovi_processImage()) );
+    connect(_checkBox_settings_updateCameraview   ,SIGNAL(clicked()), this, SLOT(updateCameraView()) );
 
 
     // robotics test tab - init values
-    _rotest_coordinatesLoaded = false;
+    _settings_coordinatesLoaded = false;
 
 
     // something
@@ -65,6 +60,9 @@ SamplePlugin::SamplePlugin():
     }else{
         log().info() << "File could not be opened.\n";
     }
+    loadMarkerMovement();
+    _checkBox_settings_updateCameraview->setChecked(true);
+    updateCameraView();
 }
 
 SamplePlugin::~SamplePlugin()
@@ -164,24 +162,14 @@ Mat SamplePlugin::toOpenCVImage(const Image& img) {
     return res;
 }
 
-void SamplePlugin::btnPressed() {
-    QObject *obj = sender();
-    if(obj==_btn0){
-        log().info() << "Button 0\n";
-        // Set a new texture (one pixel = 1 mm)
-        Image::Ptr image;
-        image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/markers/Marker1.ppm");
-        _textureRender->setImage(*image);
-        image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/color1.ppm");
-        _bgRender->setImage(*image);
-        getRobWorkStudio()->updateAndRepaint();
-    } else if(obj==_btn1){
-        log().info() << "Button 1\n";
-        // Toggle the timer on and off
-        if (!_timer->isActive())
+void SamplePlugin::updateCameraView() {
+    // Toggle the timer on and off
+    if(_checkBox_settings_updateCameraview->isChecked()){
+        if (!_timer->isActive()){
             _timer->start(100); // run 10 Hz
-        else
-            _timer->stop();
+        }
+    } else{
+        _timer->stop();
     }
 }
 
@@ -207,17 +195,35 @@ void SamplePlugin::timer() {
 }
 
 
-void SamplePlugin::rotest_loadMarker(){
-    QString filename = QFileDialog::getOpenFileName(this, "Open file", "", tr("Motion files (*.txt)"));
+void SamplePlugin::loadMarkerMovement(){
+    //QString filename = QFileDialog::getOpenFileName(this, "Open file", "", tr("Motion files (*.txt)"));
 
-    _rotest_markerpos.clear();
+    _settings_markerpos.clear();
 
     // load the data of the file into a vector with the pos (X Y Z Roll Pitch Yaw)
+    QString file = "";
+    int index = _comboBox_settings_loadMarker->currentIndex();
 
-    std::ifstream inCSVFile(filename.toStdString(), std::ifstream::in);; // the input file
+    switch (index) {
+    case 2:
+        file = QString::fromStdString(_myPath) + "/finalProject/SamplePluginPA10/motions/MarkerMotionSlow.txt";
+        break;
+    case 1:
+        file = QString::fromStdString(_myPath) + "/finalProject/SamplePluginPA10/motions/MarkerMotionMedium.txt";
+        break;
+    case 0:
+        file = QString::fromStdString(_myPath) + "/finalProject/SamplePluginPA10/motions/MarkerMotionFast.txt";
+        break;
+    default:
+        file = QString::fromStdString(_myPath) + "/finalProject/SamplePluginPA10/motions/MarkerMotionSlow.txt";
+        break;
+    }
+
+
+    std::ifstream inCSVFile(file.toStdString(), std::ifstream::in);; // the input file
 
     if(inCSVFile.is_open()){
-        rw::common::Log::log().info() << "File loaded: " << filename.toStdString() << "\n";
+        rw::common::Log::log().info() << "File loaded: " << file.toStdString() << "\n";
         point6D datapoint;
 
         while(!inCSVFile.eof()){
@@ -256,150 +262,101 @@ void SamplePlugin::rotest_loadMarker(){
                 }
                 i++;
             }
-            _rotest_markerpos.emplace_back(datapoint);
+            _settings_markerpos.emplace_back(datapoint);
         }
 
-        _rotest_coordinatesLoaded = true;
+        _settings_coordinatesLoaded = true;
     } else{
-        _rotest_coordinatesLoaded = false;
+        _settings_coordinatesLoaded = false;
         rw::common::Log::log().error() << "File could not be opened!\n";
     }
     inCSVFile.close();
 }
 
-void SamplePlugin::rotest_computeConfigurations(){
-    QObject *obj = sender();
-    // compute the robot configurations from the data
-    if(_rotest_coordinatesLoaded){
-        // get the different parameters and pointers
-        const std::string deviceName = _line_settings_devName->text().toStdString();
-        const std::string toolName = _line_settings_tcp->text().toStdString();
+void SamplePlugin::rotest_computeFakeUV(int points, std::vector< cv::Point > &uv){
+    const std::string toolName = _line_settings_tcp->text().toStdString();
+    rw::kinematics::Frame* tool = _wc->findFrame(toolName);
+    if (tool == NULL) RW_THROW("Tool: " << toolName << " not found!");
 
-        rw::models::Device::Ptr device = _wc->findDevice(deviceName);
-        rw::kinematics::Frame* tool = _wc->findFrame(toolName);
-        if (device == NULL) RW_THROW("Device: " << deviceName << " not found!");
-        if (tool == NULL) RW_THROW("Tool: " << toolName << " not found!");
 
-        // set the state before starting
-        rw::math::Q q(7, 0, -0.65, 0, 1.8, 0, 0.42, 0);
-        device->setQ(q, _state);
-        getRobWorkStudio()->setState(_state);
+    // get the frames pos
+    rw::math::Transform3D<double> T_wTtool = tool->wTf(_state);
 
-        // resize according to the number of entries
-        _rotest_robotQ.resize(_rotest_markerpos.size());
+    // get the pos as seen in camera
+    // goal as in world frame
+    const std::string markerName = _line_settings_marker->text().toStdString();
+    rw::kinematics::Frame* marker = _wc->findFrame(markerName);
+    if (marker == NULL) RW_THROW("Tool: " << markerName << " not found!");
 
-        double dt = _spinBox_timestep->value();
-        rw::common::Log::log().info() << " Timestep size used: " << dt << "\n";
-//        rw::common::Log::log().info() << " Vel constraint: " << device->getVelocityLimits() << "\n";
-        int constraintsapplied = 0;
-        for(unsigned int i = 0; i < _rotest_markerpos.size(); i++){
-            // Get device to start configuration
-            q = device->getQ(_state);
+    rw::math::Transform3D<double> T_wTmarker = marker->wTf(_state);
 
-            // get the frames pos
-            rw::math::Transform3D<double> T_wTtool = tool->wTf(_state);
+    // T_wTgoal = T_wTtool * T_toolTmarker
+    rw::math::Transform3D<double> T_toolTmarker = T_wTtool;
+    rw::math::Transform3D<double>::invMult(T_toolTmarker, T_wTmarker);
 
-            // get the pos as seen in camera
-            // goal as in world frame
-            rw::math::RPY<double> rpy(_rotest_markerpos[i].roll, _rotest_markerpos[i].pitch, _rotest_markerpos[i].yaw);
-            rw::math::Transform3D<double> T_wTgoal(rw::math::Vector3D<double>(_rotest_markerpos[i].x, _rotest_markerpos[i].y , _rotest_markerpos[i].z), rpy.toRotation3D());
+    // z_actual to find u and v, but z_approx for actual visual servoing
+    std::vector< double > x, y, z_actual;
+    double f = 823;
 
-            // T_wTgoal = T_wTtool * T_toolTmarker
-            rw::math::Transform3D<double> T_toolTmarker = T_wTtool;
-            rw::math::Transform3D<double>::invMult(T_toolTmarker, T_wTgoal);
+    x.emplace_back(T_toolTmarker.P()[0]);
+    y.emplace_back(T_toolTmarker.P()[1]);
+    z_actual.emplace_back(-T_toolTmarker.P()[2]);
 
-            // z_actual to find u and v, but z_approx for actual visual servoing
-            std::vector< double > x, y, z_actual, z_approx;
-            std::vector< cv::Point > mapping;
-            double f = 823;
+    if( points >= 2 ){
+        // add the point (0.1, 0, 0)
+        T_toolTmarker = T_wTtool;
+        rw::math::Transform3D<double>::invMult(T_toolTmarker, T_wTmarker * rw::math::Transform3D<double>(rw::math::Vector3D<double>(0.1, 0, 0), rw::math::Rotation3D<double>::identity()));
+        x.emplace_back(T_toolTmarker.P()[0]);
+        y.emplace_back(T_toolTmarker.P()[1]);
+        z_actual.emplace_back(-T_toolTmarker.P()[2]);
 
+        if( points == 3){
+            // add the point (0, 0.1, 0)
+            T_toolTmarker = T_wTtool;
+            rw::math::Transform3D<double>::invMult(T_toolTmarker, T_wTmarker * rw::math::Transform3D<double>(rw::math::Vector3D<double>(0, 0.1, 0), rw::math::Rotation3D<double>::identity()));
             x.emplace_back(T_toolTmarker.P()[0]);
             y.emplace_back(T_toolTmarker.P()[1]);
-            z_actual.emplace_back(T_toolTmarker.P()[2]);
-            z_approx.emplace_back(-0.5);
-            mapping.emplace_back(0, 0);
-
-            if( obj == _btn_rotest_computeQP3 ){
-                // add the point (0.1, 0, 0)
-                T_toolTmarker = T_wTtool;
-                rw::math::Transform3D<double>::invMult(T_toolTmarker, T_wTgoal * rw::math::Transform3D<double>(rw::math::Vector3D<double>(0.1, 0, 0), rw::math::Rotation3D<double>::identity()));
-                x.emplace_back(T_toolTmarker.P()[0]);
-                y.emplace_back(T_toolTmarker.P()[1]);
-                z_actual.emplace_back(T_toolTmarker.P()[2]);
-                z_approx.emplace_back(-0.5);
-                mapping.emplace_back(160, 0);
-
-                // add the point (0, 0.1, 0)
-                T_toolTmarker = T_wTtool;
-                rw::math::Transform3D<double>::invMult(T_toolTmarker, T_wTgoal * rw::math::Transform3D<double>(rw::math::Vector3D<double>(0, 0.1, 0), rw::math::Rotation3D<double>::identity()));
-                x.emplace_back(T_toolTmarker.P()[0]);
-                y.emplace_back(T_toolTmarker.P()[1]);
-                z_actual.emplace_back(T_toolTmarker.P()[2]);
-                z_approx.emplace_back(-0.5);
-                mapping.emplace_back(0, 160);
-
-//                T_toolTmarker = T_wTtool;
-//                rw::math::Transform3D<double>::invMult(T_toolTmarker, T_wTgoal * rw::math::Transform3D<double>(rw::math::Vector3D<double>(0.1, 0.1, 0), rw::math::Rotation3D<double>::identity()));
-//                x.emplace_back(-T_toolTmarker.P()[0]);
-//                y.emplace_back(-T_toolTmarker.P()[1]);
-//                z.emplace_back(-0.5);
-//                mapping.emplace_back(20, 20);
-            }
-
-
-            rw::math::Q dq_temp, dq;
-            // calculate the perfect u and v
-            std::vector< rw::math::Vector2D<double> > uv = visualServoing::uv(x, y, z_actual, f);
-            rw::common::Log::log().info() << "uv:\n";
-            for(int i = 0; i < uv.size(); i++){
-                rw::common::Log::log().info() << uv[i] << "\n";
-            }
-            // do the visual servoing
-            dq_temp = visualServoing::visualServoing(uv, z_approx, f, device, tool, _state, mapping);
-
-            if(visualServoing::velocityConstraint(dq_temp, device, dt, dq)){
-                constraintsapplied++;
-            }
-
-            // find the new configuration
-            q += dq;
-
-            // set the state before calculating the next
-            device->setQ(q, _state);
-
-            // find the marker
-            std::string markerName = _line_settings_marker->text().toStdString();
-            rw::kinematics::MovableFrame* marker = (rw::kinematics::MovableFrame*)(_wc->findFrame(markerName));
-            if(marker == NULL) RW_THROW("Device: " << deviceName << " not found!\n");
-
-            marker->setTransform(T_wTgoal, _state);
-
-//            marker = (rw::kinematics::MovableFrame*)(_wc->findFrame("Marker2"));
-//            if(marker == NULL) RW_THROW("Device: " << "Marker2" << " not found!\n");rovi_processImage
-//            marker->setTransform(T_wTgoal * rw::math::Transform3D<double>(rw::math::Vector3D<double>(0.1, 0, 0), rw::math::Rotation3D<double>::identity()), _state);
-//            marker = (rw::kinematics::MovableFrame*)(_wc->findFrame("Marker3"));
-//            if(marker == NULL) RW_THROW("Device: " << "Marker3" << " not found!\n");
-//            marker->setTransform(T_wTgoal * rw::math::Transform3D<double>(rw::math::Vector3D<double>(0, 0.1, 0), rw::math::Rotation3D<double>::identity()), _state);
-
-            // store te configuration in the vector
-            _rotest_robotQ[i] = q;
-        }
-
-        rw::common::Log::log().info() << "# of velocity constraints applied: " << constraintsapplied << " out of " << _rotest_robotQ.size() << " movements.\n";
-
-        // set slider range according to the length of the vector
-        if(_rotest_robotQ.size() > 0){
-            _slider_rotest_Q->setRange(0,_rotest_robotQ.size() - 1);
-        } else{
-            _slider_rotest_Q->setRange(0,0);
+            z_actual.emplace_back(-T_toolTmarker.P()[2]);
         }
     }
+
+    // calculate the perfect u and v
+    uv = visualServoing::uv(x, y, z_actual, f);
+}
+
+
+rw::math::Q SamplePlugin::rotest_computeConfigurations(std::vector< cv::Point > &uv, std::vector< cv::Point > &mapping){
+    // compute the robot configurations from the data
+    // get the different parameters and pointers
+    const std::string deviceName = _line_settings_devName->text().toStdString();
+    rw::models::Device::Ptr device = _wc->findDevice(deviceName);
+    if (device == NULL) RW_THROW("Device: " << deviceName << " not found!");
+
+    const std::string toolName = _line_settings_tcp->text().toStdString();
+    rw::kinematics::Frame* tool = _wc->findFrame(toolName);
+    if (tool == NULL) RW_THROW("Tool: " << toolName << " not found!");
+
+    // Get device to start configuration
+    rw::math::Q dq_temp, q;
+    q = device->getQ(_state);
+
+    // z_actual to find u and v, but z_approx for actual visual servoing
+    double f = 823;
+
+    std::vector< double > z_approx = {};
+    for(int i = 0; i < uv.size(); i++){
+        z_approx.emplace_back(-0.5);
+    }
+    // do the visual servoing
+    dq_temp = visualServoing::visualServoing(uv, z_approx, f, device, tool, _state, mapping);
+
+    return dq_temp;
 }
 
 
 void SamplePlugin::rotest_moveRobot(){
     // move the robot according to the calculates configurations
-    if(_rotest_coordinatesLoaded){
+    if(_settings_coordinatesLoaded){
         // set the configuration depending on the value of the marker
         int val = _slider_rotest_Q->value();
 
@@ -410,7 +367,7 @@ void SamplePlugin::rotest_moveRobot(){
 
         // set the state
         rw::math::Q config;
-        config = _rotest_robotQ[val];
+        config = _robotQ[val];
         device->setQ(config, _state);
 
         // find the marker
@@ -418,19 +375,19 @@ void SamplePlugin::rotest_moveRobot(){
         rw::kinematics::MovableFrame* marker = (rw::kinematics::MovableFrame*)(_wc->findFrame(markerName));
         if(marker == NULL) RW_THROW("Device: " << deviceName << " not found!");
 
-        rw::math::Vector3D<double> P(_rotest_markerpos[val].x,_rotest_markerpos[val].y,_rotest_markerpos[val].z);
-        rw::math::RPY<double> rpy(_rotest_markerpos[val].roll, _rotest_markerpos[val].pitch, _rotest_markerpos[val].yaw);
+        rw::math::Vector3D<double> P(_settings_markerpos[val].x,_settings_markerpos[val].y,_settings_markerpos[val].z);
+        rw::math::RPY<double> rpy(_settings_markerpos[val].roll, _settings_markerpos[val].pitch, _settings_markerpos[val].yaw);
         rw::math::Rotation3D<double> R = rpy.toRotation3D();
         rw::math::Transform3D<double> T_wTmarker(P, R);
 
         marker->setTransform(T_wTmarker, _state);
 
-//        marker = (rw::kinematics::MovableFrame*)(_wc->findFrame("Marker2"));
-//        if(marker == NULL) RW_THROW("Device: " << deviceName << " not found!\n");
-//        marker->setTransform(T_wTmarker * rw::math::Transform3D<double>(rw::math::Vector3D<double>(0.1, 0, 0), rw::math::Rotation3D<double>::identity()), _state);
-//        marker = (rw::kinematics::MovableFrame*)(_wc->findFrame("Marker3"));
-//        if(marker == NULL) RW_THROW("Device: " << deviceName << " not found!\n");
-//        marker->setTransform(T_wTmarker * rw::math::Transform3D<double>(rw::math::Vector3D<double>(0, 0.1, 0), rw::math::Rotation3D<double>::identity()), _state);
+        //        marker = (rw::kinematics::MovableFrame*)(_wc->findFrame("Marker2"));
+        //        if(marker == NULL) RW_THROW("Device: " << deviceName << " not found!\n");
+        //        marker->setTransform(T_wTmarker * rw::math::Transform3D<double>(rw::math::Vector3D<double>(0.1, 0, 0), rw::math::Rotation3D<double>::identity()), _state);
+        //        marker = (rw::kinematics::MovableFrame*)(_wc->findFrame("Marker3"));
+        //        if(marker == NULL) RW_THROW("Device: " << deviceName << " not found!\n");
+        //        marker->setTransform(T_wTmarker * rw::math::Transform3D<double>(rw::math::Vector3D<double>(0, 0.1, 0), rw::math::Rotation3D<double>::identity()), _state);
         getRobWorkStudio()->setState(_state);
 
 
@@ -438,25 +395,19 @@ void SamplePlugin::rotest_moveRobot(){
 }
 
 void SamplePlugin::rovi_load_markerImage(){
-    int marker = _comboBox_rovi_marker->currentIndex();
+    std::string marker = _comboBox_rovi_marker->currentText().toStdString();
 
     Image::Ptr image;
-    switch (marker) {
-    case 0: // marker 1
+    if (marker == "Marker 1"){
         image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/markers/Marker1.ppm");
-        break;
-    case 1: // marker 2a
+    } else if( marker == "Marker 2a"){
         image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/markers/Marker2a.ppm");
-        break;
-    case 2: // marker 2b
+    } else if( marker == "Marker 2b"){
         image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/markers/Marker2b.ppm");
-        break;
-    case 3: // marker 3
+    } else if( marker == "Marker 3"){
         image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/markers/Marker3.ppm");
-        break;
-    default:
+    } else {
         image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/markers/Marker1.ppm");
-        break;
     }
 
     _textureRender->setImage(*image);
@@ -464,62 +415,146 @@ void SamplePlugin::rovi_load_markerImage(){
 }
 
 void SamplePlugin::rovi_load_bgImage(){
-    int bg = _comboBox_rovi_background->currentIndex();
+    std::string bg = _comboBox_rovi_background->currentText().toStdString();
+    bool setimage = true;
 
     Image::Ptr image;
-    switch (bg) {
-    case 0: // marker 1
+    if (bg == "Many Butterflies"){
         image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/color1.ppm");
-        break;
-    case 1: // marker 2a
+    } else if( bg == "Color Spots"){
         image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/color2.ppm");
-        break;
-    case 2: // marker 2b
+    } else if( bg == "One Butterfly"){
         image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/color3.ppm");
-        break;
-    case 3: // marker 3
+    } else if( bg == "Metal"){
         image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/lines1.ppm");
-        break;
-    case 4: // marker 3
+    } else if( bg == "Carpet"){
         image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/texture1.ppm");
-        break;
-    case 5: // marker 3
+    } else if( bg == "Mosaik Window"){
         image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/texture2.ppm");
-        break;
-    case 6: // marker 3
+    } else if( bg == "Waterbed"){
         image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/texture3.ppm");
-        break;
-    default:
-        image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/color1.ppm");
-        break;
+    } else {
+        if(_bgRender != nullptr){
+            delete _bgRender;
+            _bgRender = nullptr;
+        }
+        Image bgImage(0,0,Image::GRAY,Image::Depth8U);
+        _bgRender = new RenderImage(bgImage,2.5/1000.0);
+        setimage = false;
     }
 
+    if(setimage){
     _bgRender->setImage(*image);
+    }
     getRobWorkStudio()->updateAndRepaint();
 }
 
 void SamplePlugin::rovi_processImage(){
-    std::vector< cv::Point > points;
 
-    // Get the image as a RW image
-    Frame* cameraFrame = _wc->findFrame("CameraSim");
-    _framegrabber->grab(cameraFrame, _state);
-    const Image& image = _framegrabber->getImage();
+    if(_settings_coordinatesLoaded){
+        const std::string deviceName = _line_settings_devName->text().toStdString();
+        rw::models::Device::Ptr device = _wc->findDevice(deviceName);
+        if (device == NULL) RW_THROW("Device: " << deviceName << " not found!");
 
-    // Convert to OpenCV image
-    Mat im = toOpenCVImage(image);
-    Mat img;
-    cv::flip(im, img, 0);
+        // set the state before starting
+        rw::math::Q q(7, 0, -0.65, 0, 1.8, 0, 0.42, 0);
+        device->setQ(q, _state);
 
-    cv::cvtColor(img, img, CV_RGB2BGR);
+        // get the timestep
+        double dt = _spinBox_timestep->value();
 
-    if(featureextraction::findMarker01(img, points)){
-        rw::common::Log::log().info() << "Marker Found!\n";
-//        for(int i = 0; i < points.size(); i++){
-//            rw::common::Log::log().info()<< points[i] << "\n";
-//        }
-    } else{
-        rw::common::Log::log().info() << "Marker Not Found!\n";
+        // resize according to the number of entries
+        _robotQ.resize(_settings_markerpos.size());
+
+        // find the marker
+        std::string markerName = _line_settings_marker->text().toStdString();
+        rw::kinematics::MovableFrame* marker_obj = (rw::kinematics::MovableFrame*)(_wc->findFrame(markerName));
+        if(marker_obj == NULL) RW_THROW("Device: " << deviceName << " not found!\n");
+
+        rw::math::Q q_goal, dq, q_next;
+        q_goal = q;
+
+        int constraintsapplied = 0;
+        for(unsigned int i = 0; i < _settings_markerpos.size(); i++){
+            // set the marker as in world frame
+            rw::math::RPY<double> rpy(_settings_markerpos[i].roll, _settings_markerpos[i].pitch, _settings_markerpos[i].yaw);
+            rw::math::Transform3D<double> T_wTmarker(rw::math::Vector3D<double>(_settings_markerpos[i].x, _settings_markerpos[i].y , _settings_markerpos[i].z), rpy.toRotation3D());
+            marker_obj->setTransform(T_wTmarker, _state);
+
+            int markerused = _comboBox_rovi_marker->currentIndex();
+            std::vector< cv::Point > mapping, uv;
+            uv.clear();
+            mapping.clear();
+
+            if(markerused >= 0 && markerused <=3){ // if tracking an image
+                // Get the image as a RW image
+                getRobWorkStudio()->setState(_state);
+                Frame* cameraFrame = _wc->findFrame("CameraSim");
+                _framegrabber->grab(cameraFrame, _state);
+                const Image& image = _framegrabber->getImage();
+
+                // Convert to OpenCV image
+                Mat im = toOpenCVImage(image);
+                Mat img;
+                cv::flip(im, img, 0);
+
+                cv::cvtColor(img, img, CV_RGB2BGR);
+
+                if(featureextraction::findMarker01(img, uv)){
+//                    rw::common::Log::log().info() << "Marker Found!\n";
+//                    for(int j = 0; j < uv.size(); j++){
+//                        rw::common::Log::log().info()<< uv[j] << "\n";
+//                    }
+                } else{
+//                    rw::common::Log::log().info() << "Marker Not Found!\n";
+                }
+                mapping.emplace_back(0,0);
+
+            } else if(markerused >= 4 && markerused <=6){ // if tracking perfect coords
+
+                rotest_computeFakeUV(markerused - 3, uv);
+
+                mapping.emplace_back(0,0);
+                if(markerused - 3 >= 2){
+                    mapping.emplace_back(160,0);
+                    if(markerused - 3 >= 3){
+                        mapping.emplace_back(0,160);
+                    }
+                }
+
+
+            }else{
+                rw::common::Log::log().info() << "Invalid marker selected\n";
+            }
+            if(uv.size() > 0){
+                dq = rotest_computeConfigurations(uv, mapping);
+                q_goal = dq + device->getQ(_state);
+            }
+            dq = q_goal - device->getQ(_state);
+            if(visualServoing::velocityConstraint(dq, device, dt, dq)){
+                constraintsapplied++;
+            }
+
+//            rw::common::Log::log().info() << "# " << uv.size() << "\n";
+
+            q_next = dq + device->getQ(_state);
+
+            // set the state before calculating the next
+            device->setQ(q_next, _state);
+
+            // store te configuration in the vector
+            _robotQ[i] = q_next;
+        }
+
+        rw::common::Log::log().info() << "# of constraint applied: " << constraintsapplied << "\n";
+
+        // set slider range according to the length of the vector
+        if(_robotQ.size() > 0){
+            _slider_rotest_Q->setRange(0,_robotQ.size() - 1);
+        } else{
+            _slider_rotest_Q->setRange(0,0);
+        }
+
     }
 }
 
