@@ -8,13 +8,6 @@
 #include <vector>
 #include <algorithm>
 
-#define RAD_45 0.78539816 //45 degrees in radians
-
-struct image_in_image_out{
-    cv::Mat *src;
-    cv::Mat *dst;
-};
-
 int image_in_set = 0;
 std::vector<cv::Mat> original_images;
 cv::Mat org;
@@ -76,7 +69,7 @@ cv::Point find_center(std::vector<cv::Point> &center, std::vector<std::vector<cv
                 float p1 = 0.8, p2=0.2;
                 for(size_t i = 0; i < center.size(); ++i){
                     a = org.cols/2 - center[i].x;
-                    b = 0;
+                    b = org.cols/2 - center[i].y;
                     dist =  1 - (a * a + b * b) / max_dist;
 
                     area = cv::contourArea(contours[i]);
