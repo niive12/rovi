@@ -26,3 +26,28 @@
 \end{tikzpicture}
 \end{figure*}
 
+\begin{figure}[H]
+\begin{tikzpicture}
+ \newcommand{\angleA}{10}
+ \newcommand{\radiuA}{1}
+ \newcommand{\radiuB}{1}
+ 
+ \FPeval{\angleB}{\angleA + 90}
+ 
+ \node[name=image] at (0,0) {};
+ 
+ \node[scale=0.3,fill=black, minimum width=15cm, rotate={90 + \angleA}, name=lineA] at ([shift=(\angleA:\radiuA cm)] image.center) {};
+ \node[name=midA] at ($(lineA.180)!(image.center)!(lineA.0)$) {};
+ \node[above] at (lineA.0) {line a};
+
+ \node[scale=0.3,fill=black, minimum width=15cm, rotate={90 + \angleB}, name=lineB] at ([shift=(\angleB:\radiuB cm)] image.center) {};
+ \node[name=midB] at ($(lineB.180)!(image.center)!(lineB.0)$) {};
+ \node[above] at (lineB.0) {line b};
+ 
+ \FPeval{\rad}{\FPpi/180} %couldn't find the function
+ \FPeval{\posX}{round(cos(\angleA * \rad)*\radiuA + cos(\angleB * \rad)*\radiuB,3)}
+ \FPeval{\posY}{round(sin(\angleA * \rad)*\radiuA + sin(\angleB * \rad)*\radiuB,3)}
+ 
+ \node[draw, circle]  at (\posX,\posY) {};
+\end{tikzpicture}
+\end{figure}
