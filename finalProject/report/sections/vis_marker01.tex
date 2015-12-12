@@ -1,30 +1,13 @@
 \subsection{The First Marker}
 
-\begin{figure*}
-\begin{tikzpicture}
- \node {\includegraphics[scale=1]{graphics/hsv} };
- \node[name=hsv, draw, circle, minimum width =5.3cm] at (-4,-1.85) {};
-% % % % RED % % % %
-% \newcommand{\MinHue}{0} %angle
-% \newcommand{\MaxHue}{30}
-% \newcommand{\MinSat}{1.6cm} % 0 - 1 => 0 - 2.65
-%  \draw (hsv.\MinHue) -- (hsv.center) -- (hsv.\MaxHue);
-%  \draw[very thick]   ([shift=(\MinHue:\MinSat)] hsv.center) arc(\MinHue:\MaxHue:\MinSat);
-% % % % GREEN % % % %
-\newcommand{\MinHue}{70} %angle 
-\newcommand{\MaxHue}{145}
-\newcommand{\MinSat}{1.6cm} % 0 - 1 => 0 - 2.65
- \draw (hsv.\MinHue) -- (hsv.center) -- (hsv.\MaxHue);
- \draw[very thick]   ([shift=(\MinHue:\MinSat)] hsv.center) arc(\MinHue:\MaxHue:\MinSat);
-% % % % BLUE % % % %
-% \newcommand{\MinHue}{210} %angle
-% \newcommand{\MaxHue}{270}
-% \newcommand{\MinSat}{1.6cm} % 0 - 1 => 0 - 2.65
-%  \draw (hsv.\MinHue) -- (hsv.center) -- (hsv.\MaxHue);
-%  \draw[very thick]   ([shift=(\MinHue:\MinSat)] hsv.center) arc(\MinHue:\MaxHue:\MinSat);
+The first marker, seen in figure \ref{marker:circle}, contains black crosses on a white background.
 
-\end{tikzpicture}
-\end{figure*}
+The marker can be found using the lines in the image.
+To do so, all edges must be found.
+These are found using a sobel filter and then the number of edges are reduced with the canny edge detector.
+\nikolaj{Should I describe in detail how canny edges are found?, I can, but is it relevant?}
+
+The edges are then 
 
 \begin{figure}[H]
 \begin{tikzpicture}
