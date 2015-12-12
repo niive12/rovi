@@ -128,7 +128,7 @@ bool findMarker03(const cv::Mat &img_scene, std::vector<cv::Point> &points, bool
             points.push_back( cv::Point(cvRound(i.x),cvRound(i.y)) );
         }
     }
-    return true; //how do we know if we didn't find the right image? we could assume sift always prevails.
+    return true;
 }
 
 cv::Point old_position(0,0);
