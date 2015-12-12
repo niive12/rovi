@@ -41,6 +41,36 @@ std::vector<cv::KeyPoint> keypoints_object;
 cv::Mat descriptors_object;
 std::vector<cv::Point2f> obj_corners(4);
 
+void get_homography_flann(cv::Mat &H, std::vector<cv::KeyPoint> &keypoints, cv::Mat &descriptors, std::vector<cv::DMatch> &good_matches){
+    cv::FlannBasedMatcher flann;
+    std::vector< cv::DMatch > matches;
+    flann.match( descriptors_object, descriptors, matches );
+
+    double min_dist = 1e6;
+
+    for( int i = 0; i < descriptors_object.rows; ++i ){
+        double dist = matches[i].distance;
+        if( dist < min_dist ){
+            min_dist = dist;
+        }
+    }
+
+    for( int i = 0; i < descriptors_object.rows; ++i ){
+        if( matches[i].distance < 3*min_dist ){
+            good_matches.push_back( matches[i]);
+        }
+    }
+
+    std::vector<cv::Point2f> object;
+    std::vector<cv::Point2f> scene;
+
+    for(auto i : good_matches){
+        object.push_back(keypoints_object[i.queryIdx].pt);
+        scene.push_back( keypoints[i.trainIdx].pt );
+    }
+    H = cv::findHomography( object, scene, CV_RANSAC );
+}
+
 bool findMarker03(const cv::Mat &img_scene, std::vector<cv::Point> &points, bool locate_one_point = true){
     std::chrono::high_resolution_clock::time_point t1;
     std::chrono::high_resolution_clock::time_point t2;
@@ -63,50 +93,23 @@ bool findMarker03(const cv::Mat &img_scene, std::vector<cv::Point> &points, bool
         cv::imshow("image", output);
     }
 
-    cv::FlannBasedMatcher matcher;
-    std::vector< cv::DMatch > matches;
-    matcher.match( descriptors_object, descriptors_scene, matches );
-
-    double max_dist = 0; double min_dist = 1e6;
-
-    //-- Quick calculation of max and min distances between keypoints
-    for( int i = 0; i < descriptors_object.rows; i++ )
-    { double dist = matches[i].distance;
-      if( dist < min_dist ) min_dist = dist;
-      if( dist > max_dist ) max_dist = dist;
-    }
-
-    //-- Draw only "good" matches (i.e. whose distance is less than 3*min_dist )
+    cv::Mat H;
     std::vector<cv::DMatch> good_matches;
 
-    for( int i = 0; i < descriptors_object.rows; ++i ){
-        if( matches[i].distance < 3*min_dist ){
-            good_matches.push_back( matches[i]);
-        }
-    }
-
-    std::vector<cv::Point2f> object;
-    std::vector<cv::Point2f> scene;
-
-    for(auto i : good_matches){
-        object.push_back(keypoints_object[i.queryIdx].pt);
-        scene.push_back( keypoints_scene[i.trainIdx].pt );
-    }
-    cv::Mat H = cv::findHomography( object, scene, CV_RANSAC );
-
+    get_homography_flann(H,keypoints_scene,descriptors_scene, good_matches);
     std::vector<cv::Point2f> scene_corners(4);
     cv::perspectiveTransform( obj_corners, scene_corners, H);
 
     if(debug_images){
         cv::Mat drawing = img_scene.clone();
         cv::line( drawing, scene_corners[0],
-                           scene_corners[1], cv::Scalar( 0, 255, 0), 4 );
+                           scene_corners[1], cv::Scalar( 0, 0, 255), 4 );
         cv::line( drawing, scene_corners[1],
-                           scene_corners[2], cv::Scalar( 0, 255, 0), 4 );
+                           scene_corners[2], cv::Scalar( 0, 0, 255), 4 );
         cv::line( drawing, scene_corners[2],
-                           scene_corners[3], cv::Scalar( 0, 255, 0), 4 );
+                           scene_corners[3], cv::Scalar( 0, 0, 255), 4 );
         cv::line( drawing, scene_corners[3],
-                           scene_corners[0], cv::Scalar( 0, 255, 0), 4 );
+                           scene_corners[0], cv::Scalar( 0, 0, 255), 4 );
         cv::imshow("image", drawing);
     }
     cv::Point midpoint(0,0);
@@ -222,10 +225,8 @@ int main(int argc, char* argv[]){
 
     cv::createTrackbar("Selected image", "original",&image_in_set,original_images.size()-1,image_trackbar);
     //* <---------remove one slash to envoke trackbar instead of autoplay
-    image_in_set = 0;
-    int key;
-    for(int i = image_in_set; i < original_images.size()-1; ++i){
-        ++image_in_set;
+    for(int i = 1; i < original_images.size()-1; ++i){
+        image_in_set = i;
         image_trackbar(0,nullptr);
         if(cv::waitKey(200) == 'q'){ break;}
     }
