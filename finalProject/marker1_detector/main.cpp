@@ -137,6 +137,7 @@ bool findMarker01(const cv::Mat &img, std::vector<cv::Point> &points, bool locat
 
     if(circles.size() != 4) {
         std::cout << image_in_set << " size: " << circles.size() << std::endl;
+        points.push_back(midpoint);
         return false;
     } else {
         if(locate_one_point){
@@ -158,7 +159,7 @@ void image_trackbar(int, void*){
     std::vector<cv::Point> points;
 
     findMarker01(org, points);
-    std::cout << "midpoint = " << points[0] << std::endl;
+//    std::cout << "midpoint = " << points[0] << std::endl;
 }
 
 int main(int argc, char* argv[]){
@@ -194,7 +195,7 @@ int main(int argc, char* argv[]){
     }
 
     cv::createTrackbar("Selected image", "original",&image_in_set,original_images.size()-1,image_trackbar);
-    //* <---------remove one slash to envoke trackbar instead of autoplay
+    /* <---------remove one slash to envoke trackbar instead of autoplay
     image_in_set = 0;
     for(int i = 0; i < original_images.size()-1; ++i){
         ++image_in_set;
