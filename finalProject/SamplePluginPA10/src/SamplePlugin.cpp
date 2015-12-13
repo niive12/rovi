@@ -31,12 +31,13 @@ SamplePlugin::SamplePlugin():
     connect(_timer, SIGNAL(timeout()), this, SLOT(timer()));
 
     // robotics test tab - connect gui
-    connect(_comboBox_settings_loadMarker  ,SIGNAL(activated(int)), this, SLOT(loadMarkerMovement()) );
-    connect(_slider_rotest_Q        ,SIGNAL(valueChanged(int)), this, SLOT(rotest_moveRobot()) );
-    connect(_comboBox_rovi_marker   ,SIGNAL(activated(int)), this, SLOT(rovi_load_markerImage()) );
-    connect(_comboBox_rovi_background   ,SIGNAL(activated(int)), this, SLOT(rovi_load_bgImage()) );
-    connect(_btn_rovi_processImage   ,SIGNAL(pressed()), this, SLOT(rovi_processImage()) );
-    connect(_checkBox_settings_updateCameraview   ,SIGNAL(clicked()), this, SLOT(updateCameraView()) );
+    connect(_comboBox_settings_loadMarker           ,SIGNAL(activated(int)), this, SLOT(loadMarkerMovement()) );
+    connect(_slider_rotest_Q                        ,SIGNAL(valueChanged(int)), this, SLOT(rotest_moveRobot()) );
+    connect(_comboBox_rovi_marker                   ,SIGNAL(activated(int)), this, SLOT(rovi_load_markerImage()) );
+    connect(_comboBox_rovi_background               ,SIGNAL(activated(int)), this, SLOT(rovi_load_bgImage()) );
+    connect(_btn_rovi_processImage                  ,SIGNAL(pressed()), this, SLOT(rovi_processImage()) );
+    connect(_checkBox_settings_updateCameraview     ,SIGNAL(clicked()), this, SLOT(updateCameraView()) );
+    connect(_btn_rovi_saveData                      ,SIGNAL(pressed()), this, SLOT(rovi_saveData()) );
 
 
     // robotics test tab - init values
@@ -90,7 +91,7 @@ void SamplePlugin::initialize() {
     int w = _label->width();
     int h = _label->height();
     QImage img(image.data, image.cols, image.rows, image.step, QImage::Format_RGB888); // Create QImage from the OpenCV image
-//    _label->setPixmap(QPixmap::fromImage(img)); // Show the image at the label in the plugin
+    //    _label->setPixmap(QPixmap::fromImage(img)); // Show the image at the label in the plugin
     _label->setPixmap( QPixmap::fromImage(img).scaled(w,h,Qt::KeepAspectRatio) );
 }
 
@@ -325,6 +326,42 @@ void SamplePlugin::rotest_computeFakeUV(int points, std::vector< cv::Point > &uv
 }
 
 
+void SamplePlugin::rovi_saveData(){
+    std::string filepath = _myPath  + "/finalProject/", filename_tool = "toolPose.csv", filename_error = "trackingError.csv", filename_q = "robotConfiguration.csv";
+
+    std::ofstream outCSVFile_tool(filepath + filename_tool, std::ofstream::out); // the input file
+    if(outCSVFile_tool.is_open()){
+        for(int i = 0; i < _toolPose.size();i++){
+            rw::math::RPY<double> rot(_toolPose[i].R());
+            outCSVFile_tool << _toolPose[i].P()[0] << ", " << _toolPose[i].P()[1] << ", " << _toolPose[i].P()[2] << ", " << rot[0] << ", " << rot[1] << ", " << rot[2] << "\n";
+        }
+    }
+    outCSVFile_tool.close();
+
+    std::ofstream outCSVFile_error(filepath + filename_error, std::ofstream::out); // the input file
+    if(outCSVFile_error.is_open()){
+        for(int i = 0; i < _trackingError.size();i++){
+            outCSVFile_error << _trackingError[i].x << ", " << _trackingError[i].y << "\n";
+        }
+    }
+    outCSVFile_error.close();
+
+
+    std::ofstream outCSVFile_q(filepath + filename_q, std::ofstream::out); // the input file
+    if(outCSVFile_q.is_open()){
+        for(int i = 0; i < _toolPose.size();i++){
+            outCSVFile_q << _robotQ[i][0];
+            for(int j = 1; j < _robotQ[i].size(); j++){
+                outCSVFile_q << ", " << _robotQ[i][0];
+            }
+            outCSVFile_q << "\n";
+        }
+    }
+    outCSVFile_q.close();
+
+
+}
+
 rw::math::Q SamplePlugin::rotest_computeConfigurations(std::vector< cv::Point > &uv, std::vector< cv::Point > &mapping){
     // compute the robot configurations from the data
     // get the different parameters and pointers
@@ -444,7 +481,7 @@ void SamplePlugin::rovi_load_bgImage(){
     }
 
     if(setimage){
-    _bgRender->setImage(*image);
+        _bgRender->setImage(*image);
     }
     getRobWorkStudio()->updateAndRepaint();
 }
@@ -465,6 +502,8 @@ void SamplePlugin::rovi_processImage(){
 
         // resize according to the number of entries
         _robotQ.resize(_settings_markerpos.size());
+        _trackingError.resize(_settings_markerpos.size());
+        _toolPose.resize(_settings_markerpos.size());
 
         // find the marker
         std::string markerName = _line_settings_marker->text().toStdString();
@@ -500,15 +539,19 @@ void SamplePlugin::rovi_processImage(){
 
                 cv::cvtColor(img, img, CV_RGB2BGR);
 
-                if(featureextraction::findMarker01(img, uv)){
-//                    rw::common::Log::log().info() << "Marker Found!\n";
-//                    for(int j = 0; j < uv.size(); j++){
-//                        rw::common::Log::log().info()<< uv[j] << "\n";
-//                    }
-                } else{
-//                    rw::common::Log::log().info() << "Marker Not Found!\n";
+                if(markerused == 0){ // pic 1
+                    featureextraction::findMarker01(img, uv);
+                    mapping.emplace_back(0,0);
+                } else if(markerused == 1){ // pic 2a
+
+                    mapping.emplace_back(0,0);
+                } else if(markerused == 2){ // pic 2b
+                    // ---- this algorithm was not implemented
+                    mapping.emplace_back(0,0);
+                } else if(markerused == 3){ // pic 3
+
+                    mapping.emplace_back(0,0);
                 }
-                mapping.emplace_back(0,0);
 
             } else if(markerused >= 4 && markerused <=6){ // if tracking perfect coords
 
@@ -527,23 +570,35 @@ void SamplePlugin::rovi_processImage(){
                 rw::common::Log::log().info() << "Invalid marker selected\n";
             }
             if(uv.size() > 0){
+                // if points where found, use them to compute the new q_goal
                 dq = rotest_computeConfigurations(uv, mapping);
                 q_goal = dq + device->getQ(_state);
             }
+            // limit dq, calc dq a new for cases where no dq was found but it still has to move from last calculation
             dq = q_goal - device->getQ(_state);
             if(visualServoing::velocityConstraint(dq, device, dt, dq)){
                 constraintsapplied++;
             }
 
-//            rw::common::Log::log().info() << "# " << uv.size() << "\n";
-
+            // move to next q
             q_next = dq + device->getQ(_state);
 
             // set the state before calculating the next
             device->setQ(q_next, _state);
 
+            // calculate the tracking error
+            std::vector< cv::Point > trackingerror;
+            rotest_computeFakeUV(1, trackingerror);
+            _trackingError[i] = trackingerror[0];
+
+            // calculate the tool pose
+            rw::math::Transform3D<double> T_wTm = marker_obj->wTf(_state);
+            _toolPose[i] = T_wTm;
+
+
             // store te configuration in the vector
             _robotQ[i] = q_next;
+
         }
 
         rw::common::Log::log().info() << "# of constraint applied: " << constraintsapplied << "\n";
@@ -555,6 +610,9 @@ void SamplePlugin::rovi_processImage(){
             _slider_rotest_Q->setRange(0,0);
         }
 
+        // return to start pose
+        device->setQ(q, _state);
+        getRobWorkStudio()->setState(_state);
     }
 }
 

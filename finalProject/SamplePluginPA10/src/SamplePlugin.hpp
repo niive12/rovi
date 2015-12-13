@@ -56,6 +56,7 @@ private slots:
     void rovi_load_markerImage();
     void rovi_load_bgImage();
     void rovi_processImage();
+    void rovi_saveData();
 
 
 private:
@@ -74,6 +75,11 @@ private:
     // settings
     bool _settings_coordinatesLoaded;
     std::vector< point6D > _settings_markerpos;
+
+    // other data to publish for plots
+    std::vector< cv::Point > _trackingError;
+    std::vector< rw::math::Transform3D<double> > _toolPose;
+
 
     // robot configurations
     std::vector< rw::math::Q > _robotQ;
