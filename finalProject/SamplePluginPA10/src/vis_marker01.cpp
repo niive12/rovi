@@ -1,114 +1,144 @@
 #include "vis_marker01.hpp"
 
-std::vector<cv::Point> featureextraction::find_circles(const cv::Mat &image, size_t max_circles, int min_area, int max_area){
-    int threshold = 127;
-
-    //Apply threshold to binarize the image
-    cv::Mat threshold_output;
-    std::vector<cv::Vec4i> hierarchy;
-    cv::threshold(image, threshold_output, threshold, 255,  cv::THRESH_BINARY);
-    cv::Mat tmp = threshold_output.clone();
-    cv::blur(tmp,threshold_output,cv::Size(5,5));
-
-    //Find contours
-    std::vector<std::vector<cv::Point> > contours;
-    cv::findContours( threshold_output, contours, hierarchy, CV_RETR_LIST, cv::CHAIN_APPROX_NONE);
-
-    comparator_functor sort_by_size;
-    std::sort(contours.begin(),contours.end(), sort_by_size);
-
-    size_t n = contours.size();
-
-    //select circles
-    std::vector<cv::Point> center;
-    cv::Moments mu; //use moments to get center of mass
-    for( size_t i = 0; i< n; i++ ){
-        double area = cv::contourArea(contours[i]);
-        double circumference = cv::arcLength(contours[i],false);
-        double circle_likeness = 4 * M_PI * area / (circumference * circumference);
-        if (circle_likeness > 0.81 && area > min_area && area < max_area) {
-            mu = cv::moments(contours[i],false);
-            cv::Point com = cv::Point( mu.m10/mu.m00 , mu.m01/mu.m00 );
-            center.push_back(com);
-            if(center.size() == max_circles){
-                break;
-            }
-        }
-    }
-    return center;
-}
-
-bool featureextraction::findMarker01(const cv::Mat &img, std::vector<cv::Point> &points){
-    bool ret = false;
-
-    cv::Mat imgBGR[3];
-    cv::split(img,imgBGR);
+bool featureextraction::findMarker01(const cv::Mat &img, std::vector<cv::Point> &points, bool locate_one_point){
+    points.clear();
+    cv::Mat src_gray;
+//    cv::Mat drawing = img.clone();
 
     cv::Mat imghsv;
     cv::cvtColor(img, imghsv, CV_BGR2HSV);
+    cv::Mat imgBGR[3];
 
     int hue_min, hue_max; //range 0 - 180 degrees
-    int sat_min = 0.3 * 255, sat_max = 1.0 * 255; // range 0 - 255   radius
+    int sat_min = 0.4 * 255, sat_max = 1.0 * 255; // range 0 - 255   radius
     int val_min = 0.10 * 255, val_max = 1 * 255; // range 0 - 255 intensity
 
     hue_min = 210 / 2 ; hue_max = 270 /2;
     cv::inRange(imghsv, cv::Scalar(hue_min, sat_min, val_min), cv::Scalar(hue_max,sat_max,val_max), imgBGR[0]);
 
-    hue_min = 70 / 2; hue_max = 145 / 2;
-    cv::inRange(imghsv, cv::Scalar(hue_min, sat_min, val_min), cv::Scalar(hue_max,sat_max,val_max), imgBGR[1]);
-
-    hue_min = 0 / 2; hue_max = 30/ 2;
+    hue_min = 0 / 2; hue_max = 20/ 2;
     cv::inRange(imghsv, cv::Scalar(hue_min, sat_min, val_min), cv::Scalar(hue_max,sat_max,val_max), imgBGR[2]);
 
-    std::vector<cv::Point> blue =  find_circles(imgBGR[0], 3);
-    std::vector<cv::Point> red = find_circles(imgBGR[2], 1);
+//    hue_min = 70 / 2; hue_max = 145 / 2;
+    hue_min = 70 / 2; hue_max = 175 / 2;
+    sat_min = 0.1 * 255;
+    sat_max = 1.0 * 255;
+    cv::inRange(imghsv, cv::Scalar(hue_min, sat_min, val_min), cv::Scalar(hue_max,sat_max,val_max), imgBGR[1]);
+    cv::cvtColor( img, src_gray, CV_BGR2GRAY );
 
-    if( blue.size() == 3 && red.size() == 1){
-        blue.push_back(red[0]);
+    std::vector<cv::Vec3f> red_circles;
+    std::vector<cv::Vec3f> blue_circles;
+    std::vector<cv::Vec3f> green_circles;
 
-        //sort points
-        int x_direction[4];
-        int y_direction[4];
+    double min_dist_between_circles = 100;
+    double upper_limit_for_canny = 300;
+    double threshold_for_center = 14;
+    double min_radius_circle = 30; //radius is about 60 (30 on marker.ppm)
+    double max_radius_circle = 75;
+    cv::HoughCircles( imgBGR[1],
+            green_circles,
+            CV_HOUGH_GRADIENT,
+            1,
+            min_dist_between_circles,
+            upper_limit_for_canny,
+            threshold_for_center,
+            min_radius_circle,
+            max_radius_circle );
 
-        for( int i = 0; i < 4; ++i){
-            x_direction[i] = blue[i].x;
-            y_direction[i] = blue[i].y;
+    for( auto i : green_circles ){
+        cv::Point center(cvRound(i[0]), cvRound(i[1]));
+//        int radius = cvRound(i[2]);
+        // circle center
+        if( imgBGR[2].at<uchar>(center) > 250 ){
+            red_circles.push_back(i);
+//            cv::circle( drawing, center, 3, cv::Scalar(0,0,255), -1, 8, 0 );
+            // circle outline
+//            cv::circle( drawing, center, radius, cv::Scalar(255,255,255), 3, 8, 0 );
+        } else if( imgBGR[0].at<uchar>(center) > 250 ){
+            blue_circles.push_back(i);
+//            cv::circle( drawing, center, 3, cv::Scalar(0,0,255), -1, 8, 0 );
+            // circle outline
+//            cv::circle( drawing, center, radius, cv::Scalar(255,255,255), 3, 8, 0 );
         }
-        std::sort(x_direction, x_direction+4);
-        std::sort(y_direction, y_direction+4);
+    }
+    float dist, a, b;
+    if( red_circles.size() < 1){
+        cv::HoughCircles( imgBGR[2],
+                          red_circles,
+                          CV_HOUGH_GRADIENT,
+                          1,
+                          min_dist_between_circles,
+                          upper_limit_for_canny,
+                          threshold_for_center,
+                          min_radius_circle,
+                          max_radius_circle );
+    }
+    if( false && blue_circles.size() < 3){
+        cv::HoughCircles( imgBGR[0],
+                          blue_circles,
+                          CV_HOUGH_GRADIENT,
+                          1,
+                          min_dist_between_circles,
+                          upper_limit_for_canny,
+                          threshold_for_center,
+                          min_radius_circle,
+                          max_radius_circle );
+    }
+    cv::Point midpoint(0,0);
+    std::vector<cv::Vec3f> circles = blue_circles;
+    for(auto r : red_circles){
+        circles.push_back(r);
+    }
+    if(circles.size() > 0){
+        for(auto i : circles){
+            midpoint.x += i[0];
+            midpoint.y += i[1];
+        }
+        midpoint.x = midpoint.x / circles.size();
+        midpoint.y = midpoint.y / circles.size();
+    }
+//    cv::circle( drawing, midpoint, blue_circles[0][2], cv::Scalar(0,0,255), 10, 8, 0 );
 
-        //get midpoint
-        cv::Point midpoint;
-
-        int most_left = (x_direction[1] - x_direction[0])/2 + x_direction[0];
-        int most_right = (x_direction[3] - x_direction[2])/2 + x_direction[2];
-        midpoint.x = (most_right - most_left)/ 2 + most_left;
-
-        most_left  = (y_direction[1] - y_direction[0])/2 + y_direction[0];
-        most_right = (y_direction[3] - y_direction[2])/2 + y_direction[2];
-        midpoint.y = (most_right - most_left)/ 2 + most_left;
-
-        cv::Point midpnt_uv;
-        midpnt_uv.x = midpoint.x - img.cols / 2;
-        midpnt_uv.y = img.rows / 2 - midpoint.y;
-
-
-        //get rotation
-//        double rot = atan( (double)(red[0].y-midpoint.y)/(red[0].x-midpoint.x) ) - RAD_45;
-
-//        std::cout << "center : "<< midpoint << '/' << midpnt_uv << '\t'
-//                  << "rotation in degrees: " << rot * 180/M_PI<< '\n';
-
-        points = std::vector< cv::Point >{midpnt_uv};
-        ret = true;
-
-    } else if(blue.size() < 3) {
-        rw::common::Log::log().info() << "Too few markers found. B#: " << blue.size() << ", R#: " << red.size() << "\n";
-    } else if(blue.size() > 3) {
-        rw::common::Log::log().info() << "Too many markers found. B# : " << blue.size() << ", R#: " << red.size() << "\n";
-    } else {
-        rw::common::Log::log().info() << "no red marker found\n";
+    if( circles.size() > 4){
+        for(size_t i = 0; i < circles.size(); ++i){
+//            cv::Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
+            a = circles[i][0] - midpoint.x;
+            b = circles[i][1] - midpoint.y;
+            dist =  a * a + b * b;
+            if( dist > 30000 ){
+//                cv::circle( drawing, center, circles[i][2], cv::Scalar(0,0,255), 10, 8, 0 );
+                circles.erase(circles.begin()+ i,circles.begin()+ i+1);
+            } else {
+//                cv::circle( drawing, center, circles[i][2], cv::Scalar(0,255,255), 10, 8, 0 );
+            }
+        }
+        midpoint = cv::Point(0,0);
+        for(auto i : circles){
+            midpoint.x += i[0];
+            midpoint.y += i[1];
+        }
+        midpoint.x = midpoint.x / circles.size();
+        midpoint.y = midpoint.y / circles.size();
+//        cv::circle( drawing, midpoint, blue_circles[0][2], cv::Scalar(255,0,255), 10, 8, 0 );
     }
 
-    return ret;
+//    cv::imshow("image", drawing);
+
+    if(circles.size() != 4) {
+//        rw::common::Log::log().info() << image_in_set << " size: " << circles.size() << "\n";
+//        points.push_back(midpoint);
+        return false;
+    } else {
+        if(locate_one_point){
+            midpoint.x -= img.cols / 2;
+            midpoint.y = img.rows / 2 - midpoint.y;
+            points.push_back(midpoint);
+        } else {
+            for(auto i : circles){
+                points.push_back(cv::Point( cvRound(i[0]) - img.cols / 2, img.rows / 2 - cvRound(i[1]) ));
+            }
+        }
+        return true;
+    }
+
 }

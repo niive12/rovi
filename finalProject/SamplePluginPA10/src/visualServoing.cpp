@@ -95,11 +95,11 @@ rw::math::Q visualServoing::visualServoing(std::vector< cv::Point > &uv, std::ve
     // compute dq
     Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dq_eig;
 
-    if(z_img.rows() > z_img.cols()){
-        dq_eig = z_inv * z_img * y;
-    } else{
+//    if(z_img.rows() > z_img.cols()){
+//        dq_eig = z_inv * z_img * y;
+//    } else{
         dq_eig = z_t * y;
-    }
+//    }
 
     //    rw::common::Log::log().info() << "y:\n" << y << "\n";
 
@@ -285,7 +285,7 @@ Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> visualServoing::du_fixed(s
     du_eig.resize(uv.size() * 2, Eigen::NoChange);
     if(uv.size() == 1){
         // if just one point align it with translation only
-        if(uv.size() < mappings.size()){
+        if(uv.size() == mappings.size()){
             // track with offset if only one point is tracked
             du_eig(0,0) = -uv[0].x + mappings[0].x;
             du_eig(1,0) = -uv[0].y + mappings[0].y;
@@ -373,7 +373,11 @@ Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> visualServoing::du_fixed(s
             rw::common::Log::log().error() << "ERROR: No matches could be found.\n";
         }
 
-    } else {
+    } else{
+        rw::common::Log::log().error() << "ERROR: Not entering the mapping functions.\n";
+
+
+        }/*else {
         // for count >= 4
         // use homography for the mapping
         // does NOT need assumption of small changes in the marker
@@ -389,7 +393,7 @@ Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> visualServoing::du_fixed(s
         for(unsigned int i = 0; i < dst.size(); i++){
             rw::common::Log::log().info() << dst[i] << "\n";
         }
-    }
+    }*/
     //        rw::common::Log::log().info() << mappings[i]._x << ", " << mappings[i]._y << "\n";
     //        rw::common::Log::log().info() << -uv[i](0) << ", " << -uv[i](1) << " -> " << du_eig(i * 2, 0)  << ", " << du_eig(2 * i + 1, 0) << "\n";
 

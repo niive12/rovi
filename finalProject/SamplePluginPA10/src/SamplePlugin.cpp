@@ -513,7 +513,14 @@ void SamplePlugin::rovi_processImage(){
         rw::math::Q q_goal, dq, q_next;
         q_goal = q;
 
-        int constraintsapplied = 0;
+        // crop image before getting matches (used for marker 03)
+        cv::Point old_position(0,0);
+        int accepted_width;
+        int accepted_height;
+        cv::Mat img_object = cv::imread(_myPath + "/finalProject/SamplePluginPA10/markers/Marker3.ppm");
+        featureextraction::init_marker03(img_object);
+
+        int constraintsapplied = 0, markerNotFound = 0;
         for(unsigned int i = 0; i < _settings_markerpos.size(); i++){
             // set the marker as in world frame
             rw::math::RPY<double> rpy(_settings_markerpos[i].roll, _settings_markerpos[i].pitch, _settings_markerpos[i].yaw);
@@ -524,6 +531,8 @@ void SamplePlugin::rovi_processImage(){
             std::vector< cv::Point > mapping, uv;
             uv.clear();
             mapping.clear();
+
+            bool markerFound = false;
 
             if(markerused >= 0 && markerused <=3){ // if tracking an image
                 // Get the image as a RW image
@@ -540,17 +549,66 @@ void SamplePlugin::rovi_processImage(){
                 cv::cvtColor(img, img, CV_RGB2BGR);
 
                 if(markerused == 0){ // pic 1
-                    featureextraction::findMarker01(img, uv);
+                    markerFound = featureextraction::findMarker01(img, uv);
                     mapping.emplace_back(0,0);
                 } else if(markerused == 1){ // pic 2a
-
+                    markerFound = featureextraction::findMarker02(img, uv);
                     mapping.emplace_back(0,0);
                 } else if(markerused == 2){ // pic 2b
                     // ---- this algorithm was not implemented
                     mapping.emplace_back(0,0);
                 } else if(markerused == 3){ // pic 3
+                    int x = 0,y = 0;
+                    accepted_width = img.cols;
+                    accepted_height = img.rows;
+                    if( old_position != cv::Point(0,0) ){
+                        accepted_width = img_object.cols * 3;
+                        accepted_height = img_object.rows * 3;
+                        x = old_position.x - accepted_width/2;
+                        y = old_position.y - accepted_height/2;
+                        if(x > (img.cols-accepted_width) ){
+                            x = img.cols-accepted_width;
+                        } else if(x < 0){
+                            x = 0;
+                        }
+                        if(y > (img.rows-accepted_height) ){
+                            y = img.rows-accepted_height;
+                        } else if(y < 0){
+                            y = 0;
+                        }
+                    }
+                    cv::Mat cropped(img, cv::Rect(x,y,accepted_width,accepted_height));
 
-                    mapping.emplace_back(0,0);
+                    markerFound = featureextraction::findMarker03(cropped, uv, false);
+                    if( !markerFound ){
+                        old_position = cv::Point(0,0);
+                    } else if(uv.size() > 0 ){
+                        old_position.y = 0;
+                        old_position.x = 0;
+                        for(unsigned int j = 0; j < uv.size(); j++){
+                            old_position.x += uv[j].x + x;
+                            old_position.y += uv[j].y + y;
+                        }
+                        old_position.y /= uv.size();
+                        old_position.x /= uv.size();
+                    }
+                    // adjust uv to standard
+                    for(unsigned int p = 0; p < uv.size(); p++){
+                        uv[p].x = uv[p].x - img.cols / 2 + x;
+                        uv[p].y = img.rows / 2 - uv[p].y - y;
+                        rw::common::Log::log().info() << uv[p];
+                    }
+                    rw::common::Log::log().info() << "\n";
+
+                    if(uv.size() == 1){
+                        mapping.emplace_back(0,0);
+                    }else if(uv.size() > 1){
+                        mapping.emplace_back(200,200);
+                        mapping.emplace_back(200,-200);
+                        mapping.emplace_back(-200,200);
+                        mapping.emplace_back(-200,-200);
+                    }
+
                 }
 
             } else if(markerused >= 4 && markerused <=6){ // if tracking perfect coords
@@ -564,15 +622,18 @@ void SamplePlugin::rovi_processImage(){
                         mapping.emplace_back(0,160);
                     }
                 }
-
+                markerFound = true;
 
             }else{
                 rw::common::Log::log().info() << "Invalid marker selected\n";
+                markerFound = false;
             }
-            if(uv.size() > 0){
+            if(uv.size() > 0 && markerFound){
                 // if points where found, use them to compute the new q_goal
                 dq = rotest_computeConfigurations(uv, mapping);
                 q_goal = dq + device->getQ(_state);
+            } else{
+                markerNotFound++;
             }
             // limit dq, calc dq a new for cases where no dq was found but it still has to move from last calculation
             dq = q_goal - device->getQ(_state);
@@ -602,6 +663,7 @@ void SamplePlugin::rovi_processImage(){
         }
 
         rw::common::Log::log().info() << "# of constraint applied: " << constraintsapplied << "\n";
+        rw::common::Log::log().info() << "# of markers not found: " << markerNotFound << "\n";
 
         // set slider range according to the length of the vector
         if(_robotQ.size() > 0){
