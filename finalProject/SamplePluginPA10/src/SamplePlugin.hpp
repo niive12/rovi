@@ -4,6 +4,8 @@
 #include "../build/ui_SamplePlugin.h"
 #include "visualServoing.hpp"
 #include "vis_marker01.hpp"
+#include "vis_marker02.hpp"
+#include "vis_marker03.hpp"
 
 #include <opencv2/opencv.hpp>
 
