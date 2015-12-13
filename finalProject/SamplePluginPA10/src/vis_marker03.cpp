@@ -48,6 +48,10 @@ void featureextraction::get_homography_flann(cv::Mat &H, std::vector<cv::KeyPoin
         }
     }
 
+    if(min_dist < 40){
+        min_dist = 40;
+    }
+
     for( int i = 0; i < descriptors_object.rows; ++i ){
         if( matches[i].distance < 3*min_dist ){
             good_matches.push_back( matches[i]);
@@ -61,13 +65,17 @@ void featureextraction::get_homography_flann(cv::Mat &H, std::vector<cv::KeyPoin
         object.push_back(keypoints_object[i.queryIdx].pt);
         scene.push_back( keypoints[i.trainIdx].pt );
     }
-    H = cv::findHomography( object, scene, CV_RANSAC );
+    if(good_matches.size() < 50){
+        rw::common::Log::log().error() << "Min dist: " << min_dist << "\n";
+//        rw::common::Log::log().error() << "ERROR: Not enough points for Homography in get_homography_flan.\n";
+    }
+        H = cv::findHomography( object, scene, CV_RANSAC );
 }
 
 bool featureextraction::findMarker03(const cv::Mat &img_scene, std::vector<cv::Point> &points, bool locate_one_point){
 //    std::chrono::high_resolution_clock::time_point t1;
 //    std::chrono::high_resolution_clock::time_point t2;
-    bool debug_images = true;
+    bool debug_images = false;
     points.clear();
 
 

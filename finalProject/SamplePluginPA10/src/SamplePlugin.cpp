@@ -579,20 +579,35 @@ void SamplePlugin::rovi_processImage(){
                     }
                     cv::Mat cropped(img, cv::Rect(x,y,accepted_width,accepted_height));
 
-                    markerFound = featureextraction::findMarker03(cropped, uv);
+                    markerFound = featureextraction::findMarker03(cropped, uv, false);
                     if( !markerFound ){
                         old_position = cv::Point(0,0);
                     } else if(uv.size() > 0 ){
-                        old_position.x = uv[0].x + x;
-                        old_position.y = uv[0].y + y;
+                        old_position.y = 0;
+                        old_position.x = 0;
+                        for(unsigned int j = 0; j < uv.size(); j++){
+                            old_position.x += uv[j].x + x;
+                            old_position.y += uv[j].y + y;
+                        }
+                        old_position.y /= uv.size();
+                        old_position.x /= uv.size();
                     }
                     // adjust uv to standard
                     for(unsigned int p = 0; p < uv.size(); p++){
                         uv[p].x = uv[p].x - img.cols / 2 + x;
                         uv[p].y = img.rows / 2 - uv[p].y - y;
+                        rw::common::Log::log().info() << uv[p];
                     }
+                    rw::common::Log::log().info() << "\n";
 
-                    mapping.emplace_back(0,0);
+                    if(uv.size() == 1){
+                        mapping.emplace_back(0,0);
+                    }else if(uv.size() > 1){
+                        mapping.emplace_back(200,200);
+                        mapping.emplace_back(200,-200);
+                        mapping.emplace_back(-200,200);
+                        mapping.emplace_back(-200,-200);
+                    }
 
                 }
 
