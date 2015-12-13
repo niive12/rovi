@@ -500,15 +500,19 @@ void SamplePlugin::rovi_processImage(){
 
                 cv::cvtColor(img, img, CV_RGB2BGR);
 
-                if(featureextraction::findMarker01(img, uv)){
-//                    rw::common::Log::log().info() << "Marker Found!\n";
-//                    for(int j = 0; j < uv.size(); j++){
-//                        rw::common::Log::log().info()<< uv[j] << "\n";
-//                    }
-                } else{
-//                    rw::common::Log::log().info() << "Marker Not Found!\n";
+                if(markerused == 0){ // pic 1
+                    featureextraction::findMarker01(img, uv);
+                    mapping.emplace_back(0,0);
+                } else if(markerused == 1){ // pic 2a
+
+                    mapping.emplace_back(0,0);
+                } else if(markerused == 2){ // pic 2b
+                    // ---- this algorithm was not implemented
+                    mapping.emplace_back(0,0);
+                } else if(markerused == 3){ // pic 3
+
+                    mapping.emplace_back(0,0);
                 }
-                mapping.emplace_back(0,0);
 
             } else if(markerused >= 4 && markerused <=6){ // if tracking perfect coords
 
@@ -527,16 +531,17 @@ void SamplePlugin::rovi_processImage(){
                 rw::common::Log::log().info() << "Invalid marker selected\n";
             }
             if(uv.size() > 0){
+                // if points where found, use them to compute the new q_goal
                 dq = rotest_computeConfigurations(uv, mapping);
                 q_goal = dq + device->getQ(_state);
             }
+            // limit dq, calc dq a new for cases where no dq was found but it still has to move from last calculation
             dq = q_goal - device->getQ(_state);
             if(visualServoing::velocityConstraint(dq, device, dt, dq)){
                 constraintsapplied++;
             }
 
-//            rw::common::Log::log().info() << "# " << uv.size() << "\n";
-
+            // move to next q
             q_next = dq + device->getQ(_state);
 
             // set the state before calculating the next

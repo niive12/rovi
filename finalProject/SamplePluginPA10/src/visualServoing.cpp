@@ -43,10 +43,14 @@ rw::math::Q visualServoing::visualServoing(std::vector< cv::Point > &uv, std::ve
         rw::common::Log::log().error() << "ERROR: Dimensions of the input of uv and z must agree in visualServoing.\n";
         rw::common::Log::log().error() << " - uv: " << uv.size() << ", z: " << z.size() << "\n";
     }
+    if(uv.size() > mapping.size()){
+        rw::common::Log::log().error() << "ERROR: Dimensions of the mapping >= uv must agree in visualServoing.\n";
+        rw::common::Log::log().error() << " - uv: " << uv.size() << ", mapping: " << mapping.size() << "\n";
+    }
     //    rw::common::Log::log().info() << "-------- New calc --------\n";
 
     //
-    for(int i = 0; i < uv.size(); i++){
+    for(unsigned int i = 0; i < uv.size(); i++){
         uv[i] = -uv[i];
     }
 
@@ -269,73 +273,107 @@ Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> visualServoing::z_image(rw
 
 
 Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> visualServoing::du_fixed(std::vector< cv::Point > &uv, std::vector< cv::Point > &mappings){
-    if(uv.size() != mappings.size()){
-        rw::common::Log::log().error() << "ERROR: uv and mapping not the same size in 'du'.\n";
+    if(uv.size() > mappings.size()){
+        rw::common::Log::log().error() << "ERROR: uv and mapping are not the same size nor is uv smaller than mapping in 'du'.\n";
         rw::common::Log::log().error() << " - uv: " << uv.size() << ", mappings: " << mappings.size() << "\n";
     }
     // match to the corresponding circles but n the same shape as supposed.
-    // use homography, opencv::findHomography , modules/calib3d
+    // use homography, opencv::findHomography , modules/calib3d - for >= 4
 
+    bool astar = true;
     Eigen::Matrix<double, Eigen::Dynamic, 1> du_eig;
     du_eig.resize(uv.size() * 2, Eigen::NoChange);
     if(uv.size() == 1){
         // if just one point align it with translation only
-        du_eig(0,0) = -uv[0].x + mappings[0].x;
-        du_eig(1,0) = -uv[0].y + mappings[0].y;
-    } else if (uv.size() == 2){
-        // match to closest point (for small displacements it will follow same point, if not it might flip the marker)
-        double dxone = uv[0].x - mappings[0].x, dyone = uv[0].y - mappings[0].y;
-        double dxtwo = uv[1].x - mappings[1].x, dytwo = uv[1].y - mappings[1].y;
-        double done = sqrt(dxone * dxone + dyone * dyone) + sqrt(dxtwo * dxtwo + dytwo * dytwo);
-        dxone = uv[0].x - mappings[1].x;
-        dyone = uv[0].y - mappings[1].y;
-        dxtwo = uv[1].x - mappings[0].x;
-        dytwo = uv[1].y - mappings[0].y;
-        double dtwo = sqrt(dxone * dxone + dyone * dyone) + sqrt(dxtwo * dxtwo + dytwo * dytwo);
-
-        if(done < dtwo){ // 1 -> 1, 2 -> 2 mapping
+        if(uv.size() < mappings.size()){
+            // track with offset if only one point is tracked
             du_eig(0,0) = -uv[0].x + mappings[0].x;
             du_eig(1,0) = -uv[0].y + mappings[0].y;
-            du_eig(2,0) = -uv[1].x + mappings[1].x;
-            du_eig(3,0) = -uv[1].y + mappings[1].y;
-        } else{ // 1 -> 2, 2 -> 1 mapping
-            du_eig(0,0) = -uv[0].x + mappings[1].x;
-            du_eig(1,0) = -uv[0].y + mappings[1].y;
-            du_eig(2,0) = -uv[1].x + mappings[0].x;
-            du_eig(3,0) = -uv[1].y + mappings[0].y;
+        } else {
+            // track to center if multi point tracking
+            du_eig(0,0) = -uv[0].x;
+            du_eig(1,0) = -uv[0].y;
         }
+//    } else if (uv.size() == 2 && !astar){
+//        // match to closest point (for small displacements it will follow same point, if not it might flip the marker)
+//        double dxone = uv[0].x - mappings[0].x, dyone = uv[0].y - mappings[0].y;
+//        double dxtwo = uv[1].x - mappings[1].x, dytwo = uv[1].y - mappings[1].y;
+//        double done = sqrt(dxone * dxone + dyone * dyone) + sqrt(dxtwo * dxtwo + dytwo * dytwo);
+//        dxone = uv[0].x - mappings[1].x;
+//        dyone = uv[0].y - mappings[1].y;
+//        dxtwo = uv[1].x - mappings[0].x;
+//        dytwo = uv[1].y - mappings[0].y;
+//        double dtwo = sqrt(dxone * dxone + dyone * dyone) + sqrt(dxtwo * dxtwo + dytwo * dytwo);
 
-    } else if (uv.size() == 3){
-        // assuming for small steps the triangle will be the one that has its 3 points closest to the mapping
-        // find the triangle for which the corners needs to be moved the least distance
-        rw::math::Vector3D<unsigned int> map;
-        double mindist = -1;
-        for(unsigned int i = 0; i < uv.size(); i++){
-            for(unsigned int j = 0; j < uv.size(); j++){
-                for(unsigned int k = 0; k < uv.size(); k++){
-                    if(i != j && i != k && j != k){ // the mappings may not go to the same corner
-                        // calculate the distance for the current mapping
-                        double dxone = uv[0].x - mappings[i].x, dyone = uv[0].y - mappings[i].y;
-                        double dxtwo = uv[1].x - mappings[j].x, dytwo = uv[1].y - mappings[j].y;
-                        double dxthree = uv[2].x - mappings[k].x, dythree = uv[2].y - mappings[k].y;
-                        double dist = sqrt(dxone * dxone + dyone * dyone) + sqrt(dxtwo * dxtwo + dytwo * dytwo) + sqrt(dxthree * dxthree + dythree * dythree);
-                        if(mindist == -1 || dist < mindist){
-                            mindist = dist;
-                            map = {i,j,k};
-                        }
-                    }
-                }
+//        if(done < dtwo){ // 1 -> 1, 2 -> 2 mapping
+//            du_eig(0,0) = -uv[0].x + mappings[0].x;
+//            du_eig(1,0) = -uv[0].y + mappings[0].y;
+//            du_eig(2,0) = -uv[1].x + mappings[1].x;
+//            du_eig(3,0) = -uv[1].y + mappings[1].y;
+//        } else{ // 1 -> 2, 2 -> 1 mapping
+//            du_eig(0,0) = -uv[0].x + mappings[1].x;
+//            du_eig(1,0) = -uv[0].y + mappings[1].y;
+//            du_eig(2,0) = -uv[1].x + mappings[0].x;
+//            du_eig(3,0) = -uv[1].y + mappings[0].y;
+//        }
+
+//    } else if (uv.size() == 3 && !astar){
+//        // assuming for small steps the triangle will be the one that has its 3 points closest to the mapping
+//        // find the triangle for which the corners needs to be moved the least distance
+//        rw::math::Vector3D<unsigned int> map;
+//        double mindist = -1;
+//        for(unsigned int i = 0; i < uv.size(); i++){
+//            for(unsigned int j = 0; j < uv.size(); j++){
+//                for(unsigned int k = 0; k < uv.size(); k++){
+//                    if(i != j && i != k && j != k){ // the mappings may not go to the same corner
+//                        // calculate the distance for the current mapping
+//                        double dxone = uv[0].x - mappings[i].x, dyone = uv[0].y - mappings[i].y;
+//                        double dxtwo = uv[1].x - mappings[j].x, dytwo = uv[1].y - mappings[j].y;
+//                        double dxthree = uv[2].x - mappings[k].x, dythree = uv[2].y - mappings[k].y;
+//                        double dist = sqrt(dxone * dxone + dyone * dyone) + sqrt(dxtwo * dxtwo + dytwo * dytwo) + sqrt(dxthree * dxthree + dythree * dythree);
+//                        if(mindist == -1 || dist < mindist){
+//                            mindist = dist;
+//                            map = {i,j,k};
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        // computing du
+//        du_eig(0,0) = -uv[0].x + mappings[map(0)].x;
+//        du_eig(1,0) = -uv[0].y + mappings[map(0)].y;
+//        du_eig(2,0) = -uv[1].x + mappings[map(1)].x;
+//        du_eig(3,0) = -uv[1].y + mappings[map(1)].y;
+//        du_eig(4,0) = -uv[2].x + mappings[map(2)].x;
+//        du_eig(5,0) = -uv[2].y + mappings[map(2)].y;
+
+    } else if(uv.size() > 1 && astar){
+        // create cost array
+        std::vector< std::vector< double > > cost;
+        cost.resize(mappings.size());
+        for(unsigned int m = 0; m < mappings.size(); m++){
+            cost[m].resize(uv.size());
+            for(unsigned int p = 0; p < uv.size(); p++){
+                // calc cost for this point and map
+                double dx = uv[p].x - mappings[m].x, dy = uv[p].y - mappings[m].y;
+                cost[m][p] = sqrt(dx * dx + dy * dy);
             }
         }
-        // computing du
-        du_eig(0,0) = -uv[0].x + mappings[map(0)].x;
-        du_eig(1,0) = -uv[0].y + mappings[map(0)].y;
-        du_eig(2,0) = -uv[1].x + mappings[map(1)].x;
-        du_eig(3,0) = -uv[1].y + mappings[map(1)].y;
-        du_eig(4,0) = -uv[2].x + mappings[map(2)].x;
-        du_eig(5,0) = -uv[2].y + mappings[map(2)].y;
 
-    } else{
+        // find best mapping
+        std::vector< int > map;
+        if(bestMatching(cost, map)){
+            // use the array to find du
+            for(unsigned int i = 0; i < uv.size(); i++){
+                du_eig(i * 2, 0) = -uv[i].x + mappings[map[i]].x;
+                du_eig(i * 2 + 1, 0) = -uv[i].y + mappings[map[i]].y;
+            }
+
+        } else{
+            rw::common::Log::log().error() << "ERROR: No matches could be found.\n";
+        }
+
+    } else {
         // for count >= 4
         // use homography for the mapping
         // does NOT need assumption of small changes in the marker
@@ -357,6 +395,103 @@ Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> visualServoing::du_fixed(s
 
     return du_eig;
 }
+
+// comparator used for the graph > heap, to find the next leaf to consider
+struct Comp
+{
+   bool operator()( std::shared_ptr<visualServoing::node> a, std::shared_ptr<visualServoing::node> b)
+   {
+       return (a->getCost()) > (b->getCost());
+   }
+};
+
+#define NULLMAPPER (-1)
+bool visualServoing::bestMatching(std::vector< std::vector< double > > &costTable, std::vector< int > &bestMatch){
+    // Dijkstra implementation, as of now
+    // [row][col], row = mapper, col = point
+    // create openlist
+    int totalPoints = costTable[0].size(), totalMappings = costTable.size();
+    std::vector< std::shared_ptr< node > > leafs;
+    std::make_heap(leafs.begin(), leafs.end(), Comp()); //
+
+    bool goalFound = false, moreLeafs = true;
+    std::shared_ptr<node> front = nullptr;
+    do{
+        // check if it is goal
+        double costTillNow = 0;
+        int mapper = 0;
+        if(front != nullptr){
+            costTillNow = front->getCost();
+            mapper = front->getMapper() + 1;
+            if(front->getMapper() == totalMappings - 1){ // reached the end
+                // test if allpoints found are used
+                std::shared_ptr<node> next = front;
+                int pointsUsed = 0;
+                while(next != nullptr){
+                    if(next->getPoint() != NULLMAPPER){
+                        pointsUsed++;
+                    }
+                    next = next->getParent();
+                }
+                if(pointsUsed >= totalPoints){ // mappings >= points hence always all points must be used
+                    goalFound = true;
+                }
+            }
+        }
+
+        if(!goalFound){
+            // put all points in the openlist that are not a parent or older to the new leaf
+            for(int point = 0; point < totalPoints; point++){
+                // check if it exists in this path
+                std::shared_ptr<node> family = front;
+                bool exists = false;
+                while(family != nullptr && !exists){
+                    if(family->getPoint() == point){
+                        exists = true;
+                    }
+                    family = family->getParent();
+                }
+                // if not, add it
+                if(!exists){
+                    std::shared_ptr<node> child(new node(front, costTillNow + costTable[mapper][point], mapper, point));
+                    leafs.push_back(child);
+                }
+
+            }
+            // add zero cost step only if mappings are more than points
+            if(totalMappings > totalPoints){
+                std::shared_ptr<node> child(new node(front, costTillNow, mapper, NULLMAPPER));
+                leafs.push_back(child);
+            }
+            // sort the heap
+            std::push_heap(leafs.begin(), leafs.end(), Comp());
+            // pop the next one
+            if(leafs.size()){
+                front = leafs.front();
+                std::pop_heap (leafs.begin(),leafs.end(), Comp());
+                leafs.pop_back();
+            } else{
+                moreLeafs = false;
+            }
+        }
+    } while(moreLeafs && !goalFound);
+
+    // return best match
+    bestMatch.clear();
+    bestMatch.resize(totalPoints);
+    if(goalFound){
+        std::shared_ptr<node> family = front;
+        while(family != nullptr){
+            if(family->getPoint() != NULLMAPPER){
+                bestMatch[family->getPoint()] = family->getMapper();
+            }
+            family = family->getParent();
+        }
+    }
+
+    return goalFound;
+}
+
 
 double visualServoing::approxDist(std::vector< cv::Point > &uv, double f, double actualdist){
     double retdist = 0.5;
