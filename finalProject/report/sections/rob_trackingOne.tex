@@ -27,23 +27,29 @@ v = \frac{f \cdot y}{z} \label{eq:tsp_v}
 \end{eqnarray}
 
 
-\subsubsection{Testing the Point Tracking}
-
-The system was tested on the three marker movements provided and the configuration of the robot is plotted in figure \ref{fig:robotconfig_ideal}.
-The tool pose was likewise plotted in figure \ref{fig:toolpose_ideal}.
+The system was tested on the three marker movements provided and the configuration of the robot is plotted in figure \ref{fig:robotconfig_ideal_1p}.
+The tool pose was likewise plotted in figure \ref{fig:toolpose_ideal_1p} and the tracking error in image coordinates in figure \ref{fig:trackingerror_ideal_1p}.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width= 0.9 \linewidth]{graphics/robotconfig_ideal}
 \caption{Robot configuration when calculating the ideal $(u,v)$ for the marker placement in the image.}
-\label{fig:robotconfig_ideal}
+\label{fig:robotconfig_ideal_1p}
 \end{figure}
 
 \begin{figure}[H]
 \centering
 \includegraphics[width= 0.9 \linewidth]{graphics/toolpose_ideal}
 \caption{Tool pose when calculating the ideal $(u,v)$ for the marker placement in the image.}
-\label{fig:toolpose_ideal}
+\label{fig:toolpose_ideal_1p}
+\end{figure}
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width= 0.9 \linewidth]{graphics/trackingerror_ideal}
+\caption{Tracking error in image coordinates when calculating the ideal $(u,v)$ for the marker placement in the image.}
+\label{fig:trackingerror_ideal_1p}
 \end{figure}
 
 

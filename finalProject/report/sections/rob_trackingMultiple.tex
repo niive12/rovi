@@ -3,6 +3,44 @@
 When tracking multiple points the same procedure as for one point is used.
 Here only the image jacobians and $[du, dv]^T$ are stacked to $2 \cdot k \times 6$ and $2 \cdot k \times 1$ matrix, where $k$ is the number of points tracked.
 
-The implementation of the algorithm allows for a vector of points to be used when tracking multiple points.
-This is used to specify the set of locations in the image the different points are to be tracked to relative to the center of the image.
+The implemented algorithm takes in a vector of points of the marker that is wished tracked and a vector with the points in the image frame where these have to be tracked to.
+A Dijkstra algorithm is then implemented to find the one-to-one mapping of marker points and their mapping in order to minimize the image displacement vector when tracking the marker.
+This algorithm hence performs best for small image displacements as the points tracked then are guaranteed to be mapped to the same point in the image coordinates.
+It is hence possible to track all number of points in the image, given that there is at least the same number of points to map the marker to.
+Since Dijkstra is used, the mapping with the least image displacements is always found.
+
+The algorithm is however not suitable for large number of points.
+This is due to the exponential increase in number of ways to match $n$ found marker points to a corresponding or larger amount of points to map it to.
+In this project it was however decided not to use more than four points to track at a time and the algorithm is hence suitable for the given case.
+
+%allows for a vector of points to be used when tracking multiple points.
+%This is used to specify the set of locations in the image the different points are to be tracked to relative to the center of the image.
+
+The visual servoing was tested using three points in the markers frame, namely (0,0,0), (0.1, 0, 0) and (0, 0.1, 0).
+These were mapped to the image coordinates (0,0), (160,0) and (0, 160) in the image frame.
+Figure \ref{fig:robotconfig_ideal_3p}, \ref{fig:toolpose_ideal_3p} and \ref{fig:trackingerror_ideal_3p} show the, as for the one point case, the robot configuration, tool pose and tracking error in pixels when following the marker.
+The frame rate, $\Delta t$, for the test of the three marker movements was set to $0.05 sec$.
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width= 0.9 \linewidth]{graphics/robotconfig_ideal}
+\caption{Robot configuration when calculating the ideal $(u,v)$ for the marker placement in the image when tracking three points.}
+\label{fig:robotconfig_ideal_3p}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width= 0.9 \linewidth]{graphics/toolpose_ideal}
+\caption{Tool pose when calculating the ideal $(u,v)$ for the marker placement in the image when tracking three points.}
+\label{fig:toolpose_ideal_3p}
+\end{figure}
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width= 0.9 \linewidth]{graphics/trackingerror_ideal}
+\caption{Tracking error in image coordinates when calculating the ideal $(u,v)$ for the marker placement in the image when tracking three points.}
+\label{fig:trackingerror_ideal_3p}
+\end{figure}
 
