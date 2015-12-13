@@ -1,27 +1,66 @@
 \subsection{The Second Marker}
+The second marker, seen in figure \ref{marker:circle}, contains 3 blue circles and 1 red circle on a green background.
+First the image is split into a red, green and blue channel using HSV.
+When using HSV to select for colors, Hue is the dominating factor.
+The Hue is selected by giving an interval in degrees from the circle.
+The Hue is selected as shown in figure \ref{fig:hsv_color_segmentation}.
+The saturation is chosen so it selects high values as saturated red, green and blue is desired.
+The intensity is not important as the ideal marker gives full intensity of the colors and the real images will give a lower intensity.
 
 \begin{figure*}
 \begin{tikzpicture}
  \node {\includegraphics[scale=1]{graphics/hsv} };
  \node[name=hsv, draw, circle, minimum width =5.3cm] at (-4,-1.85) {};
 % % % % RED % % % %
-% \newcommand{\MinHue}{0} %angle
-% \newcommand{\MaxHue}{30}
-% \newcommand{\MinSat}{1.6cm} % 0 - 1 => 0 - 2.65
-%  \draw (hsv.\MinHue) -- (hsv.center) -- (hsv.\MaxHue);
-%  \draw[very thick]   ([shift=(\MinHue:\MinSat)] hsv.center) arc(\MinHue:\MaxHue:\MinSat);
+\newcommand{\MinHueR}{0} %angle
+\newcommand{\MaxHueR}{30}
+\newcommand{\MinSatR}{1.6cm} % 0 - 1 => 0 - 2.65
+ \draw (hsv.\MinHueR) -- (hsv.center) -- (hsv.\MaxHueR);
+ \draw[very thick]   ([shift=(\MinHueR:\MinSatR)] hsv.center) arc(\MinHueR:\MaxHueR:\MinSatR);
 % % % % GREEN % % % %
-\newcommand{\MinHue}{70} %angle 
-\newcommand{\MaxHue}{145}
-\newcommand{\MinSat}{1.6cm} % 0 - 1 => 0 - 2.65
- \draw (hsv.\MinHue) -- (hsv.center) -- (hsv.\MaxHue);
- \draw[very thick]   ([shift=(\MinHue:\MinSat)] hsv.center) arc(\MinHue:\MaxHue:\MinSat);
+\newcommand{\MinHueG}{70} %angle 
+\newcommand{\MaxHueG}{145}
+\newcommand{\MinSatG}{1.6cm} % 0 - 1 => 0 - 2.65
+ \draw (hsv.\MinHueG) -- (hsv.center) -- (hsv.\MaxHueG);
+ \draw[very thick]   ([shift=(\MinHueG:\MinSatG)] hsv.center) arc(\MinHueG:\MaxHueG:\MinSatG);
 % % % % BLUE % % % %
-% \newcommand{\MinHue}{210} %angle
-% \newcommand{\MaxHue}{270}
-% \newcommand{\MinSat}{1.6cm} % 0 - 1 => 0 - 2.65
-%  \draw (hsv.\MinHue) -- (hsv.center) -- (hsv.\MaxHue);
-%  \draw[very thick]   ([shift=(\MinHue:\MinSat)] hsv.center) arc(\MinHue:\MaxHue:\MinSat);
+\newcommand{\MinHueB}{210} %angle
+\newcommand{\MaxHueB}{270}
+\newcommand{\MinSatB}{1.6cm} % 0 - 1 => 0 - 2.65
+ \draw (hsv.\MinHueB) -- (hsv.center) -- (hsv.\MaxHueB);
+ \draw[very thick]   ([shift=(\MinHueB:\MinSatB)] hsv.center) arc(\MinHueB:\MaxHueB:\MinSatB);
 
 \end{tikzpicture}
+\caption{HSV used for color segmentation.}
+\label{fig:hsv_color_segmentation}
 \end{figure*}
+
+The circles are then found by using a Hough transform for circles on the green channel.
+The green channel will create a void, and thus edges, where the red and blue circles are found so this is less expensive than finding circles on two colors.
+During evaluation of this method, it was found that this method sometimes missed a red or a blue circle.
+This could be saved by doing an extra Hough transform on the corresponding channel and find the circle there.
+
+In order to deal with projection, the Hough transform must allow more edges to be viewed as circles.
+This means that more points will be found.
+In order to remove the wrong points, the surrounding points are analyzed, and if found not to be green, the circle is removed.
+
+The detector was tested to find 4 correct points in the marker in 30/30 images in the easy set and in 50/52 images in the hard set.
+
+In figure \ref{fig:circle_detection} is a normal case from the easy and a worst case example from the hard set shown.
+As the robot follows the point, it is not expected to be this bad at any situation so the detector is deemed successful.
+
+\begin{figure}
+ \centering
+ \begin{subfigure}{0.49\linewidth}
+ \includegraphics[width=\linewidth]{graphics/best_case_hough_circle}
+ \caption{Normal case.}
+ \end{subfigure}
+ \begin{subfigure}{0.49\linewidth}
+ \includegraphics[width=\linewidth]{graphics/worst_case_hough_circle}
+ \caption{Worst case.}
+ \end{subfigure}
+ \caption{Detecting circles with and without projection.}
+ \label{fig:circle_detection}
+\end{figure}
+
+

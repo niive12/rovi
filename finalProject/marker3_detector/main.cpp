@@ -54,7 +54,7 @@ void get_homography_flann(cv::Mat &H, std::vector<cv::KeyPoint> &keypoints, cv::
             min_dist = dist;
         }
     }
-
+    std::cout << "min dist: " << min_dist << "\t";
     for( int i = 0; i < descriptors_object.rows; ++i ){
         if( matches[i].distance < 3*min_dist ){
             good_matches.push_back( matches[i]);
@@ -77,10 +77,8 @@ bool findMarker03(const cv::Mat &img_scene, std::vector<cv::Point> &points, bool
     bool debug_images = true;
     points.clear();
 
-
     std::vector<cv::KeyPoint> keypoints_scene;
     cv::Mat descriptors_scene;
-
 
     t1 = std::chrono::high_resolution_clock::now();
     get_marker_descriptors(img_scene, keypoints_scene, descriptors_scene);

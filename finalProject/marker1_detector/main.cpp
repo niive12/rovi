@@ -12,6 +12,17 @@ int image_in_set = 82;
 std::vector<cv::Mat> original_images;
 cv::Mat org;
 
+//check if at least 3 of the bounding box of a circle is the right color
+bool is_circle_near_color(cv::Mat &color, cv::Vec3f &circle){
+    int sum = 0;
+    int err = 10;
+
+    sum += color.at<uchar>(cv::Point(circle[0]+circle[2]+err, circle[1]+circle[2]+err) );
+    sum += color.at<uchar>(cv::Point(circle[0]+circle[2]+err, circle[1]-circle[2]-err) );
+    sum += color.at<uchar>(cv::Point(circle[0]-circle[2]-err, circle[1]-circle[2]-err) );
+    sum += color.at<uchar>(cv::Point(circle[0]-circle[2]-err, circle[1]+circle[2]+err) );
+    return sum > 510;
+}
 
 bool findMarker01(const cv::Mat &img, std::vector<cv::Point> &points, bool locate_one_point = true){
     points.clear();
@@ -64,17 +75,12 @@ bool findMarker01(const cv::Mat &img, std::vector<cv::Point> &points, bool locat
         // circle center
         if( imgBGR[2].at<uchar>(center) > 250 ){
             red_circles.push_back(i);
-            cv::circle( drawing, center, 3, cv::Scalar(0,0,255), -1, 8, 0 );
-            // circle outline
-            cv::circle( drawing, center, radius, cv::Scalar(255,255,255), 3, 8, 0 );
         } else if( imgBGR[0].at<uchar>(center) > 250 ){
             blue_circles.push_back(i);
-            cv::circle( drawing, center, 3, cv::Scalar(0,0,255), -1, 8, 0 );
-            // circle outline
-            cv::circle( drawing, center, radius, cv::Scalar(255,255,255), 3, 8, 0 );
         }
     }
     float dist, a, b;
+    std::vector<cv::Vec3f> circles;
     if( red_circles.size() < 1){
         cv::HoughCircles( imgBGR[2],
                           red_circles,
@@ -86,7 +92,8 @@ bool findMarker01(const cv::Mat &img, std::vector<cv::Point> &points, bool locat
                           min_radius_circle,
                           max_radius_circle );
     }
-    if( false && blue_circles.size() < 3){
+    if( blue_circles.size() < 3){
+        circles = blue_circles;
         cv::HoughCircles( imgBGR[0],
                           blue_circles,
                           CV_HOUGH_GRADIENT,
@@ -96,9 +103,28 @@ bool findMarker01(const cv::Mat &img, std::vector<cv::Point> &points, bool locat
                           threshold_for_center,
                           min_radius_circle,
                           max_radius_circle );
+        for(auto i : blue_circles){
+            if(is_circle_near_color(imgBGR[1],i)){
+                circles.push_back(i);
+            }
+        }
+        for(size_t i = 0; i < circles.size(); ++i){
+            cv::Point a(circles[i][0],circles[i][1]);
+            for(size_t j = i+1; j < circles.size(); ++j){
+                cv::Point b(circles[j][0],circles[j][1]);
+                cv::Point d = a - b;
+                if(abs(d.x) < 20 && abs(d.y) < 20){
+                    circles.erase(circles.begin() + i);
+                    --i;
+                }
+            }
+        }
+        for(auto i : circles)
+            std::cout << i;
+        blue_circles = circles;
     }
     cv::Point midpoint(0,0);
-    std::vector<cv::Vec3f> circles = blue_circles;
+    circles = blue_circles;
     for(auto r : red_circles){
         circles.push_back(r);
     }
@@ -108,19 +134,24 @@ bool findMarker01(const cv::Mat &img, std::vector<cv::Point> &points, bool locat
     }
     midpoint.x = midpoint.x / circles.size();
     midpoint.y = midpoint.y / circles.size();
-    cv::circle( drawing, midpoint, blue_circles[0][2], cv::Scalar(0,0,255), 10, 8, 0 );
+//    cv::circle( drawing, midpoint, blue_circles[0][2], cv::Scalar(0,0,255), 10, 8, 0 );
+
+    for(auto i: circles){
+        cv::circle( drawing, cv::Point(i[0],i[1]), 3, cv::Scalar(0,0,255), -1, 8, 0 );
+        // circle outline
+        cv::circle( drawing, cv::Point(i[0],i[1]), i[2], cv::Scalar(255,255,255), 3, 8, 0 );
+    }
+
+
 
     if( circles.size() > 4){
         for(size_t i = 0; i < circles.size(); ++i){
-            cv::Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
-            a = circles[i][0] - midpoint.x;
-            b = circles[i][1] - midpoint.y;
-            dist =  a * a + b * b;
-            if( dist > 30000 ){
-                cv::circle( drawing, center, circles[i][2], cv::Scalar(0,0,255), 10, 8, 0 );
-                circles.erase(circles.begin()+ i,circles.begin()+ i+1);
+            if(!is_circle_near_color(imgBGR[1],circles[i])){
+                cv::circle( drawing, cv::Point(circles[i][0],circles[i][1]), circles[i][2], cv::Scalar(255,255,255), 10, 8, 0 );
+                circles.erase(circles.begin()+i);
+                --i;
             } else {
-                cv::circle( drawing, center, circles[i][2], cv::Scalar(0,255,255), 10, 8, 0 );
+                cv::circle( drawing, cv::Point(circles[i][0],circles[i][1]), circles[i][2], cv::Scalar(0,255,255), 10, 8, 0 );
             }
         }
         midpoint = cv::Point(0,0);
@@ -131,12 +162,13 @@ bool findMarker01(const cv::Mat &img, std::vector<cv::Point> &points, bool locat
         midpoint.x = midpoint.x / circles.size();
         midpoint.y = midpoint.y / circles.size();
         cv::circle( drawing, midpoint, blue_circles[0][2], cv::Scalar(255,0,255), 10, 8, 0 );
+//        cv::imshow("image", drawing);
+//        cv::waitKey();
     }
 
     cv::imshow("image", drawing);
-
     if(circles.size() != 4) {
-        std::cout << image_in_set << " size: " << circles.size() << std::endl;
+        std::cout << "not found: " << image_in_set << " size: " << circles.size() << std::endl;
         points.push_back(midpoint);
         return false;
     } else {
@@ -157,8 +189,7 @@ void image_trackbar(int, void*){
     cv::imshow("original", org);
 
     std::vector<cv::Point> points;
-
-    findMarker01(org, points);
+    bool found = findMarker01(org, points);
 //    std::cout << "midpoint = " << points[0] << std::endl;
 }
 
@@ -195,14 +226,16 @@ int main(int argc, char* argv[]){
     }
 
     cv::createTrackbar("Selected image", "original",&image_in_set,original_images.size()-1,image_trackbar);
-    /* <---------remove one slash to envoke trackbar instead of autoplay
-    image_in_set = 0;
+    //* <---------remove one slash to envoke trackbar instead of autoplay
     for(int i = 0; i < original_images.size()-1; ++i){
-        ++image_in_set;
+        image_in_set = i;
         image_trackbar(0,nullptr);
-        cv::waitKey(300);
+        if( cv::waitKey(300) == 'q'){
+            break;
+        }
     }
     /*/
+    image_in_set = 80;
     image_trackbar(0,nullptr);
     cv::waitKey();
     //*/
