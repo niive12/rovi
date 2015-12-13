@@ -8,44 +8,12 @@
 #include <vector>
 #include <algorithm>
 
-#define RAD_45 0.78539816 //45 degrees in radians
-
-struct image_in_image_out{
-    cv::Mat *src;
-    cv::Mat *dst;
-};
-
-int number_of_lines = 10;
-int threshold_angle = 15;
-int threshold_dist = 2;
+int number_of_lines = 15;
+int image_in_set = 0;
+std::vector<cv::Mat> original_images;
 
 cv::Mat org;
 std::string window_name = "Lines";
-
-//taken from 5th semester cupcollector / R2D2
-void merge_similar_lines(std::vector<cv::Vec2f> &lines, float threshold_dist, float threshold_angle){
-    bool changeHappened = true;
-    while(changeHappened){
-        changeHappened = false;
-        // iterate through the whole vector and compare all (start over if two were combined)
-        for(size_t i = 0; i < lines.size(); ++i){
-            for(size_t j = (i + 1); j < lines.size(); ++j){
-                // get deviation of the two lines
-                float deviationOfDistance = abs(abs(lines[i][0]) - abs(lines[j][0]));
-                float deviationOfAngle = abs(abs(lines[i][1]) - abs(lines[j][1]));
-                // if appropiate to merge, do so
-                if(deviationOfAngle < threshold_angle && deviationOfDistance < threshold_dist){
-                    changeHappened = true;
-                    // merge datasets
-                    lines[i][0] = (lines[i][0] + lines[j][0])/2;
-                    lines[i][1] = (lines[i][1] + lines[j][1])/2;
-                    // remove old dataset and line
-                    lines.erase(lines.begin() + j);
-                }
-            }
-        }
-    }
-}
 
 void print_lines(std::vector<cv::Vec2f> &lines, cv::Mat &image){
     image.setTo(0);
@@ -90,7 +58,6 @@ std::vector<cv::Vec2f> find_marker_lines(const std::vector<cv::Vec2f> &lines, st
         for( size_t i = 0; i < lines.size(); ++i){
             other_angle = theta - (lines[i][1]);
             other_dist = lines[line][0] - lines[i][0];
-//            std::cout << other_dist << std::endl;
             if(other_angle > (-tol_par) && other_angle <= tol_par) {
                 ++n_parallel;
             } else if( (other_angle > (tol_cross - tol_par) && other_angle < (tol_cross + tol_par)) || (other_angle > (-tol_cross - tol_par) && other_angle < (-tol_cross + tol_par)) )  {
@@ -107,8 +74,10 @@ std::vector<cv::Vec2f> find_marker_lines(const std::vector<cv::Vec2f> &lines, st
             for(size_t j = i+1; j < good_lines.size(); ++j){
                 other_angle = good_lines[i][1] - good_lines[j][1];
                 if( (other_angle > (tol_cross - tol_par) && other_angle < (tol_cross + tol_par)) || (other_angle > (-tol_cross - tol_par) && other_angle < (-tol_cross + tol_par)) )  {
-                    cv::Point intersection(cos(good_lines[i][1])*good_lines[i][0] + cos(good_lines[j][1])*good_lines[j][0],
-                                           sin(good_lines[i][1])*good_lines[i][0] + sin(good_lines[j][1])*good_lines[j][0]);
+                    double y = - (good_lines[j][0] - cos(good_lines[j][1]) * good_lines[i][0] / cos(good_lines[i][1]))
+                               / (sin(good_lines[i][1]) * cos(good_lines[j][1]) / cos(good_lines[i][1]) + sin(good_lines[j][1]) );
+                    double x =   (good_lines[j][0] - y * sin(good_lines[j][1])) / cos(good_lines[j][1]);
+                    cv::Point intersection( x, y );
                     intersections.push_back(intersection);
                 }
             }
@@ -121,14 +90,13 @@ std::vector<cv::Vec2f> find_marker_lines(const std::vector<cv::Vec2f> &lines, st
 bool find_center(std::vector<cv::Point> &intersections, std::vector<cv::Point> &points, cv::Mat &lines_img, bool find_single_point = true){
     cv::Point midpoint(0,0);
     std::vector<cv::Point> corners;
-    char circles = 0;
     float a, b, dist;
     for(size_t i = 0; i < intersections.size(); ++i){
         for(size_t j = i+1; j < intersections.size(); ++j){
             a = intersections[i].x - intersections[j].x;
             b = intersections[i].y - intersections[j].y;
             dist = a*a + b*b;
-            if( dist > 0 && dist < 30){
+            if( dist > 0 && dist < 100){
                 intersections.erase(intersections.begin()+j);
             }
         }
@@ -142,12 +110,11 @@ bool find_center(std::vector<cv::Point> &intersections, std::vector<cv::Point> &
             dist = a*a + b*b;
             if( dist > 0 && dist < min){
                 min = dist;
-            } else if( dist > max){
+            } else if( dist < 190000 && dist > max){
                 max = dist;
             }
-
         }
-        if(max > 160000){
+        if(max > 160000 ){
             corners.push_back(i);
             cv::circle(lines_img,i,30,cv::Scalar(0,255,0));
             midpoint.x += i.x;
@@ -178,27 +145,18 @@ bool findMarker02(const cv::Mat &img, std::vector<cv::Point> &points, bool locat
     lines_img.setTo(0);
     double th_low = 100, th_high = 300;
     cv::Canny(img, edges, th_low, th_high);
-//    edges = img.clone();
-//    cv::cvtColor(img, edges, CV_BGR2GRAY);
 
     std::vector<cv::Vec2f> Hough_lines = find_lines_hough(edges, number_of_lines);
     print_lines(Hough_lines,lines_img);
+//    cv::imshow("../report/graphics/Lines_in_image.png", lines_img);
     std::vector<cv::Point> intersections;
     std::vector<cv::Vec2f> lines = find_marker_lines(Hough_lines,intersections);
     print_lines(lines,lines_img);
     bool ans = find_center(intersections, points, lines_img, locate_one_point);
-    cv::imshow(window_name,lines_img);
+//    cv::imshow("../report/graphics/Detected_points_marker1a_8.png",lines_img);
     return ans;
 }
 
-
-void on_trackbar(int, void*){
-}
-
-
-
-int image_in_set = 7;
-std::vector<cv::Mat> original_images;
 void image_trackbar(int, void*){
     org = original_images.at(image_in_set).clone();
     std::vector<cv::Point> points;
@@ -231,11 +189,11 @@ int main(int argc, char* argv[]){
         }
     }
     cv::createTrackbar("Selected image", "original",&image_in_set,original_images.size()-1,image_trackbar);
-    image_trackbar(0,nullptr);
+    cv::createTrackbar("n lines", "original",&number_of_lines,30,image_trackbar);
+    image_in_set = original_images.size()-1;
+    while(image_in_set --> 0)
+            image_trackbar(0,nullptr);
 
-    cv::createTrackbar("Hough votes", window_name,&number_of_lines,255,on_trackbar);
-    cv::createTrackbar("Line dist", window_name,&threshold_dist,100,on_trackbar);
-    cv::createTrackbar("Line angle", window_name,&threshold_angle,45,on_trackbar);
     cv::waitKey();
     return 0;
 }

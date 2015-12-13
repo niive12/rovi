@@ -118,9 +118,6 @@ bool findMarker02(const cv::Mat &img, std::vector<cv::Point> &points){
     cv::Mat white;
     cv::cvtColor(img, imghsv, CV_BGR2HSV);
     cv::inRange(imghsv, cv::Scalar(0, 0, 127), cv::Scalar(180,50,255), white);
-
-    //    cv::imshow("white", org);
-    //    cv::waitKey(0);
     std::vector<std::vector<cv::Point> > contours;
     cv::Mat drawing = original_images.at(image_in_set).clone();
     std::vector<std::vector<cv::Point> > good_contours;
