@@ -204,6 +204,10 @@ int main(int argc, char* argv[]){
 
         original_images.push_back( cv::imread("../SamplePluginPA10/markers/Marker1.ppm"));
         original_images.push_back( cv::imread("../color_bg.png"));
+        original_images.push_back( cv::imread("../carpet_test1.ppm"));
+        original_images.push_back( cv::imread("../carpet_test2.ppm"));
+        original_images.push_back( cv::imread("../carpet_test3.ppm"));
+        original_images.push_back( cv::imread("../carpet_test4.ppm"));
 
         for(int i = 1; i <= 30; ++i){
             numbera = i/10 %10 + '0';
@@ -226,7 +230,7 @@ int main(int argc, char* argv[]){
     }
 
     cv::createTrackbar("Selected image", "original",&image_in_set,original_images.size()-1,image_trackbar);
-    //* <---------remove one slash to envoke trackbar instead of autoplay
+    /* <---------remove one slash to envoke trackbar instead of autoplay
     for(int i = 0; i < original_images.size()-1; ++i){
         image_in_set = i;
         image_trackbar(0,nullptr);

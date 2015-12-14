@@ -1,10 +1,9 @@
 \subsection{The First Marker}
-The first marker, seen in figure \ref{marker:cross}, contains black crosses on a white background.
+The first marker, seen in figure \ref{marker:cross}, contains black crossing lines on a white background.
 These are two features which can be used to find the marker so both are tested.
 
 \subsubsection{Using Lines}
-The first method is using the black crosses.
-The marker can be found using the lines in the image.
+The first method is using the black crossing lines by finding all lines in the image.
 To do so, all edges must be found.
 These are found using a sobel filter and then the number of edges are reduced with the canny edge detector.
 
@@ -20,9 +19,8 @@ The lines are plotted and shown for image 7 in the easy set in figure \ref{fig:l
  \label{fig:lines_in_image}
 \end{figure}
 
-
-The lines are then analyzed.
-The lines are given as polar coordinates where a distance to the top left corner, $(0,0)$, and a rotation describes the line that is perpendicular to it.
+The number of lines are then reduced with an analysis.
+The lines are given as polar coordinates where a distance to the top left corner of the image and a rotation describes the line that is perpendicular to that point.
 The marker contains crossing lines, so lines which have a parallel lines and a 90 degree crossing lines are kept.
 Then the crossing point, $C_p$, is calculated in equation \ref{eq:crossing} which was derived appendix \ref{app:crossing_of_two_lines}.
 
@@ -117,7 +115,8 @@ It was not deemed a good solution.
 \end{figure}
 
 \subsubsection{Using Contours}
-The second method is to use the colors. The marker is a big white plate, separated by the black bars.
+The second method is to use the colors. The marker can be described as a big white plate, separated by the black bars.
+If the background contains small white blobs, the marker would be bigger.
 If the background is a big white wall, the size of the wall would be larger than the marker so that could be removed based on the size of the object.
 
 The first problem is to select all white in an image.
@@ -139,9 +138,9 @@ The red circle indicates where the marker is found.
  \label{fig:threshold_marker1}
 \end{figure}
 
-A better way to detect the white part is to convert the image into Hue Saturation and Value (HSV).
+A better way to detect the white part is to split the image into Hue Saturation and Value (HSV).
 The value is the intensity of the image and selecting the high values gives the same effect as thresholding the grayscale image.
-To select parts of the image, the saturation must be set. A low saturation would mean the image is not saturated with a color.
+To remove intense colored parts, the saturation must be set. A low saturation would mean the image is not saturated with a color.
 0-20\% saturation and 50-100\% intensity was chosen.
 In figure \ref{fig:hsv_intensity} is the intensity shown in relation to the HSV values.
 
