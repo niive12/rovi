@@ -118,11 +118,8 @@ bool findMarker02(const cv::Mat &img, std::vector<cv::Point> &points){
     cv::Mat white;
     cv::cvtColor(img, imghsv, CV_BGR2HSV);
     cv::inRange(imghsv, cv::Scalar(0, 0, 127), cv::Scalar(180,50,255), white);
-
-    //    cv::imshow("white", org);
-    //    cv::waitKey(0);
     std::vector<std::vector<cv::Point> > contours;
-    cv::Mat drawing = original_images.at(image_in_set).clone();
+    cv::Mat drawing = img.clone();
     std::vector<std::vector<cv::Point> > good_contours;
 
     points.clear();
@@ -146,6 +143,7 @@ void image_trackbar(int, void*){
     std::vector<cv::Point> points;
 
     findMarker02(org, points);
+    if(points.size())
     std::cout << "midpoint = " << points[0] << std::endl;
 
 }
@@ -165,7 +163,15 @@ int main(int argc, char* argv[]){
             numbera = i/10 %10 + '0';
             numberb = i%10 + '0';
             filename = "../marker_thinline/marker_thinline_";
-//            filename = "../marker_2_hard/marker_thinline_hard_";
+            filename += numbera;
+            filename += numberb;
+            filename += ".png";
+            original_images.push_back( cv::imread(filename) );
+        }
+        for(int i = 1; i <= 52; ++i){
+            numbera = i/10 %10 + '0';
+            numberb = i%10 + '0';
+            filename = "../marker_2_hard/marker_thinline_hard_"; //52
             filename += numbera;
             filename += numberb;
             filename += ".png";
@@ -176,8 +182,15 @@ int main(int argc, char* argv[]){
     cv::namedWindow("image", cv::WINDOW_NORMAL);
 
     cv::createTrackbar("Selected image", "original",&image_in_set,original_images.size()-1,image_trackbar);
+    //* <---------remove one slash to envoke trackbar instead of autoplay
+    for(int i = 0; i < original_images.size()-1; ++i){
+        image_in_set = i;
+        image_trackbar(0,nullptr);
+        if(cv::waitKey(200) == 'q'){ break;}
+    }
+    /*/
     image_trackbar(0,nullptr);
-
     cv::waitKey();
+    //*/
     return 0;
 }
