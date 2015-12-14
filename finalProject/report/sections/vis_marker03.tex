@@ -1,5 +1,5 @@
 \subsection{The Third Marker}
-The third marker, seen in figure \ref{marker:corny}, contains an image of packaging from a muesli bar.
+The third marker, seen in figure \ref{marker:corny}, contains an image of packaging from a granola bar.
 Here the colors are not distinct enough to use as the source and there is no good definable shapes in the image worth searching for.
 In those situations can the Scale Invariant Feature Transform (SIFT) be used.
 SIFT points in an image which then can be matched to the marker.
@@ -12,7 +12,7 @@ Then the matches are compared using RANSAC and the corners of the marker is proj
 To test if the marker is successfully detected, lines between the corners have been drawn onto the image.
 In figure \ref{fig:sift_detection} can it be seen that the marker is successfully detected.
 
-\begin{figure}
+\begin{figure}[h]
  \centering
  \includegraphics[width=0.5\linewidth]{graphics/sift_detection}
  \caption{SIFT detection on an image.}
@@ -30,7 +30,7 @@ This could be done by removing matches that deviate from the minimum distance be
 \nikolaj{Find if this is pixel distance between them or something else}
 Running with this optimization, the total time goes down to a $630$ ms on average.
 
-\begin{figure}
+\begin{figure}[h]
  \centering
  \includegraphics[width=\linewidth]{graphics/marker3_timing_unoptimized}
  \caption{Timing for finding the marker with SIFT.}
@@ -52,9 +52,10 @@ The median is measured to be $272$ ms.
 The large image is analyzed two times, one for the first image and one for image 28 as the transition from 26 to 27 is not continuous.
 The transition from the easy image set to the hard image set is continuous enough so the detector finds the marker.
 
-\begin{figure}
+\begin{figure}[h]
  \centering
  \includegraphics[width=\linewidth]{graphics/marker3_timing_crop}
  \caption{Timing for finding the marker with SIFT optimized for servoing.}
  \label{fig:time_sift_crop}
 \end{figure}
+

@@ -7,7 +7,7 @@ The hue is selected as shown in figure \ref{fig:hsv_color_segmentation}.
 The saturation is chosen so it selects high values as saturated red, green and blue is desired.
 The intensity is not important as the ideal marker gives full intensity of the colors and the real images will give a lower intensity.
 
-\begin{figure}
+\begin{figure}[h]
 \centering
 \def\scalingFactor{0.4}
 \begin{tikzpicture}[scale=\scalingFactor, every node/.style={scale=\scalingFactor}]
@@ -69,7 +69,7 @@ The detector was tested to find 4 correct points in the marker in 30/30 images i
 In figure \ref{fig:circle_detection} is a normal case from the easy and a worst case example from the hard set shown.
 As the robot follows the point, it is not expected to be this bad at any situation so the detector is deemed successful.
 
-\begin{figure}
+\begin{figure}[h]
  \centering
  \begin{subfigure}{0.49\linewidth}
  \includegraphics[width=\linewidth]{graphics/best_case_hough_circle}
