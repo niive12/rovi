@@ -137,11 +137,13 @@ bool visualServoing::velocityConstraint(rw::math::Q &dq, rw::models::Device::Ptr
             maxscale = timescale(i);
         }
     }
+
     // apply timescaling to make it go within the bounds
     if(maxscale > 1){
         constrained_dq /= maxscale;
         ret = true;
     }
+
     return ret;
 }
 

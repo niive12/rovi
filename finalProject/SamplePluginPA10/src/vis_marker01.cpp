@@ -135,7 +135,7 @@ bool featureextraction::findMarker01(const cv::Mat &img, std::vector<cv::Point> 
             points.push_back(midpoint);
         } else {
             for(auto i : circles){
-                points.push_back(cv::Point( cvRound(i[0]) - img.cols / 2, img.rows / 2 - cvRound(i[1]) ));
+                points.push_back(cv::Point( (i[0] - img.cols / 2), (img.rows / 2 - i[1]) ));
             }
         }
         return true;
