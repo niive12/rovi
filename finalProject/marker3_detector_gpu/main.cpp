@@ -3,7 +3,9 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/nonfree/nonfree.hpp> //SIFT
-#include "opencv2/calib3d/calib3d.hpp" //findHomography
+#include <opencv2/calib3d/calib3d.hpp> //findHomography
+//#include <opencv2/gpu/gpu.hpp>        //gpu
+#include <opencv2/nonfree/gpu.hpp>
 
 #include <cmath>
 #include <iostream>
@@ -22,18 +24,22 @@ void get_marker_descriptors(const cv::Mat &img, std::vector<cv::KeyPoint> &keypo
     std::chrono::high_resolution_clock::time_point t1;
     std::chrono::high_resolution_clock::time_point t2;
 
-    cv::SiftFeatureDetector detector;
+    cv::gpu::GpuMat img_gpu, keypoints_gpu, descriptors_gpu;
+    img_gpu.upload(img);
+    std::vector<float> descriptors_vec;
+
+    cv::gpu::SURF_GPU surf;
     t1 = std::chrono::high_resolution_clock::now();
-    detector.detect(img, keypoints);
+    surf(img_gpu, cv::gpu::GpuMat(), keypoints_gpu, descriptors_gpu, false);
+    surf.downloadKeypoints(keypoints_gpu,keypoints);
+    surf.downloadDescriptors(descriptors_gpu,descriptors_vec);
     t2 = std::chrono::high_resolution_clock::now();
     std::cout << std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1).count() << ",\t";
 
-    cv::SiftDescriptorExtractor extractor;
-    t1 = std::chrono::high_resolution_clock::now();
-    extractor.compute( img, keypoints, descriptors);
-    t2 = std::chrono::high_resolution_clock::now();
-    std::cout << std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1).count() << ",\t";
-
+    for(auto i : descriptors_vec){
+        std::cout << i << " ";
+    }
+    std::cout << std::endl;
 }
 
 cv::Mat img_object = cv::imread("../SamplePluginPA10/markers/Marker3.ppm");

@@ -1,39 +1,59 @@
 \subsection{The Second Marker}
 The second marker, seen in figure \ref{marker:circle}, contains 3 blue circles and 1 red circle on a green background.
 First the image is split into a red, green and blue channel using HSV.
-When using HSV to select for colors, Hue is the dominating factor.
-The Hue is selected by giving an interval in degrees from the circle.
-The Hue is selected as shown in figure \ref{fig:hsv_color_segmentation}.
+When using HSV to select for colors, hue is the dominating factor.
+The hue is selected by giving an interval in degrees from the circle.
+The hue is selected as shown in figure \ref{fig:hsv_color_segmentation}.
 The saturation is chosen so it selects high values as saturated red, green and blue is desired.
 The intensity is not important as the ideal marker gives full intensity of the colors and the real images will give a lower intensity.
 
-\begin{figure*}
-\begin{tikzpicture}
- \node {\includegraphics[scale=1]{graphics/hsv} };
- \node[name=hsv, draw, circle, minimum width =5.3cm] at (-4,-1.85) {};
+\begin{figure}
+\centering
+\def\scalingFactor{0.4}
+\begin{tikzpicture}[scale=\scalingFactor, every node/.style={scale=\scalingFactor}]
+ \node[name=whole] at (-0.12,-0.05) {\includegraphics[scale=1]{graphics/hue} };
+\end{tikzpicture}
+%
+\begin{tikzpicture}[scale=\scalingFactor, every node/.style={scale=\scalingFactor}]
+\node at (0,-2.2) {};
+\node at (0, 2.2) {};
+\def\startAngle{140}
+\def\stopAngle{50}
+  \draw[rotate=5,fill=gray,line width=1pt] (\startAngle:1cm) arc(\startAngle:\stopAngle:1cm) -- (\stopAngle:1.125cm) -- (0.9,0.4) -- (\stopAngle:.625cm) -- (\stopAngle:.75cm) arc (\stopAngle:\startAngle:.75cm)--cycle;
+\end{tikzpicture}
+%
+\begin{tikzpicture}[scale=\scalingFactor, every node/.style={scale=\scalingFactor}]
+ \node at (-0.12,-0.05) {\includegraphics[scale=1]{graphics/hue} };
+ \node[name=hsv, draw, thick , circle, minimum width =5.3cm] at (0,0) {};
 % % % % RED % % % %
-\newcommand{\MinHueR}{0} %angle
-\newcommand{\MaxHueR}{30}
-\newcommand{\MinSatR}{1.6cm} % 0 - 1 => 0 - 2.65
+\def\MaxSat{2.8cm}
+\def\MinHueR{0} 
+\def\MaxHueR{30}
+\def\MinSatR{1.6cm} % 0 - 1 => 0 - 2.65
  \draw (hsv.\MinHueR) -- (hsv.center) -- (hsv.\MaxHueR);
  \draw[very thick]   ([shift=(\MinHueR:\MinSatR)] hsv.center) arc(\MinHueR:\MaxHueR:\MinSatR);
 % % % % GREEN % % % %
-\newcommand{\MinHueG}{70} %angle 
-\newcommand{\MaxHueG}{145}
-\newcommand{\MinSatG}{1.6cm} % 0 - 1 => 0 - 2.65
+\def\MinHueG{70} 
+\def\MaxHueG{145}
+\def\MinSatG{1.6cm} % 0 - 1 => 0 - 2.65
  \draw (hsv.\MinHueG) -- (hsv.center) -- (hsv.\MaxHueG);
  \draw[very thick]   ([shift=(\MinHueG:\MinSatG)] hsv.center) arc(\MinHueG:\MaxHueG:\MinSatG);
 % % % % BLUE % % % %
-\newcommand{\MinHueB}{210} %angle
-\newcommand{\MaxHueB}{270}
-\newcommand{\MinSatB}{1.6cm} % 0 - 1 => 0 - 2.65
+\def\MinHueB{210} 
+\def\MaxHueB{270}
+\def\MinSatB{1.6cm} % 0 - 1 => 0 - 2.65
  \draw (hsv.\MinHueB) -- (hsv.center) -- (hsv.\MaxHueB);
  \draw[very thick]   ([shift=(\MinHueB:\MinSatB)] hsv.center) arc(\MinHueB:\MaxHueB:\MinSatB);
 
+ \fill[color=white]  (hsv.center) -- (0:\MinSatR) arc(0:360:\MinSatR);
+ 
+ \fill[color=white]  (hsv.center) -- (\MaxHueR:\MaxSat) arc(\MaxHueR:\MinHueG:\MaxSat);
+ \fill[color=white]  (hsv.center) -- (\MaxHueG:\MaxSat) arc(\MaxHueG:\MinHueB:\MaxSat);
+ \fill[color=white]  (hsv.center) -- (\MaxHueB:\MaxSat) arc(\MaxHueB:360:\MaxSat);
 \end{tikzpicture}
-\caption{HSV used for color segmentation.}
+\caption{Hue and Saturation thresholds applied to HSV to segment colors.}
 \label{fig:hsv_color_segmentation}
-\end{figure*}
+\end{figure}
 
 The circles are then found by using a Hough transform for circles on the green channel.
 The green channel will create a void, and thus edges, where the red and blue circles are found so this is less expensive than finding circles on two colors.
