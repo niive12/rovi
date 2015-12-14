@@ -416,7 +416,6 @@ void SamplePlugin::rotest_moveRobot(){
         // set the configuration depending on the value of the marker
         int val = _slider_rotest_Q->value();
 
-        bool reduceProcessingTime = _checkBox_settings_useProcessingTime->isChecked();
         // find device
         const std::string deviceName = _line_settings_devName->text().toStdString();
         rw::models::Device::Ptr device = _wc->findDevice(deviceName);
@@ -517,6 +516,9 @@ void SamplePlugin::rovi_processImage(){
         rw::math::Q q(7, 0, -0.65, 0, 1.8, 0, 0.42, 0);
         device->setQ(q, _state);
 
+        // use time for something
+        bool reduceProcessingTime = _checkBox_settings_useProcessingTime->isChecked();
+
         // get the timestep
         double dt = _spinBox_timestep->value();
 
@@ -544,6 +546,7 @@ void SamplePlugin::rovi_processImage(){
         rw::math::Q vC = device->getVelocityLimits();
         rw::common::Log::log().info() << "vel lim " << vC << "\n";
         int constraintsapplied = 0, markerNotFound = 0;
+        std::chrono::high_resolution_clock::time_point t1, t2;
         for(unsigned int i = 0; i < _settings_markerpos.size(); i++){
             // set the marker as in world frame
             rw::math::RPY<double> rpy(_settings_markerpos[i].roll, _settings_markerpos[i].pitch, _settings_markerpos[i].yaw);
@@ -557,6 +560,7 @@ void SamplePlugin::rovi_processImage(){
 
             bool markerFound = false;
 
+            t1 = std::chrono::high_resolution_clock::now();
             if(markerused >= 0 && markerused <=3){ // if tracking an image
                 // Get the image as a RW image
                 getRobWorkStudio()->setState(_state);
@@ -658,7 +662,13 @@ void SamplePlugin::rovi_processImage(){
                 rw::common::Log::log().info() << "Invalid marker selected\n";
                 markerFound = false;
             }
-            if(uv.size() > 0 && markerFound){
+            t2 = std::chrono::high_resolution_clock::now();
+            double algoTime = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1).count();
+            double robotMoveTime = dt;
+            if(reduceProcessingTime){
+                robotMoveTime -= algoTime;
+            }
+            if(uv.size() > 0 && markerFound && robotMoveTime > 0){
                 // if points where found, use them to compute the new q_goal
                 dq = rotest_computeConfigurations(uv, mapping);
                 q_goal = dq + device->getQ(_state);
@@ -669,16 +679,25 @@ void SamplePlugin::rovi_processImage(){
             // limit dq, calc dq a new for cases where no dq was found but it still has to move from last calculation
             dq = q_goal - device->getQ(_state);
             rw::math::Q dq_new = dq;
-            if(visualServoing::velocityConstraint(dq, device, dt, dq_new)){
-                constraintsapplied++;
+            if(robotMoveTime > 0){
+                if(visualServoing::velocityConstraint(dq, device, robotMoveTime, dq_new)){
+                    constraintsapplied++;
+                }
+
+                // move to next q
+                q_next = dq_new + device->getQ(_state);
+
+                // set the state before calculating the next
+                device->setQ(q_next, _state);
+
+            } else{
+                // set q's to 0
+                for(int l = 0; l < q_next.size(); l++){
+                    q_next(l) = 0;
+                    dq_new(l) = 0;
+                    dq(l) = 0;
+                }
             }
-
-            // move to next q
-            q_next = dq_new + device->getQ(_state);
-
-            // set the state before calculating the next
-            device->setQ(q_next, _state);
-
             // calculate the tracking error
             std::vector< cv::Point > trackingerror;
             rotest_computeFakeUV(1, trackingerror);

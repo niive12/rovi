@@ -21,6 +21,8 @@
 #include <QFileDialog>
 #include <QCheckBox>
 
+#include <chrono>
+#include <ratio>
 #include <string>
 #include <fstream>      // std::ifstream
 #include <vector>
