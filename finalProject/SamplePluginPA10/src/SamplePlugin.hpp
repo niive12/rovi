@@ -81,7 +81,7 @@ private:
     // other data to publish for plots
     std::vector< cv::Point > _trackingError;
     std::vector< rw::math::Transform3D<double> > _toolPose;
-
+    std::vector< rw::math::Q > _dq_relative;
 
     // robot configurations
     std::vector< rw::math::Q > _robotQ;

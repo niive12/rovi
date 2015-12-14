@@ -26,11 +26,11 @@
       <property name="maximumSize">
        <size>
         <width>16777215</width>
-        <height>250</height>
+        <height>270</height>
        </size>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab_4">
        <attribute name="title">
@@ -204,7 +204,7 @@
           <x>19</x>
           <y>19</y>
           <width>411</width>
-          <height>188</height>
+          <height>215</height>
          </rect>
         </property>
         <layout class="QFormLayout" name="formLayout">
@@ -309,6 +309,16 @@
             <bool>true</bool>
            </property>
           </widget>
+         </item>
+         <item row="6" column="0">
+          <widget class="QLabel" name="useProcessingTImeLabel">
+           <property name="text">
+            <string>Use Processing TIme</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1">
+          <widget class="QCheckBox" name="_checkBox_settings_useProcessingTime"/>
          </item>
         </layout>
        </widget>

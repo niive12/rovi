@@ -322,11 +322,11 @@ void SamplePlugin::rotest_computeFakeUV(int points, std::vector< cv::Point > &uv
         }
     }
 
-//    rw::common::Log::log().info() << "Z: ";
-//    for(int i = 0; i < z_actual.size(); i++){
-//        rw::common::Log::log().info() << z_actual[i] << ", ";
-//    }
-//    rw::common::Log::log().info() << "\n";
+    rw::common::Log::log().info() << "Z: ";
+    for(int i = 0; i < z_actual.size(); i++){
+        rw::common::Log::log().info() << z_actual[i] << ", ";
+    }
+    rw::common::Log::log().info() << "\n";
 
     // calculate the perfect u and v
     uv = visualServoing::uv(x, y, z_actual, f);
@@ -334,11 +334,11 @@ void SamplePlugin::rotest_computeFakeUV(int points, std::vector< cv::Point > &uv
 
 
 void SamplePlugin::rovi_saveData(){
-    std::string filepath = _myPath  + "/finalProject/", filename_tool = "toolPose.csv", filename_error = "trackingError.csv", filename_q = "robotConfiguration.csv";
+    std::string filepath = _myPath  + "/finalProject/", filename_tool = "toolPose.csv", filename_error = "trackingError.csv", filename_q = "robotConfiguration.csv", filename_dq = "relativeConfVel.csv";
 
     std::ofstream outCSVFile_tool(filepath + filename_tool, std::ofstream::out); // the input file
     if(outCSVFile_tool.is_open()){
-        for(int i = 0; i < _toolPose.size();i++){
+        for(unsigned int i = 0; i < _toolPose.size();i++){
             rw::math::RPY<double> rot(_toolPose[i].R());
             outCSVFile_tool << _toolPose[i].P()[0] << ", " << _toolPose[i].P()[1] << ", " << _toolPose[i].P()[2] << ", " << rot[0] << ", " << rot[1] << ", " << rot[2] << "\n";
         }
@@ -347,7 +347,7 @@ void SamplePlugin::rovi_saveData(){
 
     std::ofstream outCSVFile_error(filepath + filename_error, std::ofstream::out); // the input file
     if(outCSVFile_error.is_open()){
-        for(int i = 0; i < _trackingError.size();i++){
+        for(unsigned int i = 0; i < _trackingError.size();i++){
             outCSVFile_error << _trackingError[i].x << ", " << _trackingError[i].y << "\n";
         }
     }
@@ -356,12 +356,24 @@ void SamplePlugin::rovi_saveData(){
 
     std::ofstream outCSVFile_q(filepath + filename_q, std::ofstream::out); // the input file
     if(outCSVFile_q.is_open()){
-        for(int i = 0; i < _toolPose.size();i++){
+        for(unsigned int i = 0; i < _toolPose.size();i++){
             outCSVFile_q << _robotQ[i][0];
-            for(int j = 1; j < _robotQ[i].size(); j++){
-                outCSVFile_q << ", " << _robotQ[i][0];
+            for(unsigned int j = 1; j < _robotQ[i].size(); j++){
+                outCSVFile_q << ", " << _robotQ[i][j];
             }
             outCSVFile_q << "\n";
+        }
+    }
+    outCSVFile_q.close();
+
+    std::ofstream outCSVFile_dq(filepath + filename_dq, std::ofstream::out); // the input file
+    if(outCSVFile_dq.is_open()){
+        for(unsigned int i = 0; i < _dq_relative.size();i++){
+            outCSVFile_dq << _dq_relative[i][0];
+            for(unsigned int j = 1; j < _dq_relative[i].size(); j++){
+                outCSVFile_dq << ", " << _dq_relative[i][j];
+            }
+            outCSVFile_dq << "\n";
         }
     }
     outCSVFile_q.close();
@@ -404,6 +416,7 @@ void SamplePlugin::rotest_moveRobot(){
         // set the configuration depending on the value of the marker
         int val = _slider_rotest_Q->value();
 
+        bool reduceProcessingTime = _checkBox_settings_useProcessingTime->isChecked();
         // find device
         const std::string deviceName = _line_settings_devName->text().toStdString();
         rw::models::Device::Ptr device = _wc->findDevice(deviceName);
@@ -511,6 +524,7 @@ void SamplePlugin::rovi_processImage(){
         _robotQ.resize(_settings_markerpos.size());
         _trackingError.resize(_settings_markerpos.size());
         _toolPose.resize(_settings_markerpos.size());
+        _dq_relative.resize(_settings_markerpos.size());
 
         // find the marker
         std::string markerName = _line_settings_marker->text().toStdString();
@@ -558,8 +572,15 @@ void SamplePlugin::rovi_processImage(){
                 cv::cvtColor(img, img, CV_RGB2BGR);
 
                 if(markerused == 0){ // pic 1
-                    markerFound = featureextraction::findMarker01(img, uv);
-                    mapping.emplace_back(0,0);
+                    markerFound = featureextraction::findMarker01(img, uv, false);
+                    if(uv.size() == 1){
+                        mapping.emplace_back(0,0);
+                    }else if(uv.size() > 1){
+                        mapping.emplace_back(85,85);
+                        mapping.emplace_back(85,-85);
+                        mapping.emplace_back(-85,85);
+                        mapping.emplace_back(-85,-85);
+                    }
                 } else if(markerused == 1){ // pic 2a
                     markerFound = featureextraction::findMarker02(img, uv);
                     mapping.emplace_back(0,0);
@@ -571,8 +592,8 @@ void SamplePlugin::rovi_processImage(){
                     accepted_width = img.cols;
                     accepted_height = img.rows;
                     if( old_position != cv::Point(0,0) ){
-                        accepted_width = img_object.cols * 3;
-                        accepted_height = img_object.rows * 3;
+                        accepted_width = img_object.cols * 2;
+                        accepted_height = img_object.rows * 2;
                         x = old_position.x - accepted_width/2;
                         y = old_position.y - accepted_height/2;
                         if(x > (img.cols-accepted_width) ){
@@ -650,7 +671,6 @@ void SamplePlugin::rovi_processImage(){
             rw::math::Q dq_new = dq;
             if(visualServoing::velocityConstraint(dq, device, dt, dq_new)){
                 constraintsapplied++;
-//                rw::common::Log::log().info() << "constraint applied at " << i << ", Old: " << dq << ", new: " << dq_new << "\n";
             }
 
             // move to next q
@@ -668,6 +688,11 @@ void SamplePlugin::rovi_processImage(){
             rw::math::Transform3D<double> T_wTm = marker_obj->wTf(_state);
             _toolPose[i] = T_wTm;
 
+            // calculate the dq/vC
+            _dq_relative[i] = dq_new;
+            for(int k = 0; k < dq_new.size(); k++){
+                _dq_relative[i](k) = fabs((_dq_relative[i](k) / dt) / vC(k));
+            }
 
             // store te configuration in the vector
             _robotQ[i] = q_next;
