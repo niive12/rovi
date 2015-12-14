@@ -246,27 +246,8 @@ Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> visualServoing::z_image(rw
         }
     }
 
-    // make a Jof Q or the type Eigen::Matrix
-    Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> JQ;
-    JQ.resize(6,JofQ.size2());
-
-    for(unsigned int i = 0; i < JofQ.size1(); i++){
-        for(unsigned int j = 0; j < JofQ.size2(); j++){
-            JQ(i,j) = JofQ(i,j);
-        }
-    }
-
-    // make the image jacobian of Eigen::Matrix type
-    Eigen::Matrix<double, Eigen::Dynamic, 6> imgJ;
-    imgJ.resize(imageJacobian.size1(), Eigen::NoChange);
-    for(unsigned int i = 0; i < imageJacobian.size1(); i++){
-        for(unsigned int j = 0; j < imageJacobian.size2(); j++){
-            imgJ(i,j) = imageJacobian(i,j);
-        }
-    }
-
     // compute the Z_image = J_image * S(q) * J(q)
-    ret = imgJ * SofQ * JQ;
+    ret = imageJacobian.e() * SofQ * JofQ.e();
 
     return ret;
 }
@@ -294,58 +275,6 @@ Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> visualServoing::du_fixed(s
             du_eig(0,0) = -uv[0].x;
             du_eig(1,0) = -uv[0].y;
         }
-//    } else if (uv.size() == 2 && !astar){
-//        // match to closest point (for small displacements it will follow same point, if not it might flip the marker)
-//        double dxone = uv[0].x - mappings[0].x, dyone = uv[0].y - mappings[0].y;
-//        double dxtwo = uv[1].x - mappings[1].x, dytwo = uv[1].y - mappings[1].y;
-//        double done = sqrt(dxone * dxone + dyone * dyone) + sqrt(dxtwo * dxtwo + dytwo * dytwo);
-//        dxone = uv[0].x - mappings[1].x;
-//        dyone = uv[0].y - mappings[1].y;
-//        dxtwo = uv[1].x - mappings[0].x;
-//        dytwo = uv[1].y - mappings[0].y;
-//        double dtwo = sqrt(dxone * dxone + dyone * dyone) + sqrt(dxtwo * dxtwo + dytwo * dytwo);
-
-//        if(done < dtwo){ // 1 -> 1, 2 -> 2 mapping
-//            du_eig(0,0) = -uv[0].x + mappings[0].x;
-//            du_eig(1,0) = -uv[0].y + mappings[0].y;
-//            du_eig(2,0) = -uv[1].x + mappings[1].x;
-//            du_eig(3,0) = -uv[1].y + mappings[1].y;
-//        } else{ // 1 -> 2, 2 -> 1 mapping
-//            du_eig(0,0) = -uv[0].x + mappings[1].x;
-//            du_eig(1,0) = -uv[0].y + mappings[1].y;
-//            du_eig(2,0) = -uv[1].x + mappings[0].x;
-//            du_eig(3,0) = -uv[1].y + mappings[0].y;
-//        }
-
-//    } else if (uv.size() == 3 && !astar){
-//        // assuming for small steps the triangle will be the one that has its 3 points closest to the mapping
-//        // find the triangle for which the corners needs to be moved the least distance
-//        rw::math::Vector3D<unsigned int> map;
-//        double mindist = -1;
-//        for(unsigned int i = 0; i < uv.size(); i++){
-//            for(unsigned int j = 0; j < uv.size(); j++){
-//                for(unsigned int k = 0; k < uv.size(); k++){
-//                    if(i != j && i != k && j != k){ // the mappings may not go to the same corner
-//                        // calculate the distance for the current mapping
-//                        double dxone = uv[0].x - mappings[i].x, dyone = uv[0].y - mappings[i].y;
-//                        double dxtwo = uv[1].x - mappings[j].x, dytwo = uv[1].y - mappings[j].y;
-//                        double dxthree = uv[2].x - mappings[k].x, dythree = uv[2].y - mappings[k].y;
-//                        double dist = sqrt(dxone * dxone + dyone * dyone) + sqrt(dxtwo * dxtwo + dytwo * dytwo) + sqrt(dxthree * dxthree + dythree * dythree);
-//                        if(mindist == -1 || dist < mindist){
-//                            mindist = dist;
-//                            map = {i,j,k};
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        // computing du
-//        du_eig(0,0) = -uv[0].x + mappings[map(0)].x;
-//        du_eig(1,0) = -uv[0].y + mappings[map(0)].y;
-//        du_eig(2,0) = -uv[1].x + mappings[map(1)].x;
-//        du_eig(3,0) = -uv[1].y + mappings[map(1)].y;
-//        du_eig(4,0) = -uv[2].x + mappings[map(2)].x;
-//        du_eig(5,0) = -uv[2].y + mappings[map(2)].y;
 
     } else if(uv.size() > 1 && astar){
         // create cost array
@@ -375,27 +304,7 @@ Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> visualServoing::du_fixed(s
 
     } else{
         rw::common::Log::log().error() << "ERROR: Not entering the mapping functions.\n";
-
-
-        }/*else {
-        // for count >= 4
-        // use homography for the mapping
-        // does NOT need assumption of small changes in the marker
-        std::vector< cv::Vec2d > uv_vec2d, dst;
-        for(unsigned int i = 0; i < uv.size(); i++){
-            uv_vec2d.emplace_back(uv[i].x, uv[i].y);
-        }
-
-        cv::Mat H = cv::findHomography(uv_vec2d, mappings,CV_RANSAC);
-
-        cv::perspectiveTransform(uv_vec2d, dst, H);
-
-        for(unsigned int i = 0; i < dst.size(); i++){
-            rw::common::Log::log().info() << dst[i] << "\n";
-        }
-    }*/
-    //        rw::common::Log::log().info() << mappings[i]._x << ", " << mappings[i]._y << "\n";
-    //        rw::common::Log::log().info() << -uv[i](0) << ", " << -uv[i](1) << " -> " << du_eig(i * 2, 0)  << ", " << du_eig(2 * i + 1, 0) << "\n";
+    }
 
     return du_eig;
 }

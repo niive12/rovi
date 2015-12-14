@@ -299,6 +299,7 @@ void SamplePlugin::rotest_computeFakeUV(int points, std::vector< cv::Point > &uv
     std::vector< double > x, y, z_actual;
     double f = 823;
 
+
     x.emplace_back(T_toolTmarker.P()[0]);
     y.emplace_back(T_toolTmarker.P()[1]);
     z_actual.emplace_back(-T_toolTmarker.P()[2]);
@@ -320,6 +321,12 @@ void SamplePlugin::rotest_computeFakeUV(int points, std::vector< cv::Point > &uv
             z_actual.emplace_back(-T_toolTmarker.P()[2]);
         }
     }
+
+//    rw::common::Log::log().info() << "Z: ";
+//    for(int i = 0; i < z_actual.size(); i++){
+//        rw::common::Log::log().info() << z_actual[i] << ", ";
+//    }
+//    rw::common::Log::log().info() << "\n";
 
     // calculate the perfect u and v
     uv = visualServoing::uv(x, y, z_actual, f);
@@ -520,6 +527,8 @@ void SamplePlugin::rovi_processImage(){
         cv::Mat img_object = cv::imread(_myPath + "/finalProject/SamplePluginPA10/markers/Marker3.ppm");
         featureextraction::init_marker03(img_object);
 
+        rw::math::Q vC = device->getVelocityLimits();
+        rw::common::Log::log().info() << "vel lim " << vC << "\n";
         int constraintsapplied = 0, markerNotFound = 0;
         for(unsigned int i = 0; i < _settings_markerpos.size(); i++){
             // set the marker as in world frame
@@ -596,17 +605,17 @@ void SamplePlugin::rovi_processImage(){
                     for(unsigned int p = 0; p < uv.size(); p++){
                         uv[p].x = uv[p].x - img.cols / 2 + x;
                         uv[p].y = img.rows / 2 - uv[p].y - y;
-                        rw::common::Log::log().info() << uv[p];
+//                        rw::common::Log::log().info() << uv[p];
                     }
-                    rw::common::Log::log().info() << "\n";
+//                    rw::common::Log::log().info() << "\n";
 
                     if(uv.size() == 1){
                         mapping.emplace_back(0,0);
                     }else if(uv.size() > 1){
-                        mapping.emplace_back(200,200);
-                        mapping.emplace_back(200,-200);
-                        mapping.emplace_back(-200,200);
-                        mapping.emplace_back(-200,-200);
+                        mapping.emplace_back(212,212);
+                        mapping.emplace_back(212,-212);
+                        mapping.emplace_back(-212,212);
+                        mapping.emplace_back(-212,-212);
                     }
 
                 }
@@ -632,17 +641,20 @@ void SamplePlugin::rovi_processImage(){
                 // if points where found, use them to compute the new q_goal
                 dq = rotest_computeConfigurations(uv, mapping);
                 q_goal = dq + device->getQ(_state);
+//                rw::common::Log::log().info() << dq << "\n";
             } else{
                 markerNotFound++;
             }
             // limit dq, calc dq a new for cases where no dq was found but it still has to move from last calculation
             dq = q_goal - device->getQ(_state);
-            if(visualServoing::velocityConstraint(dq, device, dt, dq)){
+            rw::math::Q dq_new = dq;
+            if(visualServoing::velocityConstraint(dq, device, dt, dq_new)){
                 constraintsapplied++;
+//                rw::common::Log::log().info() << "constraint applied at " << i << ", Old: " << dq << ", new: " << dq_new << "\n";
             }
 
             // move to next q
-            q_next = dq + device->getQ(_state);
+            q_next = dq_new + device->getQ(_state);
 
             // set the state before calculating the next
             device->setQ(q_next, _state);
