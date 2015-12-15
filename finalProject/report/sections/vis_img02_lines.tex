@@ -1,0 +1,110 @@
+\subsubsection{Using Lines}
+The first method is using the black crossing lines by finding all lines in the image.
+To do so, all edges must be found.
+These are found using a sobel filter and then the number of edges are reduced with the canny edge detector.
+
+The edges are then processed with a Hough transform, returning all possible lines that can be found in the image.
+To limit the scope, the 15 highest voted lines are then selected, so the number of lines are consistent and the threshold for the voting is ignored as it will change from image to image.
+The lines are plotted and shown for image 7 in the easy set in figure \ref{fig:lines_in_image}.
+
+
+\begin{figure}[H]
+ \centering
+ \includegraphics[width=0.6\linewidth]{graphics/Lines_in_image}
+ \caption{Lines detected in image 7 from the easy set.}
+ \label{fig:lines_in_image}
+\end{figure}
+
+The number of lines are then reduced with an analysis.
+The lines are given as polar coordinates where a distance to the top left corner of the image and a rotation describes the line that is perpendicular to that point.
+The marker contains crossing lines, so lines which have a parallel lines and a 90 degree crossing lines are kept.
+Then the crossing point, $C_p$, is calculated in equation \ref{eq:crossing} which was derived in appendix \ref{app:crossing_of_two_lines}.
+
+\def\arraystretch{2}
+\begin{equation}
+% C_p
+%  = 
+\left[
+\begin{array}{c}
+ x\\y
+\end{array}
+\right]
+=
+% C_p
+\left[
+\begin{array}{c}
+%   \left(
+  \frac{ \rho_b - y \cdot  sin(\theta_b) }{ cos(\theta_b) }
+%   \right)
+  \\
+%   \left(
+  - \frac{\rho_b - cos(\theta_b) \cdot \frac{\rho_a}{cos(\theta_a)} }{ sin(\theta_a) \cdot \frac{ cos(\theta_b) }{ cos(\theta_a) } + sin(\theta_b) }
+%   \right)
+  \\
+\end{array}
+\right]
+ \label{eq:crossing}
+\end{equation}
+\def\arraystretch{\customarrayHeight}
+
+Where $\rho$ is the shortest distance from origin to the line and $\theta$ is the angle from origin to $\rho$. 
+In figure \ref{fig:crossing_point} is the crossing point of two lines shown.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+ \newcommand{\angleA}{300}
+ \newcommand{\radiuA}{1.5}
+ \newcommand{\radiuB}{1.5}
+ 
+ \FPeval{\angleB}{\angleA + 90}
+ 
+ \node[name=image] at (0,0) {};
+ 
+ \node[scale=0.3,fill=black, minimum width=15cm, rotate={90 + \angleA}, name=lineA] at ([shift=(\angleA:\radiuA cm)] image.center) {};
+ \node[name=midA] at ($(lineA.180)!(image.center)!(lineA.0)$) {};
+ \node[above] at (lineA.0) {line$_a$};
+
+ 
+ \node[scale=0.3,fill=black, minimum width=15cm, rotate={90 + \angleB}, name=lineB] at ([shift=(\angleB:\radiuB cm)] image.center) {};
+ \node[name=midB] at ($(lineB.180)!(image.center)!(lineB.0)$) {};
+ \node[above] at (lineB.0) {line$_b$};
+ 
+ \FPeval{\rad}{\FPpi/180} %couldn't find the function
+ \FPeval{\posX}{round(cos(\angleA * \rad)*\radiuA + cos(\angleB * \rad)*\radiuB,3)}
+ \FPeval{\posY}{round(sin(\angleA * \rad)*\radiuA + sin(\angleB * \rad)*\radiuB,3)}
+ 
+ \path (midA); \pgfgetlastxy{\XCoord}{\YCoord};
+ \draw[very thick, dashed, green] (image.center) -- (midA.center) node[black, midway, left]       {\(\rho_a\)};
+ \draw[very thick, green] (0.5,0) arc(0:{atan(\YCoord/\XCoord)}:0.5cm) node[midway, black, right] {\(\theta_a\)};
+ 
+ \path (midB); \pgfgetlastxy{\XCoord}{\YCoord};
+ \draw[very thick, dashed, red] (image.center) -- (midB.center) node[black, midway, above]        {\(\rho_b\)};
+ \draw[very thick, red] (0.5,0) arc(0:{atan(\YCoord/\XCoord)}:0.5cm) node[midway, black, right]   {\(\theta_b\)};
+
+ \node[draw, circle,green,very thick]  at (\posX,\posY) {} node[below] at(\posX,\posY) {$C_p$};
+\end{tikzpicture}
+\caption{Crossing point of two lines.}
+\label{fig:crossing_point}
+\end{figure}
+
+In figure \ref{fig:crossing_points} is circles within a small area merged and the farthest point in a square is kept.
+Testing this, the lines are not always among the highest voted lines, several other lines might be parallel to the marker lines and thus the result gets noisy.
+In figure \ref{fig:crossing_points_marker}, it can be seen working on images where the all the needed lines are detected and when not all the lines needed are detected. 
+The algorithm fails when it does not have enough points to establish the distance.
+This approach worked on 13/30 images in the easy set and it was not deemed a good solution to go on with.
+
+\begin{figure}[H]
+ \centering
+ \begin{subfigure}{0.49\linewidth}
+ \includegraphics[width=\linewidth]{graphics/Detected_points_marker1a_7}
+ \caption{Image 7}
+ \label{fig:crossing_points}
+ \end{subfigure}
+ \begin{subfigure}{0.49\linewidth}
+ \includegraphics[width=\linewidth]{graphics/Detected_points_marker1a_8}
+ \caption{Image 8}
+ \end{subfigure}
+ \caption{Detected corners of marker 1 from the easy set.}
+ \label{fig:crossing_points_marker}
+\end{figure}
