@@ -3,6 +3,9 @@ The velocity constraint was furthermore limited to only compute the robot moveme
 It is hence assumed that when the time limit $\Delta t$ is exceeded by the vision algorithm, the result of the process is not used.
 The time by which $\Delta t$ is reduced, is calculated on runtime and hence dependent on the time it takes to process the specific image.
 
+The slow data set contains 500 points, the medium, 160, and the fast data set contains 50 points.
+In order to minimize the effect of outliers, the number of trials is increased on the data sets which have less data points.
+
 The time to find the marker is measured and the mean processing time is shown in table \ref{tb:mean_processing_time}.
 The different backgrounds was tested separately to see if it has any impact.
 It can be seen that the Corny detector takes more time on backgrounds such as carpet and mosaik window, as they contain a lot of edges and thus a lot of SIFT features.
@@ -100,3 +103,17 @@ Waterbed & 0.0 & 0.0 & 0.0 \\ \hline
 \caption{Minimum $\Delta t$ [s] for Corny on different backgrounds with different marker speeds.}
 \label{tb:min_dt_corny}
 \end{table}
+
+In order to measure systems ability to track the point, distance from the ideal position to the position based on the image marker is measured.
+In figure \ref{fig:travel_error} is the error term shown.
+\nikolaj{Conclude something: It can be seen that the Circle detector has a larger deviance from the ideal path than the other detectors.}
+
+\begin{figure}
+ \centering
+ \includegraphics[width=\linewidth]{graphics/travel_error} %does not yet exist
+ \caption{Travel error between the ideal position and the positions found by the detector.}
+ \label{fig:travel_error}
+\end{figure}
+
+The joint positions can be seen in appendix \ref{app:joint_positions}.
+The joint velocities can be seen in appendix \ref{app:joint_velocities}.
