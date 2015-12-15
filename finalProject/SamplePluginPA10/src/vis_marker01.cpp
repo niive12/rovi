@@ -91,6 +91,7 @@ bool featureextraction::findMarker01(const cv::Mat &img, std::vector<cv::Point> 
                           max_radius_circle );
     }
     if( blue_circles.size() < 3){
+        circles = blue_circles;
         cv::HoughCircles( imgBGR[0],
                           blue_circles,
                           CV_HOUGH_GRADIENT,
@@ -100,6 +101,23 @@ bool featureextraction::findMarker01(const cv::Mat &img, std::vector<cv::Point> 
                           threshold_for_center,
                           min_radius_circle,
                           max_radius_circle );
+        for(auto i : blue_circles){
+            if(is_circle_near_color(imgBGR[1],i)){
+                circles.push_back(i);
+            }
+        }
+        for(size_t i = 0; i < circles.size(); ++i){
+            cv::Point a(circles[i][0],circles[i][1]);
+            for(size_t j = i+1; j < circles.size(); ++j){
+                cv::Point b(circles[j][0],circles[j][1]);
+                cv::Point d = a - b;
+                if(abs(d.x) < 20 && abs(d.y) < 20){
+                    circles.erase(circles.begin() + i);
+                    --i;
+                }
+            }
+        }
+        blue_circles = circles;
     }
     cv::Point midpoint(0,0);
     std::vector<cv::Vec3f> circles = blue_circles;
