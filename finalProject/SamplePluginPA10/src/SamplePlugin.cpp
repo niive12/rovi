@@ -322,11 +322,11 @@ void SamplePlugin::rotest_computeFakeUV(int points, std::vector< cv::Point > &uv
         }
     }
 
-    rw::common::Log::log().info() << "Z: ";
-    for(int i = 0; i < z_actual.size(); i++){
-        rw::common::Log::log().info() << z_actual[i] << ", ";
-    }
-    rw::common::Log::log().info() << "\n";
+//    rw::common::Log::log().info() << "Z: ";
+//    for(int i = 0; i < z_actual.size(); i++){
+//        rw::common::Log::log().info() << z_actual[i] << ", ";
+//    }
+//    rw::common::Log::log().info() << "\n";
 
     // calculate the perfect u and v
     uv = visualServoing::uv(x, y, z_actual, f);
@@ -545,7 +545,8 @@ void SamplePlugin::rovi_processImage(){
 
         rw::math::Q vC = device->getVelocityLimits();
         rw::common::Log::log().info() << "vel lim " << vC << "\n";
-        int constraintsapplied = 0, markerNotFound = 0;
+        int constraintsapplied = 0;
+        int markerNotFound = 0;
         std::chrono::high_resolution_clock::time_point t1, t2;
         for(unsigned int i = 0; i < _settings_markerpos.size(); i++){
             // set the marker as in world frame
