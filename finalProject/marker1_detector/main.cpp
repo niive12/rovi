@@ -15,7 +15,7 @@ cv::Mat org;
 //check if at least 3 of the bounding box of a circle is the right color
 bool is_circle_near_color(cv::Mat &color, cv::Vec3f &circle){
     int sum = 0;
-    int err = 10;
+    int err = 12;
 
     sum += color.at<uchar>(cv::Point(circle[0]+circle[2]+err, circle[1]+circle[2]+err) );
     sum += color.at<uchar>(cv::Point(circle[0]+circle[2]+err, circle[1]-circle[2]-err) );
@@ -217,6 +217,7 @@ int main(int argc, char* argv[]){
         original_images.push_back( cv::imread("../carpet_fail2.png"));
         original_images.push_back( cv::imread("../fuckup1.png"));
         original_images.push_back( cv::imread("../fuckup2.png"));
+        original_images.push_back( cv::imread("../fuckup3.png"));
 
         for(int i = 1; i <= 30; ++i){
             numbera = i/10 %10 + '0';
@@ -248,9 +249,11 @@ int main(int argc, char* argv[]){
         }
     }
     /*/
-    image_in_set = 80;
+    for(int i =0; 0 < 10; ++i){
+    image_in_set = 10;
     image_trackbar(0,nullptr);
     cv::waitKey();
+    }
     //*/
     return 0;
 }

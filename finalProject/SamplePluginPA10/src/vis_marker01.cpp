@@ -1,21 +1,20 @@
 #include "vis_marker01.hpp"
 
-//check if at least 3 of the bounding box of a circle is the right color
+//check if at least 5 coordinates alone the bounding box of a circle is the right color
 bool is_circle_near_color(cv::Mat &color, cv::Vec3f &circle){
     int sum = 0;
-    int err = 10;
+    int err = 12;
 
     sum += color.at<uchar>(cv::Point(circle[0]+circle[2]+err, circle[1]+circle[2]+err) );
     sum += color.at<uchar>(cv::Point(circle[0]+circle[2]+err, circle[1]-circle[2]-err) );
     sum += color.at<uchar>(cv::Point(circle[0]-circle[2]-err, circle[1]-circle[2]-err) );
     sum += color.at<uchar>(cv::Point(circle[0]-circle[2]-err, circle[1]+circle[2]+err) );
 
-
     sum += color.at<uchar>(cv::Point(circle[0], circle[1]+circle[2]+err) );
     sum += color.at<uchar>(cv::Point(circle[0], circle[1]-circle[2]-err) );
     sum += color.at<uchar>(cv::Point(circle[0]+circle[2]+err, circle[1]) );
     sum += color.at<uchar>(cv::Point(circle[0]-circle[2]-err, circle[1]) );
-    return sum > 1275;
+    return sum > 5*255; //at least 5 points
 }
 
 bool featureextraction::findMarker01(const cv::Mat &img, std::vector<cv::Point> &points, bool locate_one_point){

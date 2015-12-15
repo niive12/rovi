@@ -400,7 +400,7 @@ rw::math::Q SamplePlugin::rotest_computeConfigurations(std::vector< cv::Point > 
     double f = 823;
 
     std::vector< double > z_approx = {};
-    for(int i = 0; i < uv.size(); i++){
+    for(size_t i = 0; i < uv.size(); i++){
         z_approx.emplace_back(-0.5);
     }
     // do the visual servoing
@@ -580,7 +580,7 @@ void SamplePlugin::rovi_processImage(){
                     markerFound = featureextraction::findMarker01(img, uv, false);
                     if(!markerFound){
 //                        cv::imshow("fuckup", img);
-//                        cv::waitKey(0);
+//                        cv::waitKey(1);
                     }
                     if(uv.size() == 1){
                         mapping.emplace_back(0,0);
@@ -698,7 +698,7 @@ void SamplePlugin::rovi_processImage(){
 
             } else{
                 // set q's to 0
-                for(int l = 0; l < q_next.size(); l++){
+                for(size_t l = 0; l < q_next.size(); l++){
                     q_next(l) = 0;
                     dq_new(l) = 0;
                     dq(l) = 0;
@@ -715,7 +715,7 @@ void SamplePlugin::rovi_processImage(){
 
             // calculate the dq/vC
             _dq_relative[i] = dq_new;
-            for(int k = 0; k < dq_new.size(); k++){
+            for(size_t k = 0; k < dq_new.size(); k++){
                 _dq_relative[i](k) = fabs((_dq_relative[i](k) / dt) / vC(k));
             }
 
