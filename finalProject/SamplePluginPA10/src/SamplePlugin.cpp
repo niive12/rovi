@@ -8,20 +8,6 @@
 #include <rw/loaders/WorkCellFactory.hpp>
 
 
-using namespace rw::common;
-using namespace rw::graphics;
-using namespace rw::kinematics;
-using namespace rw::loaders;
-using namespace rw::models;
-using namespace rw::sensor;
-using namespace rwlibs::opengl;
-using namespace rwlibs::simulation;
-
-
-using namespace rws;
-
-using namespace cv;
-
 SamplePlugin::SamplePlugin():
     RobWorkStudioPlugin("SamplePluginUI", QIcon(":/pa_icon.png"))
 {
@@ -45,10 +31,10 @@ SamplePlugin::SamplePlugin():
     _settings_coordinatesLoaded = false;
 
     // something
-    Image textureImage(300,300,Image::GRAY,Image::Depth8U);
-    _textureRender = new RenderImage(textureImage);
-    Image bgImage(0,0,Image::GRAY,Image::Depth8U);
-    _bgRender = new RenderImage(bgImage,2.5/1000.0);
+    rw::sensor::Image textureImage(300,300,rw::sensor::Image::GRAY,rw::sensor::Image::Depth8U);
+    _textureRender = new rwlibs::opengl::RenderImage(textureImage);
+    rw::sensor::Image bgImage(0,0,rw::sensor::Image::GRAY,rw::sensor::Image::Depth8U);
+    _bgRender = new rwlibs::opengl::RenderImage(bgImage,2.5/1000.0);
     _framegrabber = NULL;
 
     // load absolute path
@@ -78,13 +64,13 @@ void SamplePlugin::initialize() {
     getRobWorkStudio()->stateChangedEvent().add(boost::bind(&SamplePlugin::stateChangedListener, this, _1), this);
 
     // Auto load workcell
-    WorkCell::Ptr wc = WorkCellLoader::Factory::load(_myPath + "/finalProject/PA10WorkCell/ScenePA10RoVi1.wc.xml");
+    rw::models::WorkCell::Ptr wc = rw::loaders::WorkCellLoader::Factory::load(_myPath + "/finalProject/PA10WorkCell/ScenePA10RoVi1.wc.xml");
     getRobWorkStudio()->setWorkCell(wc);
 
     // Load Lena image
-    Mat im, image;
-    im = imread(_myPath + "/finalProject/SamplePluginPA10/src/lena.bmp", CV_LOAD_IMAGE_COLOR); // Read the file
-    cvtColor(im, image, CV_BGR2RGB); // Switch the red and blue color channels
+    cv::Mat im, image;
+    im = cv::imread(_myPath + "/finalProject/SamplePluginPA10/src/lena.bmp", CV_LOAD_IMAGE_COLOR); // Read the file
+    cv::cvtColor(im, image, CV_BGR2RGB); // Switch the red and blue color channels
     if(! image.data ) {
         RW_THROW("Could not open or find the image: please modify the file path in the source code!");
     }
@@ -95,7 +81,7 @@ void SamplePlugin::initialize() {
     _label->setPixmap( QPixmap::fromImage(img).scaled(w,h,Qt::KeepAspectRatio) );
 }
 
-void SamplePlugin::open(WorkCell* workcell)
+void SamplePlugin::open(rw::models::WorkCell* workcell)
 {
     log().info() << "OPEN" << "\n";
     _wc = workcell;
@@ -105,18 +91,18 @@ void SamplePlugin::open(WorkCell* workcell)
 
     if (_wc != NULL) {
         // Add the texture render to this workcell if there is a frame for texture
-        Frame* textureFrame = _wc->findFrame("MarkerTexture");
+        rw::kinematics::Frame* textureFrame = _wc->findFrame("MarkerTexture");
         if (textureFrame != NULL) {
             getRobWorkStudio()->getWorkCellScene()->addRender("TextureImage",_textureRender,textureFrame);
         }
         // Add the background render to this workcell if there is a frame for texture
-        Frame* bgFrame = _wc->findFrame("Background");
+        rw::kinematics::Frame* bgFrame = _wc->findFrame("Background");
         if (bgFrame != NULL) {
             getRobWorkStudio()->getWorkCellScene()->addRender("BackgroundImage",_bgRender,bgFrame);
         }
 
         // Create a GLFrameGrabber if there is a camera frame with a Camera property set
-        Frame* cameraFrame = _wc->findFrame("CameraSim");
+        rw::kinematics::Frame* cameraFrame = _wc->findFrame("CameraSim");
         if (cameraFrame != NULL) {
             if (cameraFrame->getPropertyMap().has("Camera")) {
                 // Read the dimensions and field of view
@@ -126,8 +112,8 @@ void SamplePlugin::open(WorkCell* workcell)
                 std::istringstream iss (camParam, std::istringstream::in);
                 iss >> fovy >> width >> height;
                 // Create a frame grabber
-                _framegrabber = new GLFrameGrabber(width,height,fovy);
-                SceneViewer::Ptr gldrawer = getRobWorkStudio()->getView()->getSceneViewer();
+                _framegrabber = new rwlibs::simulation::GLFrameGrabber(width,height,fovy);
+                rw::graphics::SceneViewer::Ptr gldrawer = getRobWorkStudio()->getView()->getSceneViewer();
                 _framegrabber->init(gldrawer);
             }
         }
@@ -140,12 +126,12 @@ void SamplePlugin::close() {
     // Stop the timer
     _timer->stop();
     // Remove the texture render
-    Frame* textureFrame = _wc->findFrame("MarkerTexture");
+    rw::kinematics::Frame* textureFrame = _wc->findFrame("MarkerTexture");
     if (textureFrame != NULL) {
         getRobWorkStudio()->getWorkCellScene()->removeDrawable("TextureImage",textureFrame);
     }
     // Remove the background render
-    Frame* bgFrame = _wc->findFrame("Background");
+    rw::kinematics::Frame* bgFrame = _wc->findFrame("Background");
     if (bgFrame != NULL) {
         getRobWorkStudio()->getWorkCellScene()->removeDrawable("BackgroundImage",bgFrame);
     }
@@ -157,8 +143,8 @@ void SamplePlugin::close() {
     _wc = NULL;
 }
 
-Mat SamplePlugin::toOpenCVImage(const Image& img) {
-    Mat res(img.getHeight(),img.getWidth(), CV_8UC3);
+cv::Mat SamplePlugin::toOpenCVImage(const rw::sensor::Image& img) {
+    cv::Mat res(img.getHeight(),img.getWidth(), CV_8UC3);
     res.data = (uchar*)img.getImageData();
     return res;
 }
@@ -177,13 +163,13 @@ void SamplePlugin::updateCameraView() {
 void SamplePlugin::timer() {
     if (_framegrabber != NULL) {
         // Get the image as a RW image
-        Frame* cameraFrame = _wc->findFrame("CameraSim");
+        rw::kinematics::Frame* cameraFrame = _wc->findFrame("CameraSim");
         _framegrabber->grab(cameraFrame, _state);
-        const Image& image = _framegrabber->getImage();
+        const rw::sensor::Image& image = _framegrabber->getImage();
 
         // Convert to OpenCV image
-        Mat im = toOpenCVImage(image);
-        Mat imflip;
+        cv::Mat im = toOpenCVImage(image);
+        cv::Mat imflip;
         cv::flip(im, imflip, 0);
 
         // Show in QLabel
@@ -453,17 +439,17 @@ void SamplePlugin::rotest_moveRobot(){
 void SamplePlugin::rovi_load_markerImage(){
     std::string marker = _comboBox_rovi_marker->currentText().toStdString();
 
-    Image::Ptr image;
+    rw::sensor::Image::Ptr image;
     if (marker == "Marker 1"){
-        image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/markers/Marker1.ppm");
+        image = rw::loaders::ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/markers/Marker1.ppm");
     } else if( marker == "Marker 2a"){
-        image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/markers/Marker2a.ppm");
+        image = rw::loaders::ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/markers/Marker2a.ppm");
     } else if( marker == "Marker 2b"){
-        image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/markers/Marker2b.ppm");
+        image = rw::loaders::ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/markers/Marker2b.ppm");
     } else if( marker == "Marker 3"){
-        image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/markers/Marker3.ppm");
+        image = rw::loaders::ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/markers/Marker3.ppm");
     } else {
-        image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/markers/Marker1.ppm");
+        image = rw::loaders::ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/markers/Marker1.ppm");
     }
 
     _textureRender->setImage(*image);
@@ -474,28 +460,28 @@ void SamplePlugin::rovi_load_bgImage(){
     std::string bg = _comboBox_rovi_background->currentText().toStdString();
     bool setimage = true;
 
-    Image::Ptr image;
+    rw::sensor::Image::Ptr image;
     if (bg == "Many Butterflies"){
-        image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/color1.ppm");
+        image = rw::loaders::ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/color1.ppm");
     } else if( bg == "Color Spots"){
-        image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/color2.ppm");
+        image = rw::loaders::ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/color2.ppm");
     } else if( bg == "One Butterfly"){
-        image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/color3.ppm");
+        image = rw::loaders::ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/color3.ppm");
     } else if( bg == "Metal"){
-        image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/lines1.ppm");
+        image = rw::loaders::ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/lines1.ppm");
     } else if( bg == "Carpet"){
-        image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/texture1.ppm");
+        image = rw::loaders::ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/texture1.ppm");
     } else if( bg == "Mosaik Window"){
-        image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/texture2.ppm");
+        image = rw::loaders::ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/texture2.ppm");
     } else if( bg == "Waterbed"){
-        image = ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/texture3.ppm");
+        image = rw::loaders::ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/texture3.ppm");
     } else {
         if(_bgRender != nullptr){
             delete _bgRender;
             _bgRender = nullptr;
         }
-        Image bgImage(0,0,Image::GRAY,Image::Depth8U);
-        _bgRender = new RenderImage(bgImage,2.5/1000.0);
+        rw::sensor::Image bgImage(0,0,rw::sensor::Image::GRAY,rw::sensor::Image::Depth8U);
+        _bgRender = new rwlibs::opengl::RenderImage(bgImage,2.5/1000.0);
         setimage = false;
     }
 
@@ -582,13 +568,13 @@ void SamplePlugin::rovi_processImage(){
                     rw::common::Log::log().error() << "marker used " << markerused << "\n";
                     // Get the image as a RW image
                     getRobWorkStudio()->setState(_state);
-                    Frame* cameraFrame = _wc->findFrame("CameraSim");
+                    rw::kinematics::Frame* cameraFrame = _wc->findFrame("CameraSim");
                     _framegrabber->grab(cameraFrame, _state);
-                    const Image& image = _framegrabber->getImage();
+                    const rw::sensor::Image& image = _framegrabber->getImage();
 
                     // Convert to OpenCV image
-                    Mat im = toOpenCVImage(image);
-                    Mat img;
+                    cv::Mat im = toOpenCVImage(image);
+                    cv::Mat img;
                     cv::flip(im, img, 0);
 
                     cv::cvtColor(img, img, CV_RGB2BGR);
@@ -767,7 +753,7 @@ void SamplePlugin::rovi_processImage(){
     rw::common::Log::log().error() << "done\n";
 }
 
-void SamplePlugin::stateChangedListener(const State& state) {
+void SamplePlugin::stateChangedListener(const rw::kinematics::State& state) {
     _state = state;
 }
 

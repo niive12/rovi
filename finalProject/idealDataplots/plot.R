@@ -36,7 +36,7 @@ for( dataplot in c(1,2,3,4)){
             time = seq(from = 0,to = maxT, length.out = s[1]);
             # plot and save depending on the dataname
             setEPS()
-            postscript(paste(c(report_path, filename_plot, ".eps"), collapse =""))
+            postscript(paste(c(report_path, filename_plot, ".eps"), collapse =""), height=6, width=8)
             if(dataplot == 1){
                 plottitle = paste(c("Robot Configuration, speed: ", speeds[dataspeed], ", tracking: ", methods[method] ), collapse ="");
                 #print("Plotting robot configurations.");
@@ -73,7 +73,7 @@ for( dataplot in c(1,2,3,4)){
                 max = velLim[dataspeed];
                 
                 plot(time, data[,1], type = "l", xlab = "Time [s]", ylab = "dq relative [%]", ylim = c(0, max), main = plottitle, col = color[1])
-                legend("topleft", legend = 0:(s[2]-1), lty = 1, col = color);
+                legend("topleft", legend = 0:(s[2]-1), lty = 1, col = color, ncol=2);
                 for(i in 2:s[2]){
                     lines(time, data[,i], col = color[i]);
                 }
@@ -92,7 +92,7 @@ for( method in 1:length(methods)){
     filename_data = paste(c(filename_plot, fileextension), collapse ="");
     data = read.csv(filename_data);
     setEPS()
-    postscript(paste(c(report_path, datanames[2], "_", methods[method], "_", "pos", ".eps"), collapse =""))
+    postscript(paste(c(report_path, datanames[2], "_", methods[method], "_", "pos", ".eps"), collapse =""),height=6,width=8)
     plot(data[,1], data[,3], type="p" ,xlab = "x [m]", ylab = "z [m]", main = "Tool Pose Translation", col = color[1])
     legend(-0.35,1.79, legend = c("Slow","Medium","Fast"), lty = 1, col = color, title="Markerspeed")
 
