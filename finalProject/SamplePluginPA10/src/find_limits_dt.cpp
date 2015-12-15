@@ -1,38 +1,29 @@
 #include "SamplePlugin.hpp"
 
-//void find_limits(){
-//    for(marker)
-//            _comboBox_rovi_marker->currentText().toStdString() = "Marker 1";
-//            //or
-//            _comboBox_rovi_marker->currentIndex() = 0 , 1 , 3
-//            rovi_load_markerImage();
-//            for(background)
-//                    _comboBox_rovi_background->currentText().toStdString();
-//                    rovi_load_bgImage();
-//                    for(time_step) //0.5 -> 1
-//                                    for(marker_movement)
-//                                            process_image(0);
-//                                            if(lost_track_of_marker){
-//                                                    std::cout << background << " & " << time_step << " & " << marker_movement << "\\\n";
-//                                                    break;
-//                                            }
-
-//}
+#include <fstream>      // std::fstream
 
 void SamplePlugin::find_limits(){
     // set the use time checkbox thingy
     _checkBox_settings_useProcessingTime->setChecked(true);
 
+    std::fstream dt_file (_myPath  + "/finalProject/finddt.txt", std::fstream::out);
+    std::fstream avgprocesstime (_myPath  + "/finalProject/findProcessTime.txt", std::fstream::out);
+
+
     for(int markerMovement = 0; markerMovement < _comboBox_settings_loadMarker->count(); markerMovement++){
-        rw::common::Log::log().error() << _comboBox_settings_loadMarker->itemText(markerMovement).toStdString() << " ";
+        if(_comboBox_rovi_marker->currentText().lastIndexOf("Ideal") == (-1)){
+            dt_file << _comboBox_settings_loadMarker->itemText(markerMovement).toStdString() << " & ";
+            avgprocesstime << _comboBox_settings_loadMarker->itemText(markerMovement).toStdString() << " & ";
+        }
     }
-    rw::common::Log::log().error() << "\n";
+    dt_file << "\\\\ \n";
+    avgprocesstime << "\\\\ \n";
     // loop through all markers
     for(int marker = 0; marker < _comboBox_rovi_marker->count(); marker++){
         // set the marker
         _comboBox_rovi_marker->setCurrentIndex(marker);
         if(_comboBox_rovi_marker->currentText().lastIndexOf("Ideal") == (-1)){
-            rw::common::Log::log().error() << _comboBox_rovi_marker->currentText().toStdString() << "\n";
+            //rw::common::Log::log().error() << _comboBox_rovi_marker->currentText().toStdString() << "\n";
 
             rovi_load_markerImage();
             // loop through all backgrounds
@@ -41,7 +32,8 @@ void SamplePlugin::find_limits(){
                 _comboBox_rovi_background->setCurrentIndex(bg);
                 rovi_load_bgImage();
                 // start the line:
-                rw::common::Log::log().error() << _comboBox_rovi_background->currentText().toStdString();
+                dt_file << _comboBox_rovi_background->currentText().toStdString();
+                avgprocesstime << _comboBox_rovi_background->currentText().toStdString();
                 // loop through the marker movements
                 for(int markerMovement = 0; markerMovement < _comboBox_settings_loadMarker->count(); markerMovement++){
                     // load markermovement
@@ -54,12 +46,18 @@ void SamplePlugin::find_limits(){
                         _spinBox_timestep->setValue(dt);
                         rovi_processImage();
                     } while(dt < 1 && _rovi_markerNotTracked);
-                    rw::common::Log::log().error() << " & " << dt << " avg t:" << _rovi_avgTrackingTime;
+                    dt_file << " & " << dt;
+                    avgprocesstime << " & " << _rovi_avgTrackingTime;
                 }
-                rw::common::Log::log().error() << "\\\\ \\hline \n";
+                dt_file << "\\\\ \\hline \n";
+                avgprocesstime << "\\\\ \\hline \n";
             }
 
         }
+        dt_file << "\n\n";
+        avgprocesstime << "\n\n";
     }
-
+    dt_file.close();
+    avgprocesstime.close();
 }
+
