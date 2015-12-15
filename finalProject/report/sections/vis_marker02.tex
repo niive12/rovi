@@ -1,4 +1,4 @@
-\subsection{The Second Marker}
+\subsection{The Second Marker}\label{sec:full_marker2}
 The second marker, seen in figure \ref{marker:circle}, contains three blue circles and one red circle in a green square.
 First the image is split into a red, green and blue channel using HSV.
 When using HSV to select for colors, hue is the dominating factor.
@@ -65,22 +65,23 @@ This means that more points will be found.
 In order to remove the wrong points, the surrounding points are analyzed, and if found not to be green, the circle is removed.
 
 The detector was tested to find 4 correct points in the marker in 30/30 images in the easy set and in 50/52 images in the hard set.
+The situations which did not find the marker, the marker was projected so far the center of the Hough circle was not inside the circle on the marker.
 
-In figure \ref{fig:circle_detection} is a normal case from the easy and a worst case example from the hard set shown.
-As the robot follows the point, it is not expected to be this bad at any situation so the detector is deemed successful.
-
-\begin{figure}[h]
- \centering
- \begin{subfigure}{0.49\linewidth}
- \includegraphics[width=\linewidth]{graphics/best_case_hough_circle}
- \caption{Normal case.}
- \end{subfigure}
- \begin{subfigure}{0.49\linewidth}
- \includegraphics[width=\linewidth]{graphics/worst_case_hough_circle}
- \caption{Worst case.}
- \end{subfigure}
- \caption{Detecting circles with and without projection.}
- \label{fig:circle_detection}
-\end{figure}
+% In figure \ref{fig:circle_detection} is a normal case from the easy and a worst case example from the hard set shown.
+% As the robot follows the point, it is not expected to be this bad at any situation so the detector is deemed successful.
+% 
+% \begin{figure}[h]
+%  \centering
+%  \begin{subfigure}{0.49\linewidth}
+%  \includegraphics[width=\linewidth]{graphics/best_case_hough_circle}
+%  \caption{Normal case.}
+%  \end{subfigure}
+%  \begin{subfigure}{0.49\linewidth}
+%  \includegraphics[width=\linewidth]{graphics/worst_case_hough_circle}
+%  \caption{Worst case.}
+%  \end{subfigure}
+%  \caption{Detecting circles with and without projection.}
+%  \label{fig:circle_detection}
+% \end{figure}
 
 
