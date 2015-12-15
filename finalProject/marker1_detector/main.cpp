@@ -133,6 +133,9 @@ bool findMarker01(const cv::Mat &img, std::vector<cv::Point> &points, bool locat
     for(auto r : red_circles){
         circles.push_back(r);
     }
+    if(circles.size() == 0){
+        return false;
+    }
     for(auto i : circles){
         midpoint.x += i[0];
         midpoint.y += i[1];
