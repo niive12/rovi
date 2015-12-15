@@ -577,6 +577,10 @@ void SamplePlugin::rovi_processImage(){
 
                 if(markerused == 0){ // pic 1
                     markerFound = featureextraction::findMarker01(img, uv, false);
+                    if(!markerFound){
+//                        cv::imshow("fuckup", img);
+//                        cv::waitKey(0);
+                    }
                     if(uv.size() == 1){
                         mapping.emplace_back(0,0);
                     }else if(uv.size() > 1){
@@ -674,6 +678,7 @@ void SamplePlugin::rovi_processImage(){
                 q_goal = dq + device->getQ(_state);
 //                rw::common::Log::log().info() << dq << "\n";
             } else{
+
                 markerNotFound++;
             }
             // limit dq, calc dq a new for cases where no dq was found but it still has to move from last calculation

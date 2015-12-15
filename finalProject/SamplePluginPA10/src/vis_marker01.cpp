@@ -1,5 +1,23 @@
 #include "vis_marker01.hpp"
 
+//check if at least 3 of the bounding box of a circle is the right color
+bool is_circle_near_color(cv::Mat &color, cv::Vec3f &circle){
+    int sum = 0;
+    int err = 10;
+
+    sum += color.at<uchar>(cv::Point(circle[0]+circle[2]+err, circle[1]+circle[2]+err) );
+    sum += color.at<uchar>(cv::Point(circle[0]+circle[2]+err, circle[1]-circle[2]-err) );
+    sum += color.at<uchar>(cv::Point(circle[0]-circle[2]-err, circle[1]-circle[2]-err) );
+    sum += color.at<uchar>(cv::Point(circle[0]-circle[2]-err, circle[1]+circle[2]+err) );
+
+
+    sum += color.at<uchar>(cv::Point(circle[0], circle[1]+circle[2]+err) );
+    sum += color.at<uchar>(cv::Point(circle[0], circle[1]-circle[2]-err) );
+    sum += color.at<uchar>(cv::Point(circle[0]+circle[2]+err, circle[1]) );
+    sum += color.at<uchar>(cv::Point(circle[0]-circle[2]-err, circle[1]) );
+    return sum > 1275;
+}
+
 bool featureextraction::findMarker01(const cv::Mat &img, std::vector<cv::Point> &points, bool locate_one_point){
     points.clear();
     cv::Mat src_gray;
@@ -101,15 +119,9 @@ bool featureextraction::findMarker01(const cv::Mat &img, std::vector<cv::Point> 
 
     if( circles.size() > 4){
         for(size_t i = 0; i < circles.size(); ++i){
-//            cv::Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
-            a = circles[i][0] - midpoint.x;
-            b = circles[i][1] - midpoint.y;
-            dist =  a * a + b * b;
-            if( dist > 30000 ){
-//                cv::circle( drawing, center, circles[i][2], cv::Scalar(0,0,255), 10, 8, 0 );
-                circles.erase(circles.begin()+ i,circles.begin()+ i+1);
-            } else {
-//                cv::circle( drawing, center, circles[i][2], cv::Scalar(0,255,255), 10, 8, 0 );
+            if(!is_circle_near_color(imgBGR[1],circles[i])){
+                circles.erase(circles.begin()+i);
+                --i;
             }
         }
         midpoint = cv::Point(0,0);
@@ -119,10 +131,7 @@ bool featureextraction::findMarker01(const cv::Mat &img, std::vector<cv::Point> 
         }
         midpoint.x = midpoint.x / circles.size();
         midpoint.y = midpoint.y / circles.size();
-//        cv::circle( drawing, midpoint, blue_circles[0][2], cv::Scalar(255,0,255), 10, 8, 0 );
     }
-
-//    cv::imshow("image", drawing);
 
     if(circles.size() != 4) {
 //        rw::common::Log::log().info() << image_in_set << " size: " << circles.size() << "\n";

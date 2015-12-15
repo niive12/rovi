@@ -21,7 +21,12 @@ bool is_circle_near_color(cv::Mat &color, cv::Vec3f &circle){
     sum += color.at<uchar>(cv::Point(circle[0]+circle[2]+err, circle[1]-circle[2]-err) );
     sum += color.at<uchar>(cv::Point(circle[0]-circle[2]-err, circle[1]-circle[2]-err) );
     sum += color.at<uchar>(cv::Point(circle[0]-circle[2]-err, circle[1]+circle[2]+err) );
-    return sum > 510;
+
+    sum += color.at<uchar>(cv::Point(circle[0], circle[1]+circle[2]+err) );
+    sum += color.at<uchar>(cv::Point(circle[0], circle[1]-circle[2]-err) );
+    sum += color.at<uchar>(cv::Point(circle[0]+circle[2]+err, circle[1]) );
+    sum += color.at<uchar>(cv::Point(circle[0]-circle[2]-err, circle[1]) );
+    return sum > 1275;
 }
 
 bool findMarker01(const cv::Mat &img, std::vector<cv::Point> &points, bool locate_one_point = true){
@@ -208,6 +213,10 @@ int main(int argc, char* argv[]){
         original_images.push_back( cv::imread("../carpet_test2.ppm"));
         original_images.push_back( cv::imread("../carpet_test3.ppm"));
         original_images.push_back( cv::imread("../carpet_test4.ppm"));
+        original_images.push_back( cv::imread("../carpet_fail1.png"));
+        original_images.push_back( cv::imread("../carpet_fail2.png"));
+        original_images.push_back( cv::imread("../fuckup1.png"));
+        original_images.push_back( cv::imread("../fuckup2.png"));
 
         for(int i = 1; i <= 30; ++i){
             numbera = i/10 %10 + '0';
