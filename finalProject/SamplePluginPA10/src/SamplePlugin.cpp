@@ -548,6 +548,7 @@ void SamplePlugin::rovi_processImage(){
         int constraintsapplied = 0;
         int markerNotFound = 0;
         std::chrono::high_resolution_clock::time_point t1, t2;
+        double totalTime = 0;
         for(unsigned int i = 0; i < _settings_markerpos.size(); i++){
             // set the marker as in world frame
             rw::math::RPY<double> rpy(_settings_markerpos[i].roll, _settings_markerpos[i].pitch, _settings_markerpos[i].yaw);
@@ -669,6 +670,7 @@ void SamplePlugin::rovi_processImage(){
             }
             t2 = std::chrono::high_resolution_clock::now();
             double algoTime = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1).count();
+            totalTime += algoTime;
             double robotMoveTime = dt;
             if(reduceProcessingTime){
                 robotMoveTime -= algoTime;
@@ -698,11 +700,7 @@ void SamplePlugin::rovi_processImage(){
 
             } else{
                 // set q's to 0
-                for(size_t l = 0; l < q_next.size(); l++){
-                    q_next(l) = 0;
-                    dq_new(l) = 0;
-                    dq(l) = 0;
-                }
+                q_next = device->getQ(_state);
             }
             // calculate the tracking error
             std::vector< cv::Point > trackingerror;
@@ -725,7 +723,8 @@ void SamplePlugin::rovi_processImage(){
         }
 
         rw::common::Log::log().info() << "# of constraint applied: " << constraintsapplied << " / " << _robotQ.size() << "\n";
-        rw::common::Log::log().info() << "# of markers not found: " << markerNotFound << " / " << _robotQ.size() << "\n";
+        rw::common::Log::log().info() << "# of markers not found : " << markerNotFound << " / " << _robotQ.size() << "\n";
+        rw::common::Log::log().info() << "Mean Img. Process time : " << totalTime / _robotQ.size() << "\n";
 
         // set slider range according to the length of the vector
         if(_robotQ.size() > 0){
