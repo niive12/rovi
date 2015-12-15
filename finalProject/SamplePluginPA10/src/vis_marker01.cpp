@@ -90,7 +90,7 @@ bool featureextraction::findMarker01(const cv::Mat &img, std::vector<cv::Point> 
                           min_radius_circle,
                           max_radius_circle );
     }
-    if( false && blue_circles.size() < 3){
+    if( blue_circles.size() < 3){
         cv::HoughCircles( imgBGR[0],
                           blue_circles,
                           CV_HOUGH_GRADIENT,

@@ -63,6 +63,9 @@ private slots:
     void rovi_saveData();
 
 
+    void find_limits();
+
+
 private:
 	static cv::Mat toOpenCVImage(const rw::sensor::Image& img);
 
@@ -87,6 +90,10 @@ private:
 
     // robot configurations
     std::vector< rw::math::Q > _robotQ;
+
+    // vars for finding best
+    bool _rovi_markerNotTracked;
+    double _rovi_avgTrackingTime;
 };
 
 #endif /*RINGONHOOKPLUGIN_HPP_*/
