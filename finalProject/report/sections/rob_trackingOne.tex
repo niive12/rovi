@@ -27,34 +27,97 @@ v = \frac{f \cdot y}{z} \label{eq:tsp_v}
 \end{eqnarray}
 
 
-The system was tested on the three marker movements provided and the configuration of the robot is plotted in figure \ref{fig:robotconfig_ideal_1p}.
-The tool pose was likewise plotted in figure \ref{fig:toolpose_ideal_1p} and the tracking error in image coordinates in figure \ref{fig:trackingerror_ideal_1p}.
+The system was tested on the three marker movements provided and the robot speed is plotted in figure \ref{fig:robotspeed_slow_1p}, \ref{fig:robotspeed_medium_1p} and \ref{fig:robotspeed_fast_1p}.
+The tool pose was likewise plotted in figure \ref{fig:toolpose_1p_pos}, \ref{fig:toolpose_slow_1p_rpy}, \ref{fig:toolpose_medium_1p_rpy} and \ref{fig:toolpose_fast_1p_rpy} and the tracking error in image coordinates in figure \ref{fig:trackingerror_slow_1p}, \ref{fig:trackingerror_medium_1p} and \ref{fig:trackingerror_fast_1p}.
+The translational part of the toll pose is only plotted along the z- and x-axis since the y values are constant.
+The robot joint configurations can be seen in appendix \ref{app:roboticsPlots}.
+All figures were plotted with a $\Delta t = 0.05$sec.
 
+% ---------- speeed ----------
 \begin{figure}[H]
 \centering
-\includegraphics[width= 0.9 \linewidth]{graphics/robotconfig_ideal}
-\caption{Robot configuration when calculating the ideal $(u,v)$ for the marker placement in the image.}
-\label{fig:robotconfig_ideal_1p}
+\includegraphics[width= \linewidth]{graphics/robotics/relativeConfVel_slow_1pt}
+\caption{Robot speed relative to the velocity limit. 
+Tracking one point using slow marker movement.}
+\label{fig:robotspeed_slow_1p}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width= 0.9 \linewidth]{graphics/toolpose_ideal}
-\caption{Tool pose when calculating the ideal $(u,v)$ for the marker placement in the image.}
-\label{fig:toolpose_ideal_1p}
+\includegraphics[width= \linewidth]{graphics/robotics/relativeConfVel_medium_1pt}
+\caption{Robot speed relative to the velocity limit. 
+Tracking one point using medium marker movement.}
+\label{fig:robotspeed_medium_1p}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width= \linewidth]{graphics/robotics/relativeConfVel_fast_1pt}
+\caption{Robot speed relative to the velocity limit. 
+Tracking one point using fast marker movement.}
+\label{fig:robotspeed_fast_1p}
+\end{figure}
+
+% ---------- tool pose ----------
+\begin{figure}[H]
+\centering
+\includegraphics[width= \linewidth]{graphics/robotics/toolPose_1pt_pos}
+\caption{Translational part of tool pose when tracking the marker placement in the image.}
+\label{fig:toolpose_1p_pos}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width= \linewidth]{graphics/robotics/toolPose_slow_1pt}
+\caption{RPY part of tool pose. Using the slow marker movement while tracking 1 point.}
+\label{fig:toolpose_slow_1p_rpy}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width= \linewidth]{graphics/robotics/toolPose_medium_1pt}
+\caption{RPY part of tool. Using the medium marker movement while tracking 1 point.}
+\label{fig:toolpose_medium_1p_rpy}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width= \linewidth]{graphics/robotics/toolPose_fast_1pt}
+\caption{RPY part of tool pose. Using the fast marker movement while tracking 1 point.}
+\label{fig:toolpose_fast_1p_rpy}
+\end{figure}
+
+
+% ---------- tracking error ----------
+\begin{figure}[H]
+\centering
+\includegraphics[width= \linewidth]{graphics/robotics/trackingError_slow_1pt}
+\caption{Tracking error in image coordinates.
+Following the marker for the slow marker movement.}
+\label{fig:trackingerror_slow_1p}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width= \linewidth]{graphics/robotics/trackingError_medium_1pt}
+\caption{Tracking error in image coordinates.
+Following the marker for the medium marker movement.}
+\label{fig:trackingerror_medium_1p}
 \end{figure}
 
 
 \begin{figure}[H]
 \centering
-\includegraphics[width= 0.9 \linewidth]{graphics/trackingerror_ideal}
-\caption{Tracking error in image coordinates when calculating the ideal $(u,v)$ for the marker placement in the image.}
-\label{fig:trackingerror_ideal_1p}
+\includegraphics[width= \linewidth]{graphics/robotics/trackingError_fast_1pt}
+\caption{Tracking error in image coordinates.
+Following the marker for the fast marker movement.}
+\label{fig:trackingerror_fast_1p}
 \end{figure}
 
 
-Since these numbers should be the closest to ground truth achievable, then these will also be used in comparisons in section \ref{sec:combinedSystem} when the whole system is brought together in the simulation.
+%Since these numbers should be the closest to ground truth achievable, then these will also be used in comparisons in section \ref{sec:combinedSystem} when the whole system is brought together in the simulation.
 
-It was found that in none of the cases was the velocity constraint violated for all of the datasets down to a $\Delta t$ of 0.05 seconds in between each frame.
+It was found that in none of the cases was the velocity constraint violated for all of the datasets down to a $\Delta t = 0.05$ seconds in between each frame.
+The tracking error does also increase as the marker movement speed increases, but the path taken by the robot tool is more or less the same for all of the datasets.
 
 

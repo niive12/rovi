@@ -242,7 +242,6 @@ Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> visualServoing::z_image(rw
         for(int j = 0; j < 3; j++){
             SofQ(i,j) = R_T(i,j);
             SofQ(i + 3,j + 3) = R_T(i,j);
-            SofQ(i + 3,j + 3) = R_T(i,j);
             SofQ(i + 3,j) = 0;
             SofQ(i,j + 3) = 0;
         }
