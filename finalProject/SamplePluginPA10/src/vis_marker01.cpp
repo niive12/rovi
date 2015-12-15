@@ -78,7 +78,7 @@ bool featureextraction::findMarker01(const cv::Mat &img, std::vector<cv::Point> 
 //            cv::circle( drawing, center, radius, cv::Scalar(255,255,255), 3, 8, 0 );
         }
     }
-    float dist, a, b;
+    std::vector<cv::Vec3f> circles;
     if( red_circles.size() < 1){
         cv::HoughCircles( imgBGR[2],
                           red_circles,
@@ -120,7 +120,7 @@ bool featureextraction::findMarker01(const cv::Mat &img, std::vector<cv::Point> 
         blue_circles = circles;
     }
     cv::Point midpoint(0,0);
-    std::vector<cv::Vec3f> circles = blue_circles;
+    circles = blue_circles;
     for(auto r : red_circles){
         circles.push_back(r);
     }
