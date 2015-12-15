@@ -700,11 +700,7 @@ void SamplePlugin::rovi_processImage(){
 
             } else{
                 // set q's to 0
-                for(size_t l = 0; l < q_next.size(); l++){
-                    q_next(l) = 0;
-                    dq_new(l) = 0;
-                    dq(l) = 0;
-                }
+                q_next = device->getQ(_state);
             }
             // calculate the tracking error
             std::vector< cv::Point > trackingerror;
