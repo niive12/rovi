@@ -577,7 +577,7 @@ void SamplePlugin::rovi_processImage(){
                 cv::cvtColor(img, img, CV_RGB2BGR);
 
                 if(markerused == 0){ // pic 1
-                    markerFound = featureextraction::findMarker01(img, uv, false);
+                    markerFound = featureextraction::findMarker01(img, uv, true);
                     if(!markerFound){
 //                        cv::imshow("fuckup", img);
 //                        cv::waitKey(0);
