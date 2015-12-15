@@ -24,16 +24,16 @@ void SamplePlugin::find_limits(){
     _checkBox_settings_useProcessingTime->setChecked(true);
 
     for(int markerMovement = 0; markerMovement < _comboBox_settings_loadMarker->count(); markerMovement++){
-        rw::common::Log::log().error() << _comboBox_settings_loadMarker->currentText().toStdString() << " ";
+        rw::common::Log::log().error() << _comboBox_settings_loadMarker->itemText(markerMovement).toStdString() << " ";
     }
     rw::common::Log::log().error() << "\n";
     // loop through all markers
     for(int marker = 0; marker < _comboBox_rovi_marker->count(); marker++){
-        if(_comboBox_rovi_marker->currentText().lastIndexOf("Ideal") != -1){
+        // set the marker
+        _comboBox_rovi_marker->setCurrentIndex(marker);
+        if(_comboBox_rovi_marker->currentText().lastIndexOf("Ideal") == (-1)){
             rw::common::Log::log().error() << _comboBox_rovi_marker->currentText().toStdString() << "\n";
 
-            // set the marker
-            _comboBox_rovi_marker->setCurrentIndex(marker);
             rovi_load_markerImage();
             // loop through all backgrounds
             for(int bg = 0; bg < _comboBox_rovi_background->count(); bg++){
