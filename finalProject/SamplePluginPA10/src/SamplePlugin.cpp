@@ -39,10 +39,8 @@ SamplePlugin::SamplePlugin():
     connect(_checkBox_settings_updateCameraview     ,SIGNAL(clicked()), this, SLOT(updateCameraView()) );
     connect(_btn_rovi_saveData                      ,SIGNAL(pressed()), this, SLOT(rovi_saveData()) );
 
-
     // robotics test tab - init values
     _settings_coordinatesLoaded = false;
-
 
     // something
     Image textureImage(300,300,Image::GRAY,Image::Depth8U);
@@ -549,182 +547,194 @@ void SamplePlugin::rovi_processImage(){
         int markerNotFound = 0;
         std::chrono::high_resolution_clock::time_point t1, t2;
         double totalTime = 0;
-        for(unsigned int i = 0; i < _settings_markerpos.size(); i++){
-            // set the marker as in world frame
-            rw::math::RPY<double> rpy(_settings_markerpos[i].roll, _settings_markerpos[i].pitch, _settings_markerpos[i].yaw);
-            rw::math::Transform3D<double> T_wTmarker(rw::math::Vector3D<double>(_settings_markerpos[i].x, _settings_markerpos[i].y , _settings_markerpos[i].z), rpy.toRotation3D());
-            marker_obj->setTransform(T_wTmarker, _state);
-
-            int markerused = _comboBox_rovi_marker->currentIndex();
-            std::vector< cv::Point > mapping, uv;
-            uv.clear();
-            mapping.clear();
-
-            bool markerFound = false;
-
-            t1 = std::chrono::high_resolution_clock::now();
-            if(markerused >= 0 && markerused <=3){ // if tracking an image
-                // Get the image as a RW image
-                getRobWorkStudio()->setState(_state);
-                Frame* cameraFrame = _wc->findFrame("CameraSim");
-                _framegrabber->grab(cameraFrame, _state);
-                const Image& image = _framegrabber->getImage();
-
-                // Convert to OpenCV image
-                Mat im = toOpenCVImage(image);
-                Mat img;
-                cv::flip(im, img, 0);
-
-                cv::cvtColor(img, img, CV_RGB2BGR);
-
-                if(markerused == 0){ // pic 1
-                    markerFound = featureextraction::findMarker01(img, uv, false);
-                    if(!markerFound){
-//                        cv::imshow("fuckup", img);
-//                        cv::waitKey(1);
-                    }
-                    if(uv.size() == 1){
-                        mapping.emplace_back(0,0);
-                    }else if(uv.size() > 1){
-                        mapping.emplace_back(85,85);
-                        mapping.emplace_back(85,-85);
-                        mapping.emplace_back(-85,85);
-                        mapping.emplace_back(-85,-85);
-                    }
-                } else if(markerused == 1){ // pic 2a
-                    markerFound = featureextraction::findMarker02(img, uv);
-                    mapping.emplace_back(0,0);
-                } else if(markerused == 2){ // pic 2b
-                    // ---- this algorithm was not implemented
-                    mapping.emplace_back(0,0);
-                } else if(markerused == 3){ // pic 3
-                    int x = 0,y = 0;
-                    accepted_width = img.cols;
-                    accepted_height = img.rows;
-                    if( old_position != cv::Point(0,0) ){
-                        accepted_width = img_object.cols * 2;
-                        accepted_height = img_object.rows * 2;
-                        x = old_position.x - accepted_width/2;
-                        y = old_position.y - accepted_height/2;
-                        if(x > (img.cols-accepted_width) ){
-                            x = img.cols-accepted_width;
-                        } else if(x < 0){
-                            x = 0;
-                        }
-                        if(y > (img.rows-accepted_height) ){
-                            y = img.rows-accepted_height;
-                        } else if(y < 0){
-                            y = 0;
-                        }
-                    }
-                    cv::Mat cropped(img, cv::Rect(x,y,accepted_width,accepted_height));
-
-                    markerFound = featureextraction::findMarker03(cropped, uv, false);
-                    if( !markerFound ){
-                        old_position = cv::Point(0,0);
-                    } else if(uv.size() > 0 ){
-                        old_position.y = 0;
-                        old_position.x = 0;
-                        for(unsigned int j = 0; j < uv.size(); j++){
-                            old_position.x += uv[j].x + x;
-                            old_position.y += uv[j].y + y;
-                        }
-                        old_position.y /= uv.size();
-                        old_position.x /= uv.size();
-                    }
-                    // adjust uv to standard
-                    for(unsigned int p = 0; p < uv.size(); p++){
-                        uv[p].x = uv[p].x - img.cols / 2 + x;
-                        uv[p].y = img.rows / 2 - uv[p].y - y;
-//                        rw::common::Log::log().info() << uv[p];
-                    }
-//                    rw::common::Log::log().info() << "\n";
-
-                    if(uv.size() == 1){
-                        mapping.emplace_back(0,0);
-                    }else if(uv.size() > 1){
-                        mapping.emplace_back(212,212);
-                        mapping.emplace_back(212,-212);
-                        mapping.emplace_back(-212,212);
-                        mapping.emplace_back(-212,-212);
-                    }
-
-                }
-
-            } else if(markerused >= 4 && markerused <=6){ // if tracking perfect coords
-
-                rotest_computeFakeUV(markerused - 3, uv);
-
-                mapping.emplace_back(0,0);
-                if(markerused - 3 >= 2){
-                    mapping.emplace_back(160,0);
-                    if(markerused - 3 >= 3){
-                        mapping.emplace_back(0,160);
-                    }
-                }
-                markerFound = true;
-
-            }else{
-                rw::common::Log::log().info() << "Invalid marker selected\n";
-                markerFound = false;
-            }
-            t2 = std::chrono::high_resolution_clock::now();
-            double algoTime = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1).count();
-            totalTime += algoTime;
-            double robotMoveTime = dt;
-            if(reduceProcessingTime){
-                robotMoveTime -= algoTime;
-            }
-            if(uv.size() > 0 && markerFound && robotMoveTime > 0){
-                // if points where found, use them to compute the new q_goal
-                dq = rotest_computeConfigurations(uv, mapping);
-                q_goal = dq + device->getQ(_state);
-//                rw::common::Log::log().info() << dq << "\n";
-            } else{
-
-                markerNotFound++;
-            }
-            // limit dq, calc dq a new for cases where no dq was found but it still has to move from last calculation
-            dq = q_goal - device->getQ(_state);
-            rw::math::Q dq_new = dq;
-            if(robotMoveTime > 0){
-                if(visualServoing::velocityConstraint(dq, device, robotMoveTime, dq_new)){
-                    constraintsapplied++;
-                }
-
-                // move to next q
-                q_next = dq_new + device->getQ(_state);
-
-                // set the state before calculating the next
-                device->setQ(q_next, _state);
-
-            } else{
-                // set q's to 0
-                q_next = device->getQ(_state);
-            }
-            // calculate the tracking error
-            std::vector< cv::Point > trackingerror;
-            rotest_computeFakeUV(1, trackingerror);
-            _trackingError[i] = trackingerror[0];
-
-            // calculate the tool pose
-            rw::math::Transform3D<double> T_wTm = marker_obj->wTf(_state);
-            _toolPose[i] = T_wTm;
-
-            // calculate the dq/vC
-            _dq_relative[i] = dq_new;
-            for(size_t k = 0; k < dq_new.size(); k++){
-                _dq_relative[i](k) = fabs((_dq_relative[i](k) / dt) / vC(k));
-            }
-
-            // store te configuration in the vector
-            _robotQ[i] = q_next;
-
+        int n_times = 1;
+        if( _comboBox_settings_loadMarker->currentIndex() == 2) {// slow
+            n_times = 1;
+        }else if( _comboBox_settings_loadMarker->currentIndex() == 1) {// medium
+            n_times = 3;
+        }else if( _comboBox_settings_loadMarker->currentIndex() == 0) {// fast
+            n_times = 10;
         }
+        for(int trial = 0; trial < n_times; ++trial) {
+            for(unsigned int i = 0; i < _settings_markerpos.size(); i++){
+                // set the marker as in world frame
+                rw::math::RPY<double> rpy(_settings_markerpos[i].roll, _settings_markerpos[i].pitch, _settings_markerpos[i].yaw);
+                rw::math::Transform3D<double> T_wTmarker(rw::math::Vector3D<double>(_settings_markerpos[i].x, _settings_markerpos[i].y , _settings_markerpos[i].z), rpy.toRotation3D());
+                marker_obj->setTransform(T_wTmarker, _state);
 
-        rw::common::Log::log().info() << "# of constraint applied: " << constraintsapplied << " / " << _robotQ.size() << "\n";
-        rw::common::Log::log().info() << "# of markers not found : " << markerNotFound << " / " << _robotQ.size() << "\n";
-        rw::common::Log::log().info() << "Mean Img. Process time : " << totalTime / _robotQ.size() << "\n";
+                int markerused = _comboBox_rovi_marker->currentIndex();
+                std::vector< cv::Point > mapping, uv;
+                uv.clear();
+                mapping.clear();
+
+                bool markerFound = false;
+
+                t1 = std::chrono::high_resolution_clock::now();
+                if(markerused >= 0 && markerused <=3){ // if tracking an image
+                    // Get the image as a RW image
+                    getRobWorkStudio()->setState(_state);
+                    Frame* cameraFrame = _wc->findFrame("CameraSim");
+                    _framegrabber->grab(cameraFrame, _state);
+                    const Image& image = _framegrabber->getImage();
+
+                    // Convert to OpenCV image
+                    Mat im = toOpenCVImage(image);
+                    Mat img;
+                    cv::flip(im, img, 0);
+
+                    cv::cvtColor(img, img, CV_RGB2BGR);
+
+                    if(markerused == 0){ // pic 1
+                        markerFound = featureextraction::findMarker01(img, uv, false);
+                        if(!markerFound){
+                            //                        cv::imshow("fuckup", img);
+                            //                        cv::waitKey(1);
+                        }
+                        if(uv.size() == 1){
+                            mapping.emplace_back(0,0);
+                        }else if(uv.size() > 1){
+                            mapping.emplace_back(85,85);
+                            mapping.emplace_back(85,-85);
+                            mapping.emplace_back(-85,85);
+                            mapping.emplace_back(-85,-85);
+                        }
+                    } else if(markerused == 1){ // pic 2a
+                        markerFound = featureextraction::findMarker02(img, uv);
+                        mapping.emplace_back(0,0);
+                    } else if(markerused == 2){ // pic 2b
+                        // ---- this algorithm was not implemented
+                        mapping.emplace_back(0,0);
+                    } else if(markerused == 3){ // pic 3
+                        int x = 0,y = 0;
+                        accepted_width = img.cols;
+                        accepted_height = img.rows;
+                        if( old_position != cv::Point(0,0) ){
+                            accepted_width = img_object.cols * 2;
+                            accepted_height = img_object.rows * 2;
+                            x = old_position.x - accepted_width/2;
+                            y = old_position.y - accepted_height/2;
+                            if(x > (img.cols-accepted_width) ){
+                                x = img.cols-accepted_width;
+                            } else if(x < 0){
+                                x = 0;
+                            }
+                            if(y > (img.rows-accepted_height) ){
+                                y = img.rows-accepted_height;
+                            } else if(y < 0){
+                                y = 0;
+                            }
+                        }
+                        cv::Mat cropped(img, cv::Rect(x,y,accepted_width,accepted_height));
+
+                        markerFound = featureextraction::findMarker03(cropped, uv, false);
+                        if( !markerFound ){
+                            old_position = cv::Point(0,0);
+                        } else if(uv.size() > 0 ){
+                            old_position.y = 0;
+                            old_position.x = 0;
+                            for(unsigned int j = 0; j < uv.size(); j++){
+                                old_position.x += uv[j].x + x;
+                                old_position.y += uv[j].y + y;
+                            }
+                            old_position.y /= uv.size();
+                            old_position.x /= uv.size();
+                        }
+                        // adjust uv to standard
+                        for(unsigned int p = 0; p < uv.size(); p++){
+                            uv[p].x = uv[p].x - img.cols / 2 + x;
+                            uv[p].y = img.rows / 2 - uv[p].y - y;
+                            //                        rw::common::Log::log().info() << uv[p];
+                        }
+                        //                    rw::common::Log::log().info() << "\n";
+
+                        if(uv.size() == 1){
+                            mapping.emplace_back(0,0);
+                        }else if(uv.size() > 1){
+                            mapping.emplace_back(212,212);
+                            mapping.emplace_back(212,-212);
+                            mapping.emplace_back(-212,212);
+                            mapping.emplace_back(-212,-212);
+                        }
+
+                    }
+
+                } else if(markerused >= 4 && markerused <=6){ // if tracking perfect coords
+
+                    rotest_computeFakeUV(markerused - 3, uv);
+
+                    mapping.emplace_back(0,0);
+                    if(markerused - 3 >= 2){
+                        mapping.emplace_back(160,0);
+                        if(markerused - 3 >= 3){
+                            mapping.emplace_back(0,160);
+                        }
+                    }
+                    markerFound = true;
+
+                }else{
+                    rw::common::Log::log().info() << "Invalid marker selected\n";
+                    markerFound = false;
+                }
+                t2 = std::chrono::high_resolution_clock::now();
+                double algoTime = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1).count();
+                totalTime += algoTime;
+                double robotMoveTime = dt;
+                if(reduceProcessingTime){
+                    robotMoveTime -= algoTime;
+                }
+                if(uv.size() > 0 && markerFound && robotMoveTime > 0){
+                    // if points where found, use them to compute the new q_goal
+                    dq = rotest_computeConfigurations(uv, mapping);
+                    q_goal = dq + device->getQ(_state);
+                    //                rw::common::Log::log().info() << dq << "\n";
+                } else{
+
+                    markerNotFound++;
+                }
+                // limit dq, calc dq a new for cases where no dq was found but it still has to move from last calculation
+                dq = q_goal - device->getQ(_state);
+                rw::math::Q dq_new = dq;
+                if(robotMoveTime > 0){
+                    if(visualServoing::velocityConstraint(dq, device, robotMoveTime, dq_new)){
+                        constraintsapplied++;
+                    }
+
+                    // move to next q
+                    q_next = dq_new + device->getQ(_state);
+
+                    // set the state before calculating the next
+                    device->setQ(q_next, _state);
+
+                } else{
+                    // set q's to 0
+                    q_next = device->getQ(_state);
+                }
+                // calculate the tracking error
+                std::vector< cv::Point > trackingerror;
+                rotest_computeFakeUV(1, trackingerror);
+                _trackingError[i] = trackingerror[0];
+
+                // calculate the tool pose
+                rw::math::Transform3D<double> T_wTm = marker_obj->wTf(_state);
+                _toolPose[i] = T_wTm;
+
+                // calculate the dq/vC
+                _dq_relative[i] = dq_new;
+                for(size_t k = 0; k < dq_new.size(); k++){
+                    _dq_relative[i](k) = fabs((_dq_relative[i](k) / dt) / vC(k));
+                }
+
+                // store te configuration in the vector
+                _robotQ[i] = q_next;
+
+            }
+            // return to start pose
+            device->setQ(q, _state);
+            getRobWorkStudio()->setState(_state);
+        }
+        rw::common::Log::log().info() << "# of constraint applied: " << constraintsapplied / n_times << " / " << _robotQ.size() << "\n";
+        rw::common::Log::log().info() << "# of markers not found : " << markerNotFound / n_times << " / " << _robotQ.size() << "\n";
+        rw::common::Log::log().info() << "Mean Img. Process time : " << totalTime / ( _robotQ.size() * n_times )<< "\n";
 
         // set slider range according to the length of the vector
         if(_robotQ.size() > 0){
@@ -733,9 +743,6 @@ void SamplePlugin::rovi_processImage(){
             _slider_rotest_Q->setRange(0,0);
         }
 
-        // return to start pose
-        device->setQ(q, _state);
-        getRobWorkStudio()->setState(_state);
     }
 }
 
