@@ -1,7 +1,32 @@
 \section{Scene backgrounds}
 \label{app:Scenes}
 
-The images used as a test for background noise when detecting images.
+The difficulty of detecting a marker in a scene differs depending on the background.
+If the background contains similar features to the marker, the marker will detect more similar points it has to sort out.
+This kind of noise is hard to simulate.
+To test how the detector performs, all the different backgrounds are used.
+In figure \ref{fig:backgrounds} is the backgrounds shown.
+
+\begin{figure}
+\centering
+  \begin{subfigure}{0.49\linewidth}    \includegraphics[width=\linewidth]{graphics/color1}   \caption{Many butterflies.} \label{fig:scene_m_but}  \end{subfigure}
+  \begin{subfigure}{0.49\linewidth}    \includegraphics[width=\linewidth]{graphics/color2}   \caption{Color spots.}      \label{fig:scene_spots}  \end{subfigure}
+  \begin{subfigure}{0.49\linewidth}    \includegraphics[width=\linewidth]{graphics/color3}   \caption{One Butterfly.}    \label{fig:scene_s_but}  \end{subfigure}
+  \begin{subfigure}{0.49\linewidth}    \includegraphics[width=\linewidth]{graphics/lines1}   \caption{Metal.}            \label{fig:scene_metal}  \end{subfigure}
+  \begin{subfigure}{0.49\linewidth}    \includegraphics[width=\linewidth]{graphics/texture1} \caption{Carpet.}           \label{fig:scene_carpet} \end{subfigure}
+  \begin{subfigure}{0.49\linewidth}    \includegraphics[width=\linewidth]{graphics/texture2} \caption{Mosaik window.}    \label{fig:scene_mosaik} \end{subfigure}
+  \begin{subfigure}{0.49\linewidth}    \includegraphics[width=\linewidth]{graphics/texture3} \caption{Waterbed.}         \label{fig:scene_waterb} \end{subfigure}
+  \caption{The images used as a test for background noise when detecting images.}
+  \label{fig:backgrounds}
+\end{figure}
+
+
+
+
+
+
+
+
 
 
 \section{Robotics Plots}
