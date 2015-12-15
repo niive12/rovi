@@ -508,7 +508,6 @@ void SamplePlugin::rovi_load_bgImage(){
 void SamplePlugin::rovi_processImage(){
 
     if(_settings_coordinatesLoaded){
-        rw::common::Log::log().error() << "Startinf img processing.\n";
         const std::string deviceName = _line_settings_devName->text().toStdString();
         rw::models::Device::Ptr device = _wc->findDevice(deviceName);
         if (device == NULL) RW_THROW("Device: " << deviceName << " not found!");
@@ -561,9 +560,7 @@ void SamplePlugin::rovi_processImage(){
         }else if( _comboBox_settings_loadMarker->currentIndex() == 0) {// fast
             n_times = 10;
         }
-        rw::common::Log::log().error() << "Starting trials\n";
         for(int trial = 0; trial < n_times; ++trial) {
-            rw::common::Log::log().error() << trial;
             for(unsigned int i = 0; i < _settings_markerpos.size(); i++){
                 // set the marker as in world frame
                 rw::math::RPY<double> rpy(_settings_markerpos[i].roll, _settings_markerpos[i].pitch, _settings_markerpos[i].yaw);
@@ -579,7 +576,6 @@ void SamplePlugin::rovi_processImage(){
 
                 t1 = std::chrono::high_resolution_clock::now();
                 if(markerused >= 0 && markerused <=3){ // if tracking an image
-                    rw::common::Log::log().error() << "marker used " << markerused << "\n";
                     // Get the image as a RW image
                     getRobWorkStudio()->setState(_state);
                     Frame* cameraFrame = _wc->findFrame("CameraSim");
@@ -594,9 +590,7 @@ void SamplePlugin::rovi_processImage(){
                     cv::cvtColor(img, img, CV_RGB2BGR);
 
                     if(markerused == 0){ // pic 1
-                        rw::common::Log::log().error() << "Find marker...";
                         markerFound = featureextraction::findMarker01(img, uv, false);
-                        rw::common::Log::log().error() << "Done\n";
                         if(!markerFound){
                             //                        cv::imshow("fuckup", img);
                             //                        cv::waitKey(1);
@@ -690,7 +684,6 @@ void SamplePlugin::rovi_processImage(){
                 double algoTime = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1).count();
                 totalTime += algoTime;
                 double robotMoveTime = dt;
-                rw::common::Log::log().error() << "uv's found\n";
                 if(reduceProcessingTime){
                     robotMoveTime -= algoTime;
                 }
@@ -706,7 +699,6 @@ void SamplePlugin::rovi_processImage(){
                 // limit dq, calc dq a new for cases where no dq was found but it still has to move from last calculation
                 dq = q_goal - device->getQ(_state);
                 rw::math::Q dq_new = dq;
-                rw::common::Log::log().error() << "applying constraints\n";
                 if(robotMoveTime > 0){
                     if(visualServoing::velocityConstraint(dq, device, robotMoveTime, dq_new)){
                         constraintsapplied++;
@@ -743,13 +735,11 @@ void SamplePlugin::rovi_processImage(){
 
                 // store te configuration in the vector
                 _robotQ[i] = q_next;
-
             }
             // return to start pose
             device->setQ(q, _state);
             getRobWorkStudio()->setState(_state);
         }
-        rw::common::Log::log().error() << "Trials ended\n";
         _rovi_avgTrackingTime = totalTime / ( _robotQ.size() * n_times );
         rw::common::Log::log().info() << "# of constraint applied: " << constraintsapplied / n_times << " / " << _robotQ.size() << "\n";
         rw::common::Log::log().info() << "# of markers not found : " << markerNotFound / n_times << " / " << _robotQ.size() << "\n";
@@ -764,7 +754,6 @@ void SamplePlugin::rovi_processImage(){
         }
 
     }
-    rw::common::Log::log().error() << "done\n";
 }
 
 void SamplePlugin::stateChangedListener(const State& state) {
