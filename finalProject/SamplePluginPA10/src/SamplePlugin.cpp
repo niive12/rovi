@@ -724,8 +724,8 @@ void SamplePlugin::rovi_processImage(){
 
         }
 
-        rw::common::Log::log().info() << "# of constraint applied: " << constraintsapplied << "\n";
-        rw::common::Log::log().info() << "# of markers not found: " << markerNotFound << "\n";
+        rw::common::Log::log().info() << "# of constraint applied: " << constraintsapplied << " / " << _robotQ.size() << "\n";
+        rw::common::Log::log().info() << "# of markers not found: " << markerNotFound << " / " << _robotQ.size() << "\n";
 
         // set slider range according to the length of the vector
         if(_robotQ.size() > 0){
