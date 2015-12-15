@@ -125,7 +125,8 @@ bool visualServoing::velocityConstraint(rw::math::Q &dq, rw::models::Device::Ptr
     constrained_dq = dq;
     rw::math::Q vC = device->getVelocityLimits();
 
-    //    rw::common::Log::log().info() << " dq_act:\n" << dq/timestep << "\n";
+//        rw::common::Log::log().info() << " dq:\n" << dq << "\n";
+//        rw::common::Log::log().info() << " dq_act:\n" << dq/timestep << "\n";
     //    rw::common::Log::log().info() << " dq_vec:\n" << vC << "\n";
 
     // find how much to fast it's moving
