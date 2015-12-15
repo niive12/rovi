@@ -125,8 +125,8 @@ bool featureextraction::findMarker03(const cv::Mat &img_scene, std::vector<cv::P
             midpoint.x += i.x;
             midpoint.y += i.y;
         }
-        midpoint.x = midpoint.x / scene_corners.size();
-        midpoint.y = midpoint.y / scene_corners.size();
+        midpoint.x = midpoint.x / 4;
+        midpoint.y = midpoint.y / 4;
         points.push_back(midpoint);
     } else {
         for(auto i : scene_corners){
