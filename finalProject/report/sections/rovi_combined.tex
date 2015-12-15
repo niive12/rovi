@@ -6,6 +6,7 @@ The time by which $\Delta t$ is reduced is calculated on runtime and hence depen
 
 The lowest $\Delta t$ was then found for the different markers on different backgrounds.
 The result of such is seen in table ....
+The marker speeds were only tested for $\Delta t$ being multiples of 0.05 seconds.
 
 
 \begin{table}[H]
@@ -13,6 +14,7 @@ The result of such is seen in table ....
 \begin{tabular}{|c|c|c|c|}
 \hline
 Background & Slow & Medium & Fast \\ \hline
+None & 0.0 & 0.0 & 0.0 \\ \hline
 Many Butterflies & 0.0 & 0.0 & 0.0 \\ \hline
 Color Spots & 0.0 & 0.0 & 0.0 \\ \hline
 One Butterfly & 0.0 & 0.0 & 0.0 \\ \hline
@@ -21,7 +23,7 @@ Carpet & 0.0 & 0.0 & 0.0 \\ \hline
 Mosaik Window & 0.0 & 0.0 & 0.0 \\ \hline
 Waterbed & 0.0 & 0.0 & 0.0 \\ \hline
 \end{tabular}
-\caption{Minimum $\Delta t$ for Lines on different backgrounds with different marker speeds.}
+\caption{Minimum $\Delta t$ [s] for Lines on different backgrounds with different marker speeds.}
 \end{table}
 
 \begin{table}[H]
@@ -29,15 +31,33 @@ Waterbed & 0.0 & 0.0 & 0.0 \\ \hline
 \begin{tabular}{|c|c|c|c|}
 \hline
 Background & Slow & Medium & Fast \\ \hline
-Many Butterflies & 0.0 & 0.0 & 0.0 \\ \hline
-Color Spots & 0.0 & 0.0 & 0.0 \\ \hline
-One Butterfly & 0.0 & 0.0 & 0.0 \\ \hline
-Metal & 0.0 & 0.0 & 0.0 \\ \hline
-Carpet & 0.0 & 0.0 & 0.0 \\ \hline
-Mosaik Window & 0.0 & 0.0 & 0.0 \\ \hline
-Waterbed & 0.0 & 0.0 & 0.0 \\ \hline
+None & 0.1 & 0.1 & 0.1 \\ \hline
+Many Butterflies & 0.2 & 0.1 & 0.1 \\ \hline
+Color Spots & 0.1 & 0.1 & 0.1 \\ \hline
+One Butterfly & 0.1 & 0.1 & 0.1 \\ \hline
+Metal & 0.1 & 0.1 & 0.1 \\ \hline
+Carpet & 0.1 & 0.1 & 0.1 \\ \hline
+Mosaik Window & 0.1 & 0.1 & 0.1 \\ \hline
+Waterbed & 0.1 & 0.1 & 0.1 \\ \hline
 \end{tabular}
-\caption{Minimum $\Delta t$ for Circles tracking four points on different backgrounds with different marker speeds.}
+\caption{Minimum $\Delta t$ [s] for Circles tracking four points on different backgrounds with different marker speeds.}
+\end{table}
+
+\begin{table}[H]
+\center
+\begin{tabular}{|c|c|c|c|}
+\hline
+Background & Slow & Medium & Fast \\ \hline
+None & 0.0672004 & 0.0696364 & 0.0754416 \\ \hline
+Many Butterflies & 0.0811742 & 0.0820952 & 0.0830568 \\ \hline
+Color Spots & 0.0707588 & 0.0696816 & 0.0643853 \\ \hline
+One Butterfly & 0.0783981 & 0.0817464 & 0.0857072 \\ \hline
+Metal & 0.0729016 & 0.0700792 & 0.0742454 \\ \hline
+Carpet & 0.0763217 & 0.0801267 & 0.0793336 \\ \hline
+Mosaik Window & 0.0718428 & 0.0669438 & 0.0709055 \\ \hline
+Waterbed & 0.0736736 & 0.0730565 & 0.0730565 \\ \hline
+\end{tabular}
+\caption{process time}
 \end{table}
 
 
@@ -46,6 +66,7 @@ Waterbed & 0.0 & 0.0 & 0.0 \\ \hline
 \begin{tabular}{|c|c|c|c|}
 \hline
 Background & Slow & Medium & Fast \\ \hline
+None & 0.0 & 0.0 & 0.0 \\ \hline
 Many Butterflies & 0.0 & 0.0 & 0.0 \\ \hline
 Color Spots & 0.0 & 0.0 & 0.0 \\ \hline
 One Butterfly & 0.0 & 0.0 & 0.0 \\ \hline
@@ -54,7 +75,7 @@ Carpet & 0.0 & 0.0 & 0.0 \\ \hline
 Mosaik Window & 0.0 & 0.0 & 0.0 \\ \hline
 Waterbed & 0.0 & 0.0 & 0.0 \\ \hline
 \end{tabular}
-\caption{Minimum $\Delta t$ for Circles tracking one points on different backgrounds with different marker speeds.}
+\caption{Minimum $\Delta t$ [s] for Circles tracking one points on different backgrounds with different marker speeds.}
 \end{table}
 
 
@@ -63,6 +84,7 @@ Waterbed & 0.0 & 0.0 & 0.0 \\ \hline
 \begin{tabular}{|c|c|c|c|}
 \hline
 Background & Slow & Medium & Fast \\ \hline
+None & 0.0 & 0.0 & 0.0 \\ \hline
 Many Butterflies & 0.0 & 0.0 & 0.0 \\ \hline
 Color Spots & 0.0 & 0.0 & 0.0 \\ \hline
 One Butterfly & 0.0 & 0.0 & 0.0 \\ \hline
@@ -71,7 +93,7 @@ Carpet & 0.0 & 0.0 & 0.0 \\ \hline
 Mosaik Window & 0.0 & 0.0 & 0.0 \\ \hline
 Waterbed & 0.0 & 0.0 & 0.0 \\ \hline
 \end{tabular}
-\caption{Minimum $\Delta t$ for Corny on different backgrounds with different marker speeds.}
+\caption{Minimum $\Delta t$ [s] for Corny on different backgrounds with different marker speeds.}
 \end{table}
 
 
