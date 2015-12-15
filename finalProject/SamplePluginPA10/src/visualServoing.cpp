@@ -119,6 +119,10 @@ bool visualServoing::velocityConstraint(rw::math::Q &dq, rw::models::Device::Ptr
         rw::common::Log::log().error() << "ERROR: Dimensions of the input of dq and device dof must agree in velocityConstraint.\n";
         rw::common::Log::log().error() << " - dq: " << dq.size() << ", dof: " << device->getDOF() << "\n";
     }
+    if(!(timestep > 0)){
+        rw::common::Log::log().error() << "ERROR: Timestep must be greater than 0.\n";
+        rw::common::Log::log().error() << " - dt: " << timestep << "\n";
+    }
 
 
     bool ret = false;
@@ -152,6 +156,9 @@ bool visualServoing::velocityConstraint(rw::math::Q &dq, rw::models::Device::Ptr
 
 cv::Point visualServoing::uv(double x, double y, double z, double f){
     cv::Point uv;
+    if(z == 0){
+        rw::common::Log::log().error() << "ERROR: Z must not be 0 in uv.\n";
+    }
     uv.x = f * x / z;
     uv.y = f * y / z;
     return uv;
@@ -166,6 +173,9 @@ std::vector< cv::Point > visualServoing::uv(std::vector< double > &x, std::vecto
     std::vector< cv::Point > v_uv;
     for(unsigned int i = 0; i < x.size(); i++){
         double x_t = x[i], y_t = y[i], z_t = z[i];
+        if(z_t == 0){
+            rw::common::Log::log().error() << "ERROR: z_t must not be 0 in uv.\n";
+        }
         v_uv.emplace_back(uv(x_t, y_t, z_t, f));
     }
     return v_uv;
@@ -203,6 +213,14 @@ rw::math::Jacobian visualServoing::imageJacobian(std::vector< cv::Point > &uv, d
     if(uv.size() != z.size()){
         rw::common::Log::log().error() << "ERROR: Dimensions of the input of x, y and z must agree in imageJacobian.\n";
         rw::common::Log::log().error() << " - uv: " << uv.size() << ", z: " << z.size() << "\n";
+    }
+    if(f == 0){
+        rw::common::Log::log().error() << "ERROR: F must not be 0 in imageJacobian.\n";
+    }
+    for(int i = 0; i < z.size(); i++){
+        if(z[i] == 0){
+            rw::common::Log::log().error() << "ERROR: Z must not be 0 in imageJacobian.\n";
+        }
     }
 
     rw::math::Jacobian imageJ(uv.size() * 2, 6);
@@ -409,6 +427,9 @@ bool visualServoing::bestMatching(std::vector< std::vector< double > > &costTabl
 
 
 double visualServoing::approxDist(std::vector< cv::Point > &uv, double f, double actualdist){
+    if(f == 0){
+        rw::common::Log::log().error() << "ERROR: F must not be 0 in approxDist.\n";
+    }
     double retdist = 0.5;
     if (uv.size() == 3){
         // find the size of the obj
