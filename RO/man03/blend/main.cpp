@@ -1,157 +1,187 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 
 #include <rw/math/Q.hpp>
-#include <rw/rw.hpp>
-#include <rw/math/Math.hpp>
 #include <rw/loaders.hpp>
+#include <rw/math/Transform3D.hpp>
+#include <rw/trajectory/CubicSplineInterpolator.hpp>
+#include <rw/invkin/JacobianIKSolver.hpp>
+#include <rw/proximity/CollisionDetector.hpp>
+#include <rwlibs/proximitystrategies/ProximityStrategyFactory.hpp>
 
 
-rw::math::Vector3D<double> W_rot(const rw::math::Rotation3D<double> &R){
-    double theta = acos((R(0,0) + R(1,1) + R(2,2) - 1) / 2);
 
-    rw::math::Vector3D<double> W(0,0,0);
-    W[0] = (R(2,1) - R(1,2));
-    W[1] = (R(0,2) - R(2,0));
-    W[2] = (R(1,0) - R(0,1));
 
-    if(theta < 10e-6 || theta > (rw::math::Pi - 10e-6)){
-        W *= 0.5;
-    } else{
-        double length = W.norm2();
-        W *= (theta / length);
-    }
-    return W;
-}
+//rw::math::Vector3D<double> W_rot(const rw::math::Rotation3D<double> &R){
+//    double theta = acos((R(0,0) + R(1,1) + R(2,2) - 1) / 2);
 
-rw::math::Vector3D<double> P_linear_int_back(const rw::math::Vector3D<double> &P_i_low, const rw::math::Vector3D<double> &P_i, double &t_i_low, double &t_i, double &t){
-    rw::math::Vector3D<double> P_t(P_i);
-    double scale = (t - t_i);
-    scale /= (t_i_low - t_i);
-    rw::math::Vector3D<double> p_vec(P_i_low - P_i);
+//    rw::math::Vector3D<double> W(0,0,0);
+//    W[0] = (R(2,1) - R(1,2));
+//    W[1] = (R(0,2) - R(2,0));
+//    W[2] = (R(1,0) - R(0,1));
 
-    P_t += (scale * p_vec);
-    return P_t;
-}
+//    if(theta < 10e-6 || theta > (rw::math::Pi - 10e-6)){
+//        W *= 0.5;
+//    } else{
+//        double length = W.norm2();
+//        W *= (theta / length);
+//    }
+//    return W;
+//}
 
-rw::math::Rotation3D<double> R_eaa(const rw::math::Vector3D<double> &v, double &theta){
-    rw::math::Rotation3D<double> Reaa;
-    double c = cos(theta), s = sin(theta);
+//rw::math::Vector3D<double> P_linear_int_back(const rw::math::Vector3D<double> &P_i_low, const rw::math::Vector3D<double> &P_i, double &t_i_low, double &t_i, double &t){
+//    rw::math::Vector3D<double> P_t(P_i);
+//    double scale = (t - t_i);
+//    scale /= (t_i_low - t_i);
+//    rw::math::Vector3D<double> p_vec(P_i_low - P_i);
 
-    for(int i = 0; i < 3; i++){
-        Reaa(i,i) = v[i] * v[i] * (1 - c) + c;
-    }
-    double v12 = v[0] * v[1] * (1 - c);
-    double v13 = v[0] * v[2] * (1 - c);
-    double v23 = v[1] * v[2] * (1 - c);
-    double v3s = v[2] * s;
-    double v2s = v[1] * s;
-    double v1s = v[0] * s;
+//    P_t += (scale * p_vec);
+//    return P_t;
+//}
 
-    Reaa(1,0) = v12 + v3s;
-    Reaa(2,0) = v13 - v2s;
-    Reaa(2,1) = v23 + v1s;
-    Reaa(0,1) = v12 - v3s;
-    Reaa(0,2) = v13 + v2s;
-    Reaa(1,2) = v23 - v1s;
+//rw::math::Rotation3D<double> R_eaa(const rw::math::Vector3D<double> &v, double &theta){
+//    rw::math::Rotation3D<double> Reaa;
+//    double c = cos(theta), s = sin(theta);
 
-    return Reaa;
-}
+//    for(int i = 0; i < 3; i++){
+//        Reaa(i,i) = v[i] * v[i] * (1 - c) + c;
+//    }
+//    double v12 = v[0] * v[1] * (1 - c);
+//    double v13 = v[0] * v[2] * (1 - c);
+//    double v23 = v[1] * v[2] * (1 - c);
+//    double v3s = v[2] * s;
+//    double v2s = v[1] * s;
+//    double v1s = v[0] * s;
 
-rw::math::Rotation3D<double> R_eaa(const rw::math::Vector3D<double> &theta_v){
-    // R_eaa(theta*v) == R_eaa(v, theta) where ||v|| = 1
+//    Reaa(1,0) = v12 + v3s;
+//    Reaa(2,0) = v13 - v2s;
+//    Reaa(2,1) = v23 + v1s;
+//    Reaa(0,1) = v12 - v3s;
+//    Reaa(0,2) = v13 + v2s;
+//    Reaa(1,2) = v23 - v1s;
 
-    double theta = theta_v.norm2();
-    rw::math::Vector3D<double> v = theta_v / theta;
+//    return Reaa;
+//}
 
-    std::cout << " reaa, theta: " << theta << ", v: " << v << ", norm: " << v.norm2() << "\n";
+//rw::math::Rotation3D<double> R_eaa(const rw::math::Vector3D<double> &theta_v){
+//    // R_eaa(theta*v) == R_eaa(v, theta) where ||v|| = 1
 
-    return R_eaa(v, theta);
-}
+//    double theta = theta_v.norm2();
+//    rw::math::Vector3D<double> v = theta_v / theta;
 
-rw::math::Rotation3D<double> R_linear_int_back(const rw::math::Rotation3D<double> &R_i_low,
-                                               const rw::math::Rotation3D<double> &R_i,
-                                               double &t_i_low, double &t_i, double &t){
-    double scale = (t - t_i);
-    scale /= (t_i_low - t_i);
-    rw::math::Rotation3D<double> R_W_rot = R_i; // note that this is done because inverse manipulates with the data it is called on...
-    R_W_rot = R_W_rot.inverse();
-    R_W_rot = R_i_low * R_W_rot;
-    rw::math::Vector3D<double> tmp = scale * W_rot(R_W_rot);
-    rw::math::Rotation3D<double> Reaa = R_eaa(tmp);
+//    std::cout << " reaa, theta: " << theta << ", v: " << v << ", norm: " << v.norm2() << "\n";
 
-    rw::math::Rotation3D<double> R_t = Reaa * R_i;
-    return R_t;
-}
+//    return R_eaa(v, theta);
+//}
 
-rw::math::Transform3D<double> linear_segmentation(const rw::math::Transform3D<double> &T_i_low,
-                                                  const rw::math::Transform3D<double> &T_i,
-                                                  double &t_i_low, double &t_i, double &t){
-    rw::math::Transform3D<double> T;
-    T.R() = R_linear_int_back(T_i_low.R(), T_i.R(), t_i_low, t_i, t);
-    T.P() = P_linear_int_back(T_i_low.P(), T_i.P(), t_i_low, t_i, t);
+//rw::math::Rotation3D<double> R_linear_int_back(const rw::math::Rotation3D<double> &R_i_low,
+//                                               const rw::math::Rotation3D<double> &R_i,
+//                                               double &t_i_low, double &t_i, double &t){
+//    double scale = (t - t_i);
+//    scale /= (t_i_low - t_i);
+//    rw::math::Rotation3D<double> R_W_rot = R_i; // note that this is done because inverse manipulates with the data it is called on...
+//    R_W_rot = R_W_rot.inverse();
+//    R_W_rot = R_i_low * R_W_rot;
+//    rw::math::Vector3D<double> tmp = scale * W_rot(R_W_rot);
+//    rw::math::Rotation3D<double> Reaa = R_eaa(tmp);
 
-    return T;
-}
+//    rw::math::Rotation3D<double> R_t = Reaa * R_i;
+//    return R_t;
+//}
 
-rw::math::Vector3D<double> parabola(double dt, const rw::math::Vector3D<double> &X,
-                                    const rw::math::Vector3D<double> &v1,
-                                    const rw::math::Vector3D<double> &v2,
-                                    double tau){
-    rw::math::Vector3D<double> P;
+//rw::math::Transform3D<double> linear_segmentation(const rw::math::Transform3D<double> &T_i_low,
+//                                                  const rw::math::Transform3D<double> &T_i,
+//                                                  double &t_i_low, double &t_i, double &t){
+//    rw::math::Transform3D<double> T;
+//    T.R() = R_linear_int_back(T_i_low.R(), T_i.R(), t_i_low, t_i, t);
+//    T.P() = P_linear_int_back(T_i_low.P(), T_i.P(), t_i_low, t_i, t);
 
-    P = (v2 - v1);
-    P /= (4 * tau);
-    P *= (dt + tau) * (dt + tau);
-    P += (v1 * dt);
-    P += X;
+//    return T;
+//}
 
-    return P;
-}
+//rw::math::Vector3D<double> parabola(double dt, const rw::math::Vector3D<double> &X,
+//                                    const rw::math::Vector3D<double> &v1,
+//                                    const rw::math::Vector3D<double> &v2,
+//                                    double tau){
+//    rw::math::Vector3D<double> P;
 
-rw::math::Transform3D<double> parabolic_blend(const rw::math::Transform3D<double> &T_i,
-                                              const rw::math::Transform3D<double> &T_i_low,
-                                              const rw::math::Transform3D<double> &T_i_high,
-                                              double t_i, double t_i_low, double t_i_high, double t, double tau){
-    rw::math::Transform3D<double> T;
+//    P = (v2 - v1);
+//    P /= (4 * tau);
+//    P *= (dt + tau) * (dt + tau);
+//    P += (v1 * dt);
+//    P += X;
 
-    // consider positional part
-    rw::math::Vector3D<double> P_low = (T_i_low.P() - T_i.P()) / (t_i_low - t_i);
-    rw::math::Vector3D<double> P_high = (T_i_high.P() - T_i.P()) / (t_i_high - t_i);
+//    return P;
+//}
 
-    T.P() = parabola(t - t_i, T_i.P(), P_low, P_high, tau);
+//rw::math::Transform3D<double> parabolic_blend(const rw::math::Transform3D<double> &T_i,
+//                                              const rw::math::Transform3D<double> &T_i_low,
+//                                              const rw::math::Transform3D<double> &T_i_high,
+//                                              double t_i, double t_i_low, double t_i_high, double t, double tau){
+//    rw::math::Transform3D<double> T;
 
-    // consider rotational part
-    rw::math::Rotation3D<double> R_low = T_i.R();
-    R_low = R_low.inverse();
-    rw::math::Rotation3D<double> R_high = R_low;
-    R_low = T_i_low.R() * R_low;
-    R_high = T_i_high.R() * R_high;
+//    // consider positional part
+//    rw::math::Vector3D<double> P_low = (T_i_low.P() - T_i.P()) / (t_i_low - t_i);
+//    rw::math::Vector3D<double> P_high = (T_i_high.P() - T_i.P()) / (t_i_high - t_i);
 
-    rw::math::Vector3D<double> W_low = W_rot(R_low);
-    rw::math::Vector3D<double> W_high = W_rot(R_high);
-    W_low /= (t_i_low - t_i);
-    W_high /= (t_i_high - t_i);
+//    T.P() = parabola(t - t_i, T_i.P(), P_low, P_high, tau);
 
-    rw::math::Vector3D<double> P = parabola(t - t_i, rw::math::Vector3D<double>::zero(), W_low, W_high, tau);
-    rw::math::Rotation3D<double> Reaa = R_eaa(P);
+//    // consider rotational part
+//    rw::math::Rotation3D<double> R_low = T_i.R();
+//    R_low = R_low.inverse();
+//    rw::math::Rotation3D<double> R_high = R_low;
+//    R_low = T_i_low.R() * R_low;
+//    R_high = T_i_high.R() * R_high;
 
-    T.R() = Reaa * T_i.R();
+//    rw::math::Vector3D<double> W_low = W_rot(R_low);
+//    rw::math::Vector3D<double> W_high = W_rot(R_high);
+//    W_low /= (t_i_low - t_i);
+//    W_high /= (t_i_high - t_i);
 
-    return T;
-}
+//    rw::math::Vector3D<double> P = parabola(t - t_i, rw::math::Vector3D<double>::zero(), W_low, W_high, tau);
+//    rw::math::Rotation3D<double> Reaa = R_eaa(P);
+
+//    T.R() = Reaa * T_i.R();
+
+//    return T;
+//}
 
 // make cubic spline for M datapoints of N dimensions
-template<typename T>
-T cubic_spline(T &P_s, T &P_f, T &V_s, T &V_f, double t, double t_s, double t_f){
-    T dP = P_f - P_s;
+rw::math::Vector3D<double> C(rw::math::Vector3D<double> &P_s, rw::math::Vector3D<double> &P_f, rw::math::Vector3D<double> &V_s, rw::math::Vector3D<double> &V_f, double t, double t_s, double t_f){
+    rw::math::Vector3D<double> dP = P_f - P_s;
     double dt = t_f - t_s;
 
-    T C = -2 * dP + dt * (V_s + V_f) * pow((t - t_s) / dt, 3) + 3 * dP - dt * (2 * V_s + V_f) * pow((t - t_s) / dt, 2) + V_s * (t - t_s) + P_s;
+    rw::math::Vector3D<double> C = -2 * dP + dt * (V_s + V_f) * pow((t - t_s) / dt, 3) + 3 * dP - dt * (2 * V_s + V_f) * pow((t - t_s) / dt, 2) + V_s * (t - t_s) + P_s;
 
     return C;
 }
+
+
+rw::math::Transform3D<double> cubic_spline(rw::math::Transform3D<double> &P_s, rw::math::Transform3D<double> &P_f, rw::math::Transform3D<double> &V_s, rw::math::Transform3D<double> &V_f, double t, double t_s, double t_f){
+    rw::math::Vector3D<double> pos = C(P_s.P(), P_f.P(), V_s.P(), V_f.P(), t, t_s, t_f);
+    rw::math::Rotation3D<double> rot = P_s.R(); //C< rw::math::Rotation3D<double> >(P_s.R(), P_f.R(), V_s.R(), V_f.R(), t, t_s, t_f);
+
+    rw::math::Transform3D<double> res(pos, rot);
+
+    return res;
+}
+
+// this check collision function was taken from Lars's code example, I think to remember...
+bool checkCollisions(rw::models::Device::Ptr device, const rw::kinematics::State &state, const rw::proximity::CollisionDetector &detector, const rw::math::Q &q) {
+    rw::kinematics::State testState = state;
+    rw::proximity::CollisionDetector::QueryResult data;
+    bool ret = true;
+
+    device->setQ(q,testState);
+    if (detector.inCollision(testState,&data)) {
+        ret = false;
+    }
+    return ret;
+}
+
+
 
 int main(){
     // load absolute path
@@ -174,11 +204,18 @@ int main(){
     rw::math::Transform3D<double> T4(rw::math::Vector3D<double>(-0.965, -0.45, -0.032), angle.toRotation3D());
     rw::math::Transform3D<double> T5(rw::math::Vector3D<double>(-0.975, -0.45, -0.032), angle.toRotation3D());
 
+    double t1 = 0, t2 = 1, t3 = 1.2, t4 = 1.4, t5 = 2.4;
+
+    rw::math::Transform3D<double> Tv1(rw::math::Vector3D<double>(0,0,0), rw::math::Rotation3D<double>::identity());
+    rw::math::Transform3D<double> Tv2(rw::math::Vector3D<double>(0,0.5,0), rw::math::Rotation3D<double>::identity());
+    rw::math::Transform3D<double> Tv3(rw::math::Vector3D<double>(0.02,0.02,0), rw::math::Rotation3D<double>::identity());
+    rw::math::Transform3D<double> Tv4(rw::math::Vector3D<double>(0.5,0,0), rw::math::Rotation3D<double>::identity());
+    rw::math::Transform3D<double> Tv5(rw::math::Vector3D<double>(0,0,0), rw::math::Rotation3D<double>::identity());
 
     // name of the device in the WC
     std::string deviceName = "UR-6-85-5-A";
     std::string boxName = "Pallet";
-    std::string toolMount = "ToolMount";
+    std::string toolName = "Tool";
     const std::string wcFile = myPath + "/RO/man03/URInterpolate/Scene.wc.xml";
 
     rw::math::Q robotInit(6, 0.476, -0.440, 0.62, -0.182, 2.047, -1.574);
@@ -199,61 +236,92 @@ int main(){
     // find the box and move it according to specs
     rw::math::Transform3D<double> moveBox(rw::math::Vector3D<double>(0, 0.11, 0), rw::math::Rotation3D<double>::identity());
     rw::kinematics::MovableFrame* box = (rw::kinematics::MovableFrame*)wc->findFrame(boxName);
+    if (box == NULL) {
+        std::cerr << "Box: " << boxName << " not found!" << std::endl;
+        return 0;
+    }
     rw::math::Transform3D<double> boxInit = box->getTransform(state);
     box->setTransform((moveBox * boxInit), state);
     std::cout << "The initial Box transform:\n" << boxInit << "\n";
     std::cout << "The final Box transform:\n" << box->getTransform(state) << "\n";
 
+    // get tool mount and worldTtool
+    rw::kinematics::Frame* tool = wc->findFrame(toolName);
+    if (box == NULL) {
+        std::cerr << "Toll: " << toolName << " not found!" << std::endl;
+        return 0;
+    }
 
-    // find the bottle frame
-//    rw::kinematics::Frame* item = wc->findFrame(boxName);
-//    rw::kinematics::Frame* tool_frame = wc->findFrame(toolMount);
+    rw::math::Transform3D<double> T1_verif = device->baseTframe(tool, state);
+    std::cout << "The transform of robot base to tool:\n" << T1_verif << "\n";
+    std::cout << "The actual T1:\n" << T1 << "\n";
 
+    double totalTime = t5 - t1;
 
-//    // transformations
-//    const rw::math::Transform3D<double> F_0(rw::math::Vector3D<double>(15, 8, 3), rw::math::Rotation3D<double>::identity());
-//    const rw::math::Transform3D<double> F_1(rw::math::Vector3D<double>(10, 4, 2), rw::math::Rotation3D<double>(0, 1, 0, -1, 0, 0, 0, 0, 1));
-//    const rw::math::Transform3D<double> F_2(rw::math::Vector3D<double>(6, 0, -2), rw::math::Rotation3D<double>(0, 0, 1, -1, 0, 0, 0, -1, 0));
-//    // time
-//    double t_0 = 0, t_1 = 1, t_2 = 4, tau = 0.1;
+    // tesselate
+    std::cout << "Interpolating T." << std::endl;
+    int tessellation = 241;
+    std::vector< rw::math::Transform3D<double> > Ttessellated;
+    Ttessellated.resize(tessellation);
+    std::vector< rw::math::Q > Qtessellated;
+    Qtessellated.resize(tessellation);
+    for(int i = 0; i < tessellation; i++){
+        // find time to find point at
+        double t = t1 + i * totalTime / (tessellation - 1);
+        // tessellate the Transformation (only transforms the P() and assumes that R_s() == R_f())
+        rw::math::Transform3D<double> Ttes;
+        if(t >= t1 && t < t2){
+            Ttes = cubic_spline(T1, T2, Tv1, Tv2, t, t1, t2);
+        } else if(t >= t2 && t < t3){
+            Ttes = cubic_spline(T2, T3, Tv2, Tv3, t, t2, t3);
+        } else if(t >= t3 && t < t4){
+            Ttes = cubic_spline(T3, T4, Tv3, Tv4, t, t3, t4);
+        } else if(t >= t4 && t <= t5){
+            Ttes = cubic_spline(T4, T5, Tv4, Tv5, t, t4, t5);
+        } else {
+            std::cerr << "Error: No valid t used.\n";
+        }
+        // save transform
+        Ttessellated[i] = Ttes;
 
+        // make invese to get Q for robot
+        rw::math::Q robotConfig;
+        // inverse kinematics setup
+        rw::invkin::JacobianIKSolver ik(device, tool, state);
+        ik.setCheckJointLimits(true);
+        ik.setClampToBounds(true);
+        ik.setEnableInterpolation(true);
+        ik.setSolverType(rw::invkin::JacobianIKSolver::SVD);
 
-//    rw::math::Rotation3D<double> i = (F_0.R());
-//    i = i.inverse();
-//    i = i * F_1.R();
-//    rw::math::Vector3D<double> W = W_rot(i);
-//    std::cout << "i) W_rot(R0T R1): " << W << "\n";
+        // find the possible configurations to the problem
+        std::vector< rw::math::Q > possibleConfigurations;
+        // ---- retract ----
+        possibleConfigurations = ik.solve(Ttes, state);
 
-//    i = (F_1.R());
-//    i = i.inverse();
-//    i = i * F_2.R();
-//    W = W_rot(i);
-//    std::cout << "i) W_rot(R1T R2): " <<  W << "\n";
+        // set the next configuration to be the first
+        // TODO: maybe check the whole vector and take the nearest or just run through to take the first valid
+        // (does not take into account that the first found configuration could be wrong, but should be done by the IK solver)
+//        std::cout << "# of solutions: " << possibleConfigurations.size() << "\n";
+        if(possibleConfigurations.size()){
+            robotConfig = possibleConfigurations.at(0);
 
-//    double time_step = 0.1;
-//    for(double t = 0; t < t_2 + time_step; t += time_step){
-//        rw::math::Transform3D<double> segment;
-//        if( t < t_1){
-//            segment = linear_segmentation(F_0, F_1, t_0, t_1, t);
-//        }else{
-//            segment = linear_segmentation(F_1, F_2, t_1, t_2, t);
-//        }
-//        rw::math::Transform3D<double> parabolic_segment;
-//        parabolic_segment = parabolic_blend(F_1, F_0, F_2, t_1, t_0, t_2, t, tau);
+            // set the robot to the found configuration if it is a valid location
+            rw::proximity::CollisionDetector detector(wc, rwlibs::proximitystrategies::ProximityStrategyFactory::makeDefaultCollisionStrategy());
 
-//        std::cout << "t_l: " << t << ", " << segment << "\n";
-//        std::cout << "t_p: " << t << ", " << parabolic_segment << "\n";
-//    }
+            if(!checkCollisions(device, state, detector, robotConfig)){
+                std::cerr << "Error: The Q used is not valid!\n";
+            }
 
-//    rw::math::VectorND<2, double> p1, p2, v1, v2;
-//    p1[0] = p1[1] = v1[0] = v2[1] = 0;
-//    v1[1] = p2[0] = v2[0] = 1;
-//    p2[1] = 2;
-//    double t1 = 0, t2 = 1;
+        } else{
+            std::cerr << "Error: No set of valid Q was found!\n";
+        }
 
-//    rw::math::VectorND<2, double> cubic_segmentation = cubic_spline< rw::math::VectorND<2, double> >(p1, p2, v1, v2, 0.5, t1, t2);
-
-//    std::cout << cubic_segmentation << "\n";
+        // output the Q's
+        if(t == 0.5 || t == 1.05 || t == 1.32 || t == 1.7){
+            std::cout << "The position for t = " << t << ":\n" << Ttes.P() << "\n";
+            std::cout << "The configuration for t = " << t << ":\n" << robotConfig << "\n";
+        }
+    }
 
     return 0;
 }
