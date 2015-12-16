@@ -45,9 +45,11 @@ The joint positions is found and shown in table \ref{tb:joint_positions}.
 
 The positions is printed to a lua script\cite{zip:luaScript}.
 
-Velocity constraints is applied and the tau is calculated and plotted in figure \ref{fig:tau_v_t}.
+Velocity constraints is applied and the $\tau$ is calculated and plotted in figure \ref{fig:tau_v_t}.
+$\tau$ is the modified tessellation time for the given time division.
+The deviation from the unconstrained timing can be seen by looking at the deviation from the dashed line.
 
-\begin{figure}
+\begin{figure}[h]
  \centering
  \includegraphics[width=0.7\linewidth]{graphics/timeplot}
  \caption{$\tau(t)$ vs t.}

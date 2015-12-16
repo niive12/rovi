@@ -369,6 +369,7 @@ int main(){
         if(t == 0.5 || t == 1.05 || t == 1.32 || t == 1.7){
             std::cout << "The position for t = " << t << ":\n" << Ttes.P() << "\n";
             std::cout << "The configuration for t = " << t << ":\n" << robotConfig << "\n";
+            std::cout << "tau = " << i << ":\t" << tau << "\n";
         }
     }
     std::cout << "# Q not found " << noQfound << " and # of Q colliding " << notValidQ << "\n";
