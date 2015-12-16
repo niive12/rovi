@@ -12,14 +12,14 @@ void SamplePlugin::find_limits(){
 
     for(int markerMovement = 0; markerMovement < _comboBox_settings_loadMarker->count(); markerMovement++){
         if(_comboBox_rovi_marker->currentText().lastIndexOf("Ideal") == (-1)){
-            dt_file << _comboBox_settings_loadMarker->itemText(markerMovement).toStdString() << " & ";
-            avgprocesstime << _comboBox_settings_loadMarker->itemText(markerMovement).toStdString() << " & ";
+            dt_file << " & " << _comboBox_settings_loadMarker->itemText(markerMovement).toStdString();
+            avgprocesstime << " & " << _comboBox_settings_loadMarker->itemText(markerMovement).toStdString();
         }
     }
     dt_file << "\\\\ \n";
     avgprocesstime << "\\\\ \n";
     // loop through all markers
-    for(int marker = 0; marker < _comboBox_rovi_marker->count(); marker++){
+    for(int marker = 3; marker < _comboBox_rovi_marker->count(); marker++){
         // set the marker
         _comboBox_rovi_marker->setCurrentIndex(marker);
         if(_comboBox_rovi_marker->currentText().lastIndexOf("Ideal") == (-1)){
@@ -27,7 +27,7 @@ void SamplePlugin::find_limits(){
 
             rovi_load_markerImage();
             // loop through all backgrounds
-            for(int bg = 0; bg < _comboBox_rovi_background->count(); bg++){
+            for(int bg = 5; bg < _comboBox_rovi_background->count(); bg++){
                 // set bg
                 _comboBox_rovi_background->setCurrentIndex(bg);
                 rovi_load_bgImage();

@@ -69,7 +69,10 @@ void featureextraction::get_homography_flann(cv::Mat &H, std::vector<cv::KeyPoin
         rw::common::Log::log().error() << "Min dist: " << min_dist << "\n";
 //        rw::common::Log::log().error() << "ERROR: Not enough points for Homography in get_homography_flan.\n";
     }
+    if(object.size() >= 4){
         H = cv::findHomography( object, scene, CV_RANSAC );
+    }
+
 }
 
 bool featureextraction::findMarker03(const cv::Mat &img_scene, std::vector<cv::Point> &points, bool locate_one_point){
@@ -99,7 +102,9 @@ bool featureextraction::findMarker03(const cv::Mat &img_scene, std::vector<cv::P
 
     get_homography_flann(H,keypoints_scene,descriptors_scene, good_matches);
     std::vector<cv::Point2f> scene_corners(4);
-    cv::perspectiveTransform( obj_corners, scene_corners, H);
+    if(!H.empty()){
+        cv::perspectiveTransform( obj_corners, scene_corners, H);
+    }
 
     cv::Mat drawing = img_scene.clone();
     if(debug_images && false){
@@ -116,7 +121,7 @@ bool featureextraction::findMarker03(const cv::Mat &img_scene, std::vector<cv::P
     }
     cv::Point midpoint(0,0);
 //    rw::common::Log::log().info() << "matches: " << good_matches.size() << "\n";
-    if(good_matches.size() < 50 ){
+    if(good_matches.size() < 50 || H.empty()){
         points.push_back(midpoint);
         return false;
     }

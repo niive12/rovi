@@ -594,6 +594,7 @@ void SamplePlugin::rovi_processImage(){
                         mapping.emplace_back(0,0);
                     } else if(markerused == 2){ // pic 2b
                         // ---- this algorithm was not implemented
+                        markerFound = false;
                         mapping.emplace_back(0,0);
                     } else if(markerused == 3){ // pic 3
                         int x = 0,y = 0;
