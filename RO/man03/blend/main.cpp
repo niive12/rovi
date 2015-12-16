@@ -355,7 +355,7 @@ int main(){
         if(i > 0){ // only if between two points in time, consider now and prev
             double tau;
             if(velocityConstraint(robotConfig - Qtessellated[i-1], device, dt, tau)){
-
+                time[i-1] = tau;
             }
         }
 
