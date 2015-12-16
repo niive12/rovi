@@ -12,11 +12,11 @@
 #include <rwlibs/proximitystrategies/ProximityStrategyFactory.hpp>
 #include <rw/kinematics/MovableFrame.hpp>
 
-/*
-
-#include "lua.hpp"
 #include "cubicSpline.hpp"
+#include "lua.hpp"
 
+
+/*
 
 //rw::math::Vector3D<double> W_rot(const rw::math::Rotation3D<double> &R){
 //    double theta = acos((R(0,0) + R(1,1) + R(2,2) - 1) / 2);
