@@ -1,0 +1,46 @@
+\section{Move Into Positions}
+
+The box is misplaced in the workcell.
+In order to move it, xml file must be modified, changing the pallet to be moveable.
+The changes is seen in figure \ref{fig:commit_xml}.
+
+\begin{figure}[h]
+ \centering
+\begin{lstlisting}[backgroundcolor=\color{commit_remove},language=xml]
+<Frame name="Pallet" refframe="WORLD">
+\end{lstlisting}
+\begin{lstlisting}[backgroundcolor=\color{commit_add},language=xml]
+<Frame name="Pallet" refframe="WORLD" type="Movable"> 
+\end{lstlisting}
+\caption{Changes to the XML file. }
+\label{fig:commit_xml}
+\end{figure}
+
+To move it in the y-direction of the original rotation matrix is found.
+This is multiplied with the desired offset of $11 cm$.
+
+The initial box transform is \( \left[ \begin{array}{c} 0\\ 0\\ 0\\ \end{array} \right] \left[
+ \begin{array}{ccc}
+  1 & 0 & 0 \\
+  0 & 1 & 0 \\
+  0 & 0 & 1 \\
+ \end{array}
+\right]
+\), so the final box transform becomes: 
+\begin{equation}
+ \left[ 
+ \begin{array}{c}
+  0\\
+  0.11\\
+  0\\
+ \end{array}
+ \right]
+\left[
+ \begin{array}{ccc}
+  1 & 0 & 0 \\
+  0 & 1 & 0 \\
+  0 & 0 & 1 \\
+ \end{array}
+\right]
+\end{equation}
+

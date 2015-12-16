@@ -2,10 +2,12 @@
 The first marker, seen in figure \ref{marker:cross}, contains black crossing lines on a white background.
 These are two features which can be used to find the marker so both are tested.
 
-\input{sections/vis_img02_lines}
+Detection using lines was tested, but multiple lines occur in images, so this was not deemed a good method.
+This was tested in appendix \ref{sec:using_lines}
 
-\subsubsection{Using Contours}
-The second approach is to use the colors. 
+% \subsubsection{Using Contours}
+% The second approach is to use the colors. 
+Instead the colors were used.
 The marker can be described as a big white rectangle, separated by black lines.
 If the background contains small white blobs, the marker would be bigger.
 If the background is a big white wall, the size of the wall would be larger than the marker so that could be removed based on the size of the object.

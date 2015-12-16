@@ -186,7 +186,7 @@ bool checkCollisions(rw::models::Device::Ptr device, const rw::kinematics::State
 int main(){
     // load absolute path
     std::ifstream ifs;
-    ifs.open ("/home/.absolutepath.mypath", std::ifstream::in);
+    ifs.open ("/home/.absolutepath.mypath", std::ifstream::in); //a file where the path to the code git repository is defined
 
     std::string myPath;
     if(ifs.is_open()){
