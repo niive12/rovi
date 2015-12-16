@@ -7,6 +7,8 @@
 \usepackage{graphicx}
 \usepackage{subcaption}
 
+\usepackage{dcolumn} % tabular with centered around decimal
+
 \usepackage{float}
 \usepackage{fullpage}
 
@@ -46,7 +48,10 @@
 
 \section{Feature Extraction}
 \input{sections/vis_intro}
-\input{sections/vis_markers}
+% \input{sections/vis_markers}
+\input{sections/vis_marker01}
+\input{sections/vis_marker02}
+\input{sections/vis_marker03}
 \input{sections/vis_conclusion}
 
 \section{Point Tracking}
@@ -64,10 +69,7 @@
 \pagebreak
 \appendices
 \input{appendix/robotics_graphs}
-\section{Methods Used in Feature Extraction}\label{app:full_vision_part} 
-\input{sections/vis_marker01}
-\input{sections/vis_marker02}
-\input{sections/vis_marker03}
-
+% \section{Methods Used in Feature Extraction}\label{app:full_vision_part} 
+\input{sections/vis_img02_lines}
 
 \end{document}
