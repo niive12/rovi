@@ -12,9 +12,7 @@
 #include <rwlibs/proximitystrategies/ProximityStrategyFactory.hpp>
 #include <rw/kinematics/MovableFrame.hpp>
 
-
-
-
+/*
 //rw::math::Vector3D<double> W_rot(const rw::math::Rotation3D<double> &R){
 //    double theta = acos((R(0,0) + R(1,1) + R(2,2) - 1) / 2);
 
@@ -148,7 +146,7 @@
 
 //    return T;
 //}
-
+//*/
 // make cubic spline for M datapoints of N dimensions
 rw::math::Vector3D<double> C(rw::math::Vector3D<double> &P_s, rw::math::Vector3D<double> &P_f, rw::math::Vector3D<double> &V_s, rw::math::Vector3D<double> &V_f, double t, double t_s, double t_f){
     rw::math::Vector3D<double> dP = P_f - P_s;
