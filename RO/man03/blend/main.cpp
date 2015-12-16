@@ -156,7 +156,7 @@ T cubic_spline(T &P_s, T &P_f, T &V_s, T &V_f, double t, double t_s, double t_f)
 int main(){
     // load absolute path
     std::ifstream ifs;
-    ifs.open ("/home/.absolutepath.mypath", std::ifstream::in);
+    ifs.open ("/home/.absolutepath.mypath", std::ifstream::in); //a file where the path to the code git repository is defined
 
     std::string myPath;
     if(ifs.is_open()){
