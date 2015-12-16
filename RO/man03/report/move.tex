@@ -41,3 +41,27 @@ The initial box transform is
 \right]
 \end{equation}
 
+T1 is given as 
+\[
+ \left[
+  \begin{array}{*{3}{D{.}{.}{3}}|D{.}{.}{3}}
+   0.706 & -0.000 & -0.708 & -0.975 \\
+   0.001 & -1.000 &  0.002 & -0.450 \\ 
+  -0.708 & -0.002 & -0.706 & -0.030 \\ \hline
+   0     &  0     &  0     &  1     \\
+  \end{array}
+ \right]
+\]
+The transform of robot base to tool is calculated to be:
+\[
+ \left[
+  \begin{array}{*{3}{D{.}{.}{3}}|D{.}{.}{3}}
+   0.707 & -0.000 & -0.707 & -0.975    \\
+   0.000 & -1.000 &  0.000 & -0.450    \\ 
+  -0.707 & -0.000 & -0.707 & -0.032    \\ \hline
+   0     &  0     &  0     &  1        \\
+  \end{array}
+ \right]
+\]
+
+As the difference is 2 mm, they are considered the same position.

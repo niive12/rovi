@@ -12,10 +12,11 @@
 #include <rwlibs/proximitystrategies/ProximityStrategyFactory.hpp>
 #include <rw/kinematics/MovableFrame.hpp>
 
-
-#include "lua.hpp"
 #include "cubicSpline.hpp"
+#include "lua.hpp"
 
+
+/*
 
 //rw::math::Vector3D<double> W_rot(const rw::math::Rotation3D<double> &R){
 //    double theta = acos((R(0,0) + R(1,1) + R(2,2) - 1) / 2);
@@ -150,6 +151,8 @@
 
 //    return T;
 //}
+//*/
+
 
 bool velocityConstraint(rw::math::Q &dq, rw::models::Device::Ptr &device, double &timestep, double &tau){
     if(device->getDOF() != dq.size()){
@@ -190,6 +193,19 @@ bool velocityConstraint(rw::math::Q &dq, rw::models::Device::Ptr &device, double
     return ret;
 }
 
+
+// this check collision function was taken from Lars's code example, I think to remember...
+bool checkCollisions(rw::models::Device::Ptr device, const rw::kinematics::State &state, const rw::proximity::CollisionDetector &detector, const rw::math::Q &q) {
+    rw::kinematics::State testState = state;
+    rw::proximity::CollisionDetector::QueryResult data;
+    bool ret = true;
+
+    device->setQ(q,testState);
+    if (detector.inCollision(testState,&data)) {
+        ret = false;
+    }
+    return ret;
+}
 
 int main(){
     // load absolute path
