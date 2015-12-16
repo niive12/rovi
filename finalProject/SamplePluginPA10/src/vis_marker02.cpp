@@ -1,17 +1,8 @@
 #include "vis_marker02.hpp"
 
-struct comparator_functor {
-  bool operator() (const std::vector<cv::Point> a, const std::vector<cv::Point> b) const {
-    return a.size() > b.size();
-  }
-} sorting_func;
-
-
 std::vector<cv::Point> featureextraction::find_blobs(cv::Mat img, std::vector<std::vector<cv::Point> > &contours, std::vector<std::vector<cv::Point> > &good_contours){
     std::vector<cv::Vec4i> hierarchy;
     cv::findContours( img, contours, hierarchy, CV_RETR_LIST, cv::CHAIN_APPROX_NONE);
-
-    std::sort(contours.begin(),contours.end(), sorting_func);
 
     double min_area = 33000, max_area = 100000;
     std::vector<cv::Point> center;
@@ -24,9 +15,6 @@ std::vector<cv::Point> featureextraction::find_blobs(cv::Mat img, std::vector<st
             center.push_back(com);
             good_contours.push_back(contours[i]);
 //            cv::drawContours( drawing, contours, (int)i, cv::Scalar(0,0,255), 2, 8, hierarchy, 0, cv::Point() );
-        }
-        if(center.size() > 2 || area < 500){
-            break;
         }
     }
     return center;
@@ -95,9 +83,10 @@ cv::Point featureextraction::find_center(cv::Mat &org, std::vector<cv::Point> &c
             midpoint.y += good_centers[i].y;
 //            drawing.at<cv::Vec3b>(good_centers[i]) = cv::Vec3b(0,0,255);
         }
-        midpoint.x = midpoint.x / good_centers.size();
-        midpoint.y = midpoint.y / good_centers.size();
-
+        if( good_centers.size() > 0 ){
+            midpoint.x = midpoint.x / good_centers.size();
+            midpoint.y = midpoint.y / good_centers.size();
+        }
 //        cv::circle( drawing, midpoint, 200,  cv::Scalar(0,0,255), 2, 8, 0 );
     }
     return midpoint;
@@ -119,14 +108,14 @@ bool featureextraction::findMarker02(cv::Mat &img, std::vector<cv::Point> &point
 
     std::vector<cv::Point> center = find_blobs(white, contours, good_contours);
     cv::Point midpoint = find_center(img, center, good_contours);
-    midpoint.x -= img.cols / 2;
-    midpoint.y = img.rows / 2 - midpoint.y;
-    points.push_back(midpoint);
 //    cv::imshow("image", drawing);
 
     if(midpoint.x == 0 && midpoint.y == 0){
         return false;
     } else {
+        midpoint.x -= img.cols / 2;
+        midpoint.y = img.rows / 2 - midpoint.y;
+        points.push_back(midpoint);
         return true;
     }
 }

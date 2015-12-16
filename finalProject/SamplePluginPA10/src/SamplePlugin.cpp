@@ -543,7 +543,7 @@ void SamplePlugin::rovi_processImage(){
         }else if( _comboBox_settings_loadMarker->currentIndex() == 1) {// medium
             n_times = 3;
         }else if( _comboBox_settings_loadMarker->currentIndex() == 0) {// fast
-            n_times = 10;
+            n_times = 1;
         }
         for(int trial = 0; trial < n_times; ++trial) {
             for(unsigned int i = 0; i < _settings_markerpos.size(); i++){
@@ -577,8 +577,8 @@ void SamplePlugin::rovi_processImage(){
                     if(markerused == 0){ // pic 1
                         markerFound = featureextraction::findMarker01(img, uv, false);
                         if(!markerFound){
-                            //                        cv::imshow("fuckup", img);
-                            //                        cv::waitKey(1);
+                            cv::imshow("marker not found", img);
+                            cv::waitKey(1);
                         }
                         if(uv.size() == 1){
                             mapping.emplace_back(0,0);
@@ -590,6 +590,10 @@ void SamplePlugin::rovi_processImage(){
                         }
                     } else if(markerused == 1){ // pic 2a
                         markerFound = featureextraction::findMarker02(img, uv);
+                        if(!markerFound){
+                            cv::imshow("marker not found", img);
+                            cv::waitKey(1);
+                        }
                         mapping.emplace_back(0,0);
                     } else if(markerused == 2){ // pic 2b
                         // ---- this algorithm was not implemented
@@ -668,10 +672,16 @@ void SamplePlugin::rovi_processImage(){
                 }
                 t2 = std::chrono::high_resolution_clock::now();
                 double algoTime = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1).count();
+                rw::common::Log::log().info() << "process time: " << algoTime << "\n";
                 totalTime += algoTime;
                 double robotMoveTime = dt;
                 if(reduceProcessingTime){
                     robotMoveTime -= algoTime;
+                    if(i == 1 && robotMoveTime < -0.05 ){
+                        rw::common::Log::log().info() << "proccess time is : " << algoTime << ", which exceeds Dt\n";
+                        _rovi_markerNotTracked = true;
+                        return;
+                    }
                 }
                 if(uv.size() > 0 && markerFound && robotMoveTime > 0){
                     // if points where found, use them to compute the new q_goal
@@ -718,8 +728,7 @@ void SamplePlugin::rovi_processImage(){
                 for(size_t k = 0; k < dq_new.size(); k++){
                     _dq_relative[i](k) = fabs((_dq_relative[i](k) / dt) / vC(k));
                 }
-
-                // store te configuration in the vector
+                // store the configuration in the vector
                 _robotQ[i] = q_next;
             }
             // return to start pose
