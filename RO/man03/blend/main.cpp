@@ -183,13 +183,30 @@ bool velocityConstraint(rw::math::Q &dq, rw::models::Device::Ptr &device, double
     }
 
     // apply timescaling to make it go within the bounds
-    tau = timestep;
     if(maxscale > 1){
         tau = timestep * maxscale;
         ret = true;
+    } else{
+        tau = timestep;
     }
 
     return ret;
+}
+
+void plottime(std::string filename, std::vector< double > &time, double dt){
+    std::fstream out(filename, std::fstream::out);
+    double totalTime = 0;
+
+    if(out.is_open()){
+        out << 0 << ", " << 0 << "\n";
+        for(int i = 0; i < time.size(); i++){
+            totalTime += time[i];
+            out << dt * (i + 1) << ", " << totalTime << "\n";
+        }
+    } else{
+        std::cerr << "ERROR: could not open file.\n";
+    }
+    out.close();
 }
 
 
@@ -253,7 +270,7 @@ int main(){
 //    }
 //    rw::math::Transform3D<double> boxInit = box->getTransform(state);
 //    box->setTransform((moveBox * boxInit), state);
-//    std::cout << "The initial Box transform:\n" << boxInit << "\n";
+//    std::cout << "The initistd::string filename, al Box transform:\n" << boxInit << "\n";
 //    std::cout << "The final Box transform:\n" << box->getTransform(state) << "\n";
 
     // get tool mount and worldTtool
@@ -272,14 +289,14 @@ int main(){
     double dt = totalTime / (tessellation - 1);
 
     // tesselate
+    int notValidQ = 0, noQfound = 0, velConstraintsApplied = 0;
     std::cout << "Interpolating T." << std::endl;
     std::vector< rw::math::Transform3D<double> > Ttessellated;
     Ttessellated.resize(tessellation);
     std::vector< rw::math::Q > Qtessellated;
-    int notValidQ = 0, noQfound = 0;
     Qtessellated.resize(tessellation);
     std::vector< double > time;
-    time.resize(tessellation);
+    time.resize(tessellation-1);
 
     rw::invkin::JacobianIKSolver ik(device, tool, state);
 //        ik.setCheckJointLimits(true);
@@ -340,11 +357,12 @@ int main(){
 
         // apply time constraints
         if(i > 0){ // only if between two points in time, consider now and prev
-            double tau;
+            double tau = dt;
             rw::math::Q dq = robotConfig - Qtessellated[i-1];
             if(velocityConstraint(dq, device, dt, tau)){
-                time[i-1] = tau;
+                velConstraintsApplied++;
             }
+            time[i-1] = tau;
         }
 
         // output the Q's
@@ -354,9 +372,12 @@ int main(){
         }
     }
     std::cout << "# Q not found " << noQfound << " and # of Q colliding " << notValidQ << "\n";
+    std::cout << "# velocity constraint applied " << velConstraintsApplied << "\n";
 
     rw::trajectory::QPath path(Qtessellated);
     outputLuaPath(("./lua.txt"), path, deviceName, robotInit);
+
+    plottime("../Rplots/time.csv", time, dt);
 
 
     return 0;
