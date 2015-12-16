@@ -20,7 +20,7 @@
 </Frame>
 
 
-<Frame name="Pallet" refframe="WORLD">
+<Frame name="Pallet" refframe="WORLD" type="Movable">
      <RPY> 0 0 0 </RPY> <Pos>   0 0 0 </Pos>
      <Drawable name="Pallet" refframe="Pallet">
          <Polytope file="Geometry/Pallet3Frames" />
