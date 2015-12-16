@@ -356,7 +356,7 @@ int main(){
     std::cout << "# Q not found " << noQfound << " and # of Q colliding " << notValidQ << "\n";
 
     rw::trajectory::QPath path(Qtessellated);
-    outputLuaPath((myPath + "/rovi/RO/man03/lua.txt"), path, deviceName, robotInit);
+    outputLuaPath(("./lua.txt"), path, deviceName, robotInit);
 
 
     return 0;
