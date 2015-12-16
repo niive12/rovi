@@ -13,6 +13,8 @@
 #include <rw/kinematics/MovableFrame.hpp>
 
 
+#include "lua.hpp"
+#include "cubicSpline.hpp"
 
 
 //rw::math::Vector3D<double> W_rot(const rw::math::Rotation3D<double> &R){
@@ -149,38 +151,6 @@
 //    return T;
 //}
 
-// make cubic spline for M datapoints of N dimensions
-rw::math::Vector3D<double> C(rw::math::Vector3D<double> &P_s, rw::math::Vector3D<double> &P_f, rw::math::Vector3D<double> &V_s, rw::math::Vector3D<double> &V_f, double t, double t_s, double t_f){
-    rw::math::Vector3D<double> dP = P_f - P_s;
-    double dt = t_f - t_s;
-
-    rw::math::Vector3D<double> C = -2 * dP + dt * (V_s + V_f) * pow((t - t_s) / dt, 3) + 3 * dP - dt * (2 * V_s + V_f) * pow((t - t_s) / dt, 2) + V_s * (t - t_s) + P_s;
-
-    return C;
-}
-
-
-rw::math::Transform3D<double> cubic_spline(rw::math::Transform3D<double> &P_s, rw::math::Transform3D<double> &P_f, rw::math::Transform3D<double> &V_s, rw::math::Transform3D<double> &V_f, double t, double t_s, double t_f){
-    rw::math::Vector3D<double> pos = C(P_s.P(), P_f.P(), V_s.P(), V_f.P(), t, t_s, t_f);
-    rw::math::Rotation3D<double> rot = P_s.R(); //C< rw::math::Rotation3D<double> >(P_s.R(), P_f.R(), V_s.R(), V_f.R(), t, t_s, t_f);
-
-    rw::math::Transform3D<double> res(pos, rot);
-
-    return res;
-}
-
-// this check collision function was taken from Lars's code example, I think to remember...
-bool checkCollisions(rw::models::Device::Ptr device, const rw::kinematics::State &state, const rw::proximity::CollisionDetector &detector, const rw::math::Q &q) {
-    rw::kinematics::State testState = state;
-    rw::proximity::CollisionDetector::QueryResult data;
-    bool ret = true;
-
-    device->setQ(q,testState);
-    if (detector.inCollision(testState,&data)) {
-        ret = false;
-    }
-    return ret;
-}
 
 
 
@@ -198,12 +168,13 @@ int main(){
     }
 
     rw::math::RPY<double> angle(0, rw::math::Pi / 4, rw::math::Pi);
+//    rw::math::RPY<double> angle(rw::math::Pi / 4, 0, rw::math::Pi);
 
     rw::math::Transform3D<double> T1(rw::math::Vector3D<double>(-0.975, -0.45, -0.032), angle.toRotation3D());
-    rw::math::Transform3D<double> T2(rw::math::Vector3D<double>(-0.975, -0.44, -0.032), angle.toRotation3D());
-    rw::math::Transform3D<double> T3(rw::math::Vector3D<double>(-0.974, -0.449, -0.032), angle.toRotation3D());
-    rw::math::Transform3D<double> T4(rw::math::Vector3D<double>(-0.965, -0.45, -0.032), angle.toRotation3D());
-    rw::math::Transform3D<double> T5(rw::math::Vector3D<double>(-0.975, -0.45, -0.032), angle.toRotation3D());
+    rw::math::Transform3D<double> T2(rw::math::Vector3D<double>(-0.975, 0.440, -0.032), angle.toRotation3D());
+    rw::math::Transform3D<double> T3(rw::math::Vector3D<double>(-0.974, 0.449, -0.032), angle.toRotation3D());
+    rw::math::Transform3D<double> T4(rw::math::Vector3D<double>(-0.965, 0.450, -0.032), angle.toRotation3D());
+    rw::math::Transform3D<double> T5(rw::math::Vector3D<double>(-0.475, 0.450, -0.032), angle.toRotation3D());
 
     double t1 = 0, t2 = 1, t3 = 1.2, t4 = 1.4, t5 = 2.4;
 
@@ -265,7 +236,16 @@ int main(){
     std::vector< rw::math::Transform3D<double> > Ttessellated;
     Ttessellated.resize(tessellation);
     std::vector< rw::math::Q > Qtessellated;
+    int notValidQ = 0, noQfound = 0;
     Qtessellated.resize(tessellation);
+    std::vector< double > time;
+
+    rw::invkin::JacobianIKSolver ik(device, tool, state);
+//        ik.setCheckJointLimits(true);
+//        ik.setClampToBounds(true);
+//    ik.setEnableInterpolation(true);
+//    ik.setSolverType(rw::invkin::JacobianIKSolver::SVD);
+
     for(int i = 0; i < tessellation; i++){
         // find time to find point at
         double t = t1 + i * totalTime / (tessellation - 1);
@@ -288,11 +268,6 @@ int main(){
         // make invese to get Q for robot
         rw::math::Q robotConfig;
         // inverse kinematics setup
-        rw::invkin::JacobianIKSolver ik(device, tool, state);
-        ik.setCheckJointLimits(true);
-        ik.setClampToBounds(true);
-        ik.setEnableInterpolation(true);
-        ik.setSolverType(rw::invkin::JacobianIKSolver::SVD);
 
         // find the possible configurations to the problem
         std::vector< rw::math::Q > possibleConfigurations;
@@ -311,11 +286,16 @@ int main(){
 
             if(!checkCollisions(device, state, detector, robotConfig)){
                 std::cerr << "Error: The Q used is not valid!\n";
+                notValidQ++;
             }
 
         } else{
             std::cerr << "Error: No set of valid Q was found!\n";
+            noQfound++;
         }
+
+        Qtessellated[i] = robotConfig;
+        device->setQ(robotConfig, state);
 
         // output the Q's
         if(t == 0.5 || t == 1.05 || t == 1.32 || t == 1.7){
@@ -323,6 +303,11 @@ int main(){
             std::cout << "The configuration for t = " << t << ":\n" << robotConfig << "\n";
         }
     }
+    std::cout << "# Q not found " << noQfound << " and # of Q colliding " << notValidQ << "\n";
+
+    rw::trajectory::QPath path(Qtessellated);
+    outputLuaPath(path, deviceName, robotInit);
+
 
     return 0;
 }
