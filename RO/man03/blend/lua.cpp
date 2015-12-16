@@ -1,9 +1,12 @@
 #include "lua.hpp"
 
 
-void outputLuaPath(rw::trajectory::QPath &path, std::string &robot, rw::math::Q &start_frame){
+void outputLuaPath(std::string filename, rw::trajectory::QPath &path, std::string &robot, rw::math::Q &start_frame){
+    std::fstream out(filename, std::fstream::out);
+
+    if(out.is_open()){
     // output default stuff
-    std::cout << "wc = rws.getRobWorkStudio():getWorkCell()\n"
+    out << "wc = rws.getRobWorkStudio():getWorkCell()\n"
                  "state = wc:getDefaultState()\n"
                  "device = wc:findDevice(\""
               << robot << "\")\n"
@@ -17,18 +20,21 @@ void outputLuaPath(rw::trajectory::QPath &path, std::string &robot, rw::math::Q 
                  << start_frame[0];
     // add the start frame
     for(uint i = 1; i < start_frame.size(); i++){
-        std::cout << "," << start_frame[i];
+        out << "," << start_frame[i];
     }
     // end start frame
-    std::cout << "})\n";
+    out << "})\n";
 
     for (rw::trajectory::QPath::iterator it = path.begin(); it < path.end(); it++) {
-        std::cout << "setQ({"
+        out << "setQ({"
                   << (*it)[0];
 
         for(uint i = 1; i < (*it).size(); i++){
-            std::cout << "," << (*it)[i];
+            out << "," << (*it)[i];
         }
-        std::cout << "})\n";
+        out << "})\n";
+    }
+    } else{
+        std::cerr << "ERROR: Could not open the file\n";
     }
 }

@@ -244,21 +244,21 @@ int main(){
 
     device->setQ(robotInit, state);
 
-    // find the box and move it according to specs
-    rw::math::Transform3D<double> moveBox(rw::math::Vector3D<double>(0, 0.11, 0), rw::math::Rotation3D<double>::identity());
-    rw::kinematics::MovableFrame* box = (rw::kinematics::MovableFrame*)wc->findFrame(boxName);
-    if (box == NULL) {
-        std::cerr << "Box: " << boxName << " not found!" << std::endl;
-        return 0;
-    }
-    rw::math::Transform3D<double> boxInit = box->getTransform(state);
-    box->setTransform((moveBox * boxInit), state);
-    std::cout << "The initial Box transform:\n" << boxInit << "\n";
-    std::cout << "The final Box transform:\n" << box->getTransform(state) << "\n";
+//    // find the box and move it according to specs
+//    rw::math::Transform3D<double> moveBox(rw::math::Vector3D<double>(0, 0.11, 0), rw::math::Rotation3D<double>::identity());
+//    rw::kinematics::MovableFrame* box = (rw::kinematics::MovableFrame*)wc->findFrame(boxName);
+//    if (box == NULL) {
+//        std::cerr << "Box: " << boxName << " not found!" << std::endl;
+//        return 0;
+//    }
+//    rw::math::Transform3D<double> boxInit = box->getTransform(state);
+//    box->setTransform((moveBox * boxInit), state);
+//    std::cout << "The initial Box transform:\n" << boxInit << "\n";
+//    std::cout << "The final Box transform:\n" << box->getTransform(state) << "\n";
 
     // get tool mount and worldTtool
     rw::kinematics::Frame* tool = wc->findFrame(toolName);
-    if (box == NULL) {
+    if (tool == NULL) {
         std::cerr << "Toll: " << toolName << " not found!" << std::endl;
         return 0;
     }
@@ -356,7 +356,7 @@ int main(){
     std::cout << "# Q not found " << noQfound << " and # of Q colliding " << notValidQ << "\n";
 
     rw::trajectory::QPath path(Qtessellated);
-    outputLuaPath(path, deviceName, robotInit);
+    outputLuaPath((myPath + "/rovi/RO/man03/lua.txt"), path, deviceName, robotInit);
 
 
     return 0;
