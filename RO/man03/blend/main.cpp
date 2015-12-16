@@ -10,6 +10,7 @@
 #include <rw/invkin/JacobianIKSolver.hpp>
 #include <rw/proximity/CollisionDetector.hpp>
 #include <rwlibs/proximitystrategies/ProximityStrategyFactory.hpp>
+#include <rw/kinematics/MovableFrame.hpp>
 
 
 
