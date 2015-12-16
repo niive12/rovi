@@ -66,7 +66,7 @@ void featureextraction::get_homography_flann(cv::Mat &H, std::vector<cv::KeyPoin
         scene.push_back( keypoints[i.trainIdx].pt );
     }
     if(good_matches.size() < 50){
-        rw::common::Log::log().error() << "Min dist: " << min_dist << "\n";
+//        rw::common::Log::log().error() << "Min dist: " << min_dist << "\n";
 //        rw::common::Log::log().error() << "ERROR: Not enough points for Homography in get_homography_flan.\n";
     }
     if(object.size() >= 4){

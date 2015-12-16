@@ -39,7 +39,7 @@
        <widget class="QPushButton" name="_btn_rovi_processImage">
         <property name="geometry">
          <rect>
-          <x>200</x>
+          <x>230</x>
           <y>120</y>
           <width>201</width>
           <height>27</height>
@@ -183,8 +183,8 @@
        <widget class="QPushButton" name="_btn_rovi_saveData">
         <property name="geometry">
          <rect>
-          <x>200</x>
-          <y>160</y>
+          <x>10</x>
+          <y>120</y>
           <width>201</width>
           <height>27</height>
          </rect>
@@ -196,14 +196,27 @@
        <widget class="QPushButton" name="_btn_rovi_finddt">
         <property name="geometry">
          <rect>
-          <x>200</x>
-          <y>200</y>
+          <x>230</x>
+          <y>160</y>
           <width>201</width>
           <height>27</height>
          </rect>
         </property>
         <property name="text">
          <string>Find dt's</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="_btn_rovi_findTrackingError">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>160</y>
+          <width>201</width>
+          <height>27</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Find Tracking Error</string>
         </property>
        </widget>
       </widget>
