@@ -166,7 +166,6 @@ bool velocityConstraint(rw::math::Q &dq, rw::models::Device::Ptr &device, double
 
 
     bool ret = false;
-    constrained_dq = dq;
     rw::math::Q vC = device->getVelocityLimits();
 
 //        rw::common::Log::log().info() << " dq:\n" << dq << "\n";
@@ -193,19 +192,6 @@ bool velocityConstraint(rw::math::Q &dq, rw::models::Device::Ptr &device, double
     return ret;
 }
 
-
-// this check collision function was taken from Lars's code example, I think to remember...
-bool checkCollisions(rw::models::Device::Ptr device, const rw::kinematics::State &state, const rw::proximity::CollisionDetector &detector, const rw::math::Q &q) {
-    rw::kinematics::State testState = state;
-    rw::proximity::CollisionDetector::QueryResult data;
-    bool ret = true;
-
-    device->setQ(q,testState);
-    if (detector.inCollision(testState,&data)) {
-        ret = false;
-    }
-    return ret;
-}
 
 int main(){
     // load absolute path
@@ -281,11 +267,12 @@ int main(){
     std::cout << "The transform of robot base to tool:\n" << T1_verif << "\n";
     std::cout << "The actual T1:\n" << T1 << "\n";
 
+    int tessellation = 241;
     double totalTime = t5 - t1;
+    double dt = totalTime / (tessellation - 1);
 
     // tesselate
     std::cout << "Interpolating T." << std::endl;
-    int tessellation = 241;
     std::vector< rw::math::Transform3D<double> > Ttessellated;
     Ttessellated.resize(tessellation);
     std::vector< rw::math::Q > Qtessellated;
@@ -302,7 +289,7 @@ int main(){
 
     for(int i = 0; i < tessellation; i++){
         // find time to find point at
-        double t = t1 + i * totalTime / (tessellation - 1);
+        double t = t1 + i * dt;
         // tessellate the Transformation (only transforms the P() and assumes that R_s() == R_f())
         rw::math::Transform3D<double> Ttes;
         if(t >= t1 && t < t2){
@@ -354,7 +341,8 @@ int main(){
         // apply time constraints
         if(i > 0){ // only if between two points in time, consider now and prev
             double tau;
-            if(velocityConstraint(robotConfig - Qtessellated[i-1], device, dt, tau)){
+            rw::math::Q dq = robotConfig - Qtessellated[i-1];
+            if(velocityConstraint(dq, device, dt, tau)){
                 time[i-1] = tau;
             }
         }
