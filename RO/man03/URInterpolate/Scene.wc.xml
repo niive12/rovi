@@ -1,0 +1,33 @@
+<WorkCell name="PickPlacePlanner">
+
+
+<Frame name="Robot" refframe="WORLD">
+   <RPY> 180 0 0 </RPY> <Pos> -0.6 0 0.75 </Pos>
+</Frame>
+
+<Include file="UR-6-85-5-A/Device.wc.xml" />
+
+<Frame name="ToolMount" refframe="UR-6-85-5-A.Joint5">
+    <RPY>0 0 0</RPY> <Pos> 0 0 0.05 </Pos>
+</Frame>
+
+ <Drawable name="ToolUnit" refframe="ToolMount">
+	 <Polytope file="ToolUnit" />
+ </Drawable>
+
+<Frame name="Tool" refframe="ToolMount">
+    <RPY>0 45 0</RPY> <Pos> 0.138 0 0.29 </Pos>
+</Frame>
+
+
+<Frame name="Pallet" refframe="WORLD">
+     <RPY> 0 0 0 </RPY> <Pos>   0 0 0 </Pos>
+     <Drawable name="Pallet" refframe="Pallet">
+         <Polytope file="Geometry/Pallet3Frames" />
+     </Drawable>
+</Frame>
+
+
+<CollisionSetup file="SceneCollisionSetup.prox.xml" /> 
+
+</WorkCell>

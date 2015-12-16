@@ -1,5 +1,5 @@
 \subsection{Tracking a Single Point}
-In order to track a single point, then the equations \ref{eq:tsp_visServoing1} and \ref{eq:tsp_visServoing2} (cite Henriks notes) were implemented.
+In order to track a single point, then the equations \ref{eq:tsp_visServoing1} and \ref{eq:tsp_visServoing2}  were implemented.
 
 \begin{eqnarray}
 (Z_{image} \cdot Z_{image}^T) y = [du, dv]^T \label{eq:tsp_visServoing1} \\
@@ -118,6 +118,6 @@ Following the marker for the fast marker movement.}
 %Since these numbers should be the closest to ground truth achievable, then these will also be used in comparisons in section \ref{sec:combinedSystem} when the whole system is brought together in the simulation.
 
 It was found that in none of the cases was the velocity constraint violated for all of the datasets down to a $\Delta t = 0.05$ seconds in between each frame.
-The tracking error does also increase as the marker movement speed increases, but the path taken by the robot tool is more or less the same for all of the datasets.
+The tracking error does also increase as the marker movement speed increases, but the path taken by the robot tool is more or less the same for all of the datasets at the lowest speed.
 
 

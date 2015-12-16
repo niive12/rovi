@@ -6,7 +6,6 @@
 #include <rw/rw.hpp>
 #include <rw/math/Math.hpp>
 
-
 rw::math::Vector3D<double> W_rot(const rw::math::Rotation3D<double> &R){
     double theta = acos((R(0,0) + R(1,1) + R(2,2) - 1) / 2);
 
@@ -153,51 +152,84 @@ T cubic_spline(T &P_s, T &P_f, T &V_s, T &V_f, double t, double t_s, double t_f)
 }
 
 int main(){
+    // load absolute path
+    std::ifstream ifs;
+    ifs.open ("/home/.absolutepath.mypath", std::ifstream::in);
 
-    // transformations
-    const rw::math::Transform3D<double> F_0(rw::math::Vector3D<double>(15, 8, 3), rw::math::Rotation3D<double>::identity());
-    const rw::math::Transform3D<double> F_1(rw::math::Vector3D<double>(10, 4, 2), rw::math::Rotation3D<double>(0, 1, 0, -1, 0, 0, 0, 0, 1));
-    const rw::math::Transform3D<double> F_2(rw::math::Vector3D<double>(6, 0, -2), rw::math::Rotation3D<double>(0, 0, 1, -1, 0, 0, 0, -1, 0));
-    // time
-    double t_0 = 0, t_1 = 1, t_2 = 4, tau = 0.1;
-
-
-    rw::math::Rotation3D<double> i = (F_0.R());
-    i = i.inverse();
-    i = i * F_1.R();
-    rw::math::Vector3D<double> W = W_rot(i);
-    std::cout << "i) W_rot(R0T R1): " << W << "\n";
-
-    i = (F_1.R());
-    i = i.inverse();
-    i = i * F_2.R();
-    W = W_rot(i);
-    std::cout << "i) W_rot(R1T R2): " <<  W << "\n";
-
-    double time_step = 0.1;
-    for(double t = 0; t < t_2 + time_step; t += time_step){
-        rw::math::Transform3D<double> segment;
-        if( t < t_1){
-            segment = linear_segmentation(F_0, F_1, t_0, t_1, t);
-        }else{
-            segment = linear_segmentation(F_1, F_2, t_1, t_2, t);
-        }
-        rw::math::Transform3D<double> parabolic_segment;
-        parabolic_segment = parabolic_blend(F_1, F_0, F_2, t_1, t_0, t_2, t, tau);
-
-        std::cout << "t_l: " << t << ", " << segment << "\n";
-        std::cout << "t_p: " << t << ", " << parabolic_segment << "\n";
+    std::string myPath;
+    if(ifs.is_open()){
+        ifs >> myPath;
+        std::cout << "My path is: " << myPath << "\n";
+    }else{
+        std::cout << "File could not be opened.\n";
     }
 
-    rw::math::VectorND<2, double> p1, p2, v1, v2;
-    p1[0] = p1[1] = v1[0] = v2[1] = 0;
-    v1[1] = p2[0] = v2[0] = 1;
-    p2[1] = 2;
-    double t1 = 0, t2 = 1;
+    // name of the device in the WC
+    std::string deviceName = "KukaKr16";
+    std::string boxName = "Bottle";
+    std::string toolMount = "ToolMount";
+    const std::string wcFile = myPath + "/RO/URInterpolate/Scene.wc.xml";
 
-    rw::math::VectorND<2, double> cubic_segmentation = cubic_spline< rw::math::VectorND<2, double> >(p1, p2, v1, v2, 0.5, t1, t2);
+//    rw::math::Q from(6,-3.142,-0.827,-3.002,-3.143,0.099,-1.573);
+//    rw::math::Q to(6,1.571,0.006,0.030,0.153,0.762,4.490);
 
-    std::cout << cubic_segmentation << "\n";
+    rw::models::WorkCell::Ptr wc = rw::loaders::WorkCellLoader::Factory::load(wcFile);
+    rw::models::Device::Ptr device = wc->findDevice(deviceName);
+
+    // find the bottle frame
+//    rw::kinematics::Frame* item = wc->findFrame(boxName);
+//    rw::kinematics::Frame* tool_frame = wc->findFrame(toolMount);
+//    if (device == NULL) {
+//        std::cerr << "Device: " << deviceName << " not found!" << std::endl;
+//        return 0;
+//    }
+    rw::kinematics::State state = wc->getDefaultState();
+
+
+//    // transformations
+//    const rw::math::Transform3D<double> F_0(rw::math::Vector3D<double>(15, 8, 3), rw::math::Rotation3D<double>::identity());
+//    const rw::math::Transform3D<double> F_1(rw::math::Vector3D<double>(10, 4, 2), rw::math::Rotation3D<double>(0, 1, 0, -1, 0, 0, 0, 0, 1));
+//    const rw::math::Transform3D<double> F_2(rw::math::Vector3D<double>(6, 0, -2), rw::math::Rotation3D<double>(0, 0, 1, -1, 0, 0, 0, -1, 0));
+//    // time
+//    double t_0 = 0, t_1 = 1, t_2 = 4, tau = 0.1;
+
+
+//    rw::math::Rotation3D<double> i = (F_0.R());
+//    i = i.inverse();
+//    i = i * F_1.R();
+//    rw::math::Vector3D<double> W = W_rot(i);
+//    std::cout << "i) W_rot(R0T R1): " << W << "\n";
+
+//    i = (F_1.R());
+//    i = i.inverse();
+//    i = i * F_2.R();
+//    W = W_rot(i);
+//    std::cout << "i) W_rot(R1T R2): " <<  W << "\n";
+
+//    double time_step = 0.1;
+//    for(double t = 0; t < t_2 + time_step; t += time_step){
+//        rw::math::Transform3D<double> segment;
+//        if( t < t_1){
+//            segment = linear_segmentation(F_0, F_1, t_0, t_1, t);
+//        }else{
+//            segment = linear_segmentation(F_1, F_2, t_1, t_2, t);
+//        }
+//        rw::math::Transform3D<double> parabolic_segment;
+//        parabolic_segment = parabolic_blend(F_1, F_0, F_2, t_1, t_0, t_2, t, tau);
+
+//        std::cout << "t_l: " << t << ", " << segment << "\n";
+//        std::cout << "t_p: " << t << ", " << parabolic_segment << "\n";
+//    }
+
+//    rw::math::VectorND<2, double> p1, p2, v1, v2;
+//    p1[0] = p1[1] = v1[0] = v2[1] = 0;
+//    v1[1] = p2[0] = v2[0] = 1;
+//    p2[1] = 2;
+//    double t1 = 0, t2 = 1;
+
+//    rw::math::VectorND<2, double> cubic_segmentation = cubic_spline< rw::math::VectorND<2, double> >(p1, p2, v1, v2, 0.5, t1, t2);
+
+//    std::cout << cubic_segmentation << "\n";
 
     return 0;
 }
