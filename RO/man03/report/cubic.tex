@@ -11,18 +11,18 @@ Then the transformation matrix is then found by using the start rotation and the
 
 Cubic spline is applied between the given points.
 
-The inverse kinematic is then found by using the jacobian inverse kinematic solver.
+The inverse kinematic is then found by using the Jacobian inverse kinematic solver.
 
 The inverse kinematic positions can be seen in table \ref{tb:positions}.
 
 \begin{table}[h]
 \centering
 \begin{tabular}{l|*{3}{c} }
- time    & x         & y         & z         \\ \hline       
- t=0.50s & -0.975000 & -0.502500 & -0.032000 \\
- t=1.05s & -0.974187 & -0.435125 & -0.032000 \\
- t=1.32s & -0.979016 & -0.449616 & -0.032000 \\
- t=1.70s & -0.901500 & -0.450000 & -0.032000 \\
+ time    & x      & y      & z      \\ \hline       
+ t=0.50s & -0.975 & -0.502 & -0.032 \\
+ t=1.05s & -0.974 & -0.435 & -0.032 \\
+ t=1.32s & -0.979 & -0.450 & -0.032 \\
+ t=1.70s & -0.902 & -0.450 & -0.032 \\
 \end{tabular}
 \caption{Positions during the movement.}
 \label{tb:positions}
@@ -43,3 +43,13 @@ The joint positions is found and shown in table \ref{tb:joint_positions}.
 \label{tb:joint_positions}
 \end{table}
 
+The positions is printed to a lua script\cite{zip:luaScript}.
+
+Velocity constraints is applied and the tau is calculated and plotted in figure \ref{fig:tau_v_t}.
+
+\begin{figure}
+ \centering
+ \includegraphics[width=0.7\linewidth]{graphics/timeplot}
+ \caption{$\tau(t)$ vs t.}
+ \label{fig:tau_v_t}
+\end{figure}
