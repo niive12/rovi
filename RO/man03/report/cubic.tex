@@ -6,13 +6,9 @@
 % \end{equation}
 
 The position to cubic spline is found using \cite[equation 5.23]{book:roboticNotes}
-
-Then the transformation matrix is then found by using the start rotation and the new position.
-
+The transformation matrix is then found by using the start rotation and the new position.
 Cubic spline is applied between the given points.
-
 The inverse kinematic is then found by using the Jacobian inverse kinematic solver.
-
 The inverse kinematic positions can be seen in table \ref{tb:positions}.
 
 \begin{table}[h]
@@ -45,13 +41,30 @@ The joint positions is found and shown in table \ref{tb:joint_positions}.
 
 The positions is printed to a lua script\cite{zip:luaScript}.
 
-Velocity constraints is applied and the $\tau$ is calculated and plotted in figure \ref{fig:tau_v_t}.
+Velocity constraints is applied and the $\tau$, which is calculated and plotted in figure \ref{fig:tau_v_t}.
 $\tau$ is the modified tessellation time for the given time division.
 The deviation from the unconstrained timing can be seen by looking at the deviation from the dashed line.
+The $\tau$ in for the selected timesteps can be seen in table \ref{tb:tau}.
 
 \begin{figure}[h]
+\begin{subfigure}{0.7\textwidth}
  \centering
- \includegraphics[width=0.7\linewidth]{graphics/timeplot}
- \caption{$\tau(t)$ vs t.}
+ \includegraphics[width=\linewidth]{graphics/timeplot}
+ \caption{Accumulated $\tau(t)$.}
  \label{fig:tau_v_t}
+\end{subfigure}
+% 
+\begin{subtable}{0.29\textwidth}
+\centering
+\begin{tabular}{l|*{1}{c} }
+ time    & $\tau$ \\ \hline       
+ t=0.50s & 0.0183 \\
+ t=1.05s & 0.0100 \\
+ t=1.32s & 0.0100 \\
+ t=1.70s & 0.0171 \\
+\end{tabular}
+\caption{Modified timesteps, $\tau$ during the movement.}
+\label{tb:tau}
+\end{subtable}
+\caption{Accumulated $\tau(t)$ and $\tau$ for the selected timesteps.}
 \end{figure}

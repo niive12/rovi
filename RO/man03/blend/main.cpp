@@ -356,8 +356,8 @@ int main(){
         device->setQ(robotConfig, state);
 
         // apply time constraints
+        double tau = dt;
         if(i > 0){ // only if between two points in time, consider now and prev
-            double tau = dt;
             rw::math::Q dq = robotConfig - Qtessellated[i-1];
             if(velocityConstraint(dq, device, dt, tau)){
                 velConstraintsApplied++;
