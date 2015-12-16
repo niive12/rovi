@@ -5,6 +5,8 @@
 #include <rw/math/Q.hpp>
 #include <rw/rw.hpp>
 #include <rw/math/Math.hpp>
+#include <rw/loaders.hpp>
+
 
 rw::math::Vector3D<double> W_rot(const rw::math::Rotation3D<double> &R){
     double theta = acos((R(0,0) + R(1,1) + R(2,2) - 1) / 2);
@@ -168,7 +170,7 @@ int main(){
     std::string deviceName = "KukaKr16";
     std::string boxName = "Bottle";
     std::string toolMount = "ToolMount";
-    const std::string wcFile = myPath + "/RO/URInterpolate/Scene.wc.xml";
+    const std::string wcFile = myPath + "/RO/man03/URInterpolate/Scene.wc.xml";
 
 //    rw::math::Q from(6,-3.142,-0.827,-3.002,-3.143,0.099,-1.573);
 //    rw::math::Q to(6,1.571,0.006,0.030,0.153,0.762,4.490);
