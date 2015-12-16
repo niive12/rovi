@@ -11,6 +11,7 @@ rw::math::Vector3D<double> C(rw::math::Vector3D<double> &P_s, rw::math::Vector3D
 }
 
 
+
 rw::math::Transform3D<double> cubic_spline(rw::math::Transform3D<double> &P_s, rw::math::Transform3D<double> &P_f, rw::math::Transform3D<double> &V_s, rw::math::Transform3D<double> &V_f, double t, double t_s, double t_f){
     rw::math::Vector3D<double> pos = C(P_s.P(), P_f.P(), V_s.P(), V_f.P(), t, t_s, t_f);
     rw::math::Rotation3D<double> rot = P_s.R(); //C< rw::math::Rotation3D<double> >(P_s.R(), P_f.R(), V_s.R(), V_f.R(), t, t_s, t_f);

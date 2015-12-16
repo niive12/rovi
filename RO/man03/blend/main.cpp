@@ -151,7 +151,44 @@
 //    return T;
 //}
 
+bool velocityConstraint(rw::math::Q &dq, rw::models::Device::Ptr &device, double &timestep, double &tau){
+    if(device->getDOF() != dq.size()){
+        rw::common::Log::log().error() << "ERROR: Dimensions of the input of dq and device dof must agree in velocityConstraint.\n";
+        rw::common::Log::log().error() << " - dq: " << dq.size() << ", dof: " << device->getDOF() << "\n";
+    }
+    if(!(timestep > 0)){
+        rw::common::Log::log().error() << "ERROR: Timestep must be greater than 0.\n";
+        rw::common::Log::log().error() << " - dt: " << timestep << "\n";
+    }
 
+
+    bool ret = false;
+    constrained_dq = dq;
+    rw::math::Q vC = device->getVelocityLimits();
+
+//        rw::common::Log::log().info() << " dq:\n" << dq << "\n";
+//        rw::common::Log::log().info() << " dq_act:\n" << dq/timestep << "\n";
+    //    rw::common::Log::log().info() << " dq_vec:\n" << vC << "\n";
+
+    // find how much to fast it's moving
+    rw::math::Q timescale(vC.size());
+    double maxscale = 0;
+    for(unsigned int i = 0; i < timescale.size(); i++){
+        timescale(i) = fabs((dq(i) / timestep) / vC(i));
+        if(timescale(i) > maxscale){
+            maxscale = timescale(i);
+        }
+    }
+
+    // apply timescaling to make it go within the bounds
+    tau = timestep;
+    if(maxscale > 1){
+        tau = timestep * maxscale;
+        ret = true;
+    }
+
+    return ret;
+}
 
 
 int main(){
@@ -239,6 +276,7 @@ int main(){
     int notValidQ = 0, noQfound = 0;
     Qtessellated.resize(tessellation);
     std::vector< double > time;
+    time.resize(tessellation);
 
     rw::invkin::JacobianIKSolver ik(device, tool, state);
 //        ik.setCheckJointLimits(true);
@@ -296,6 +334,14 @@ int main(){
 
         Qtessellated[i] = robotConfig;
         device->setQ(robotConfig, state);
+
+        // apply time constraints
+        if(i > 0){ // only if between two points in time, consider now and prev
+            double tau;
+            if(velocityConstraint(robotConfig - Qtessellated[i-1], device, dt, tau)){
+
+            }
+        }
 
         // output the Q's
         if(t == 0.5 || t == 1.05 || t == 1.32 || t == 1.7){
