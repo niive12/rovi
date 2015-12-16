@@ -545,8 +545,8 @@ void SamplePlugin::rovi_processImage(){
         }else if( _comboBox_settings_loadMarker->currentIndex() == 1) {// medium
             n_times = 3;
         }else if( _comboBox_settings_loadMarker->currentIndex() == 0) {// fast
-            n_times = 1;
-            rw::common::Log::log().info() << "I have set the n_times to 1 on fast so it can be tested faster\n";
+            n_times = 10;
+//            rw::common::Log::log().info() << "I have set the n_times to 1 on fast so it can be tested faster\n";
         }
         for(int trial = 0; trial < n_times; ++trial) {
             for(unsigned int i = 0; i < _settings_markerpos.size(); i++){
@@ -675,7 +675,7 @@ void SamplePlugin::rovi_processImage(){
                 }
                 t2 = std::chrono::high_resolution_clock::now();
                 double algoTime = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1).count();
-                rw::common::Log::log().info() << "process time: " << algoTime << "\n";
+//                rw::common::Log::log().info() << "process time: " << algoTime << "\n";
                 totalTime += algoTime;
                 double robotMoveTime = dt;
                 if(reduceProcessingTime){
