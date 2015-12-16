@@ -1,7 +1,8 @@
 \section{Move Into Positions}
 
 The box is misplaced in the workcell.
-In order to move it, xml file must be modified, changing the pallet to be moveable.
+In order to move it in the code, xml file must be modified, changing the pallet to be moveable.
+Because a function for moving the pallet in the lua script was not found, the pallet was moved in the xml file.
 
 The changes is seen in figure \ref{fig:commit_xml}.
 
@@ -30,18 +31,20 @@ The initial box transform is
 \right]
 \end{equation}
 
-Because a function for moving the pallet in the lua script was not found, the pallet was moved in the xml file.
 
 \begin{figure}[h]
  \centering
+\begin{minipage}{0.75\textwidth}
 \begin{lstlisting}[backgroundcolor=\color{commit_remove},language=xml]
-<Frame name="Pallet" refframe="WORLD">
-     <RPY> 0 0 0 </RPY> <Pos>   0 0 0 </Pos>
+ <Frame name="Pallet" refframe="WORLD">
+     <RPY> 0 0 0 </RPY> <Pos> 0 0 0 </Pos>
 \end{lstlisting}
+~\\[-1.2cm]
 \begin{lstlisting}[backgroundcolor=\color{commit_add},language=xml]
-<Frame name="Pallet" refframe="WORLD" type="Movable"> 
-     <RPY> 0 0 0 </RPY> <Pos>   0 0.11 0 </Pos>
+ <Frame name="Pallet" refframe="WORLD" type="Movable"> 
+     <RPY> 0 0 0 </RPY> <Pos> 0 0.11 0 </Pos>
 \end{lstlisting}
+\end{minipage}
 \caption{Changes to the XML file. }
 \label{fig:commit_xml}
 \end{figure}
