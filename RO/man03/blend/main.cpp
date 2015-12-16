@@ -166,26 +166,48 @@ int main(){
         std::cout << "File could not be opened.\n";
     }
 
+    rw::math::RPY<double> angle(0, rw::math::Pi / 4, rw::math::Pi);
+
+    rw::math::Transform3D<double> T1(rw::math::Vector3D<double>(-0.975, -0.45, -0.032), angle.toRotation3D());
+    rw::math::Transform3D<double> T2(rw::math::Vector3D<double>(-0.975, -0.44, -0.032), angle.toRotation3D());
+    rw::math::Transform3D<double> T3(rw::math::Vector3D<double>(-0.974, -0.449, -0.032), angle.toRotation3D());
+    rw::math::Transform3D<double> T4(rw::math::Vector3D<double>(-0.965, -0.45, -0.032), angle.toRotation3D());
+    rw::math::Transform3D<double> T5(rw::math::Vector3D<double>(-0.975, -0.45, -0.032), angle.toRotation3D());
+
+
     // name of the device in the WC
-    std::string deviceName = "KukaKr16";
-    std::string boxName = "Bottle";
+    std::string deviceName = "UR-6-85-5-A";
+    std::string boxName = "Pallet";
     std::string toolMount = "ToolMount";
     const std::string wcFile = myPath + "/RO/man03/URInterpolate/Scene.wc.xml";
 
-//    rw::math::Q from(6,-3.142,-0.827,-3.002,-3.143,0.099,-1.573);
-//    rw::math::Q to(6,1.571,0.006,0.030,0.153,0.762,4.490);
+    rw::math::Q robotInit(6, 0.476, -0.440, 0.62, -0.182, 2.047, -1.574);
 
+    // load wc and det state
     rw::models::WorkCell::Ptr wc = rw::loaders::WorkCellLoader::Factory::load(wcFile);
+    rw::kinematics::State state = wc->getDefaultState();
+
+    // find he robot and set its configuration
     rw::models::Device::Ptr device = wc->findDevice(deviceName);
+    if (device == NULL) {
+        std::cerr << "Device: " << deviceName << " not found!" << std::endl;
+        return 0;
+    }
+
+    device->setQ(robotInit, state);
+
+    // find the box and move it according to specs
+    rw::math::Transform3D<double> moveBox(rw::math::Vector3D<double>(0, 0.11, 0), rw::math::Rotation3D<double>::identity());
+    rw::kinematics::MovableFrame* box = (rw::kinematics::MovableFrame*)wc->findFrame(boxName);
+    rw::math::Transform3D<double> boxInit = box->getTransform(state);
+    box->setTransform((moveBox * boxInit), state);
+    std::cout << "The initial Box transform:\n" << boxInit << "\n";
+    std::cout << "The final Box transform:\n" << box->getTransform(state) << "\n";
+
 
     // find the bottle frame
 //    rw::kinematics::Frame* item = wc->findFrame(boxName);
 //    rw::kinematics::Frame* tool_frame = wc->findFrame(toolMount);
-//    if (device == NULL) {
-//        std::cerr << "Device: " << deviceName << " not found!" << std::endl;
-//        return 0;
-//    }
-    rw::kinematics::State state = wc->getDefaultState();
 
 
 //    // transformations
