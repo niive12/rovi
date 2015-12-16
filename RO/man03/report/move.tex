@@ -2,19 +2,8 @@
 
 The box is misplaced in the workcell.
 In order to move it, xml file must be modified, changing the pallet to be moveable.
+The 
 The changes is seen in figure \ref{fig:commit_xml}.
-
-\begin{figure}[h]
- \centering
-\begin{lstlisting}[backgroundcolor=\color{commit_remove},language=xml]
-<Frame name="Pallet" refframe="WORLD">
-\end{lstlisting}
-\begin{lstlisting}[backgroundcolor=\color{commit_add},language=xml]
-<Frame name="Pallet" refframe="WORLD" type="Movable"> 
-\end{lstlisting}
-\caption{Changes to the XML file. }
-\label{fig:commit_xml}
-\end{figure}
 
 To move it in the y-direction of the original rotation matrix is found.
 This is multiplied with the desired offset of $11 cm$.
@@ -41,18 +30,23 @@ The initial box transform is
 \right]
 \end{equation}
 
+Because a function for moving the pallet in the lua script was not found, the pallet was moved in the xml file.
+
+\begin{figure}[h]
+ \centering
+\begin{lstlisting}[backgroundcolor=\color{commit_remove},language=xml]
+<Frame name="Pallet" refframe="WORLD">
+     <RPY> 0 0 0 </RPY> <Pos>   0 0 0 </Pos>
+\end{lstlisting}
+\begin{lstlisting}[backgroundcolor=\color{commit_add},language=xml]
+<Frame name="Pallet" refframe="WORLD" type="Movable"> 
+     <RPY> 0 0 0 </RPY> <Pos>   0 0.11 0 </Pos>
+\end{lstlisting}
+\caption{Changes to the XML file. }
+\label{fig:commit_xml}
+\end{figure}
+
 T1 is given as 
-\[
- \left[
-  \begin{array}{*{3}{D{.}{.}{3}}|D{.}{.}{3}}
-   0.706 & -0.000 & -0.708 & -0.975 \\
-   0.001 & -1.000 &  0.002 & -0.450 \\ 
-  -0.708 & -0.002 & -0.706 & -0.030 \\ \hline
-   0     &  0     &  0     &  1     \\
-  \end{array}
- \right]
-\]
-The transform of robot base to tool is calculated to be:
 \[
  \left[
   \begin{array}{*{3}{D{.}{.}{3}}|D{.}{.}{3}}
@@ -60,6 +54,17 @@ The transform of robot base to tool is calculated to be:
    0.000 & -1.000 &  0.000 & -0.450    \\ 
   -0.707 & -0.000 & -0.707 & -0.032    \\ \hline
    0     &  0     &  0     &  1        \\
+  \end{array}
+ \right]
+\]
+The transform of robot base to tool is calculated to be:
+\[
+ \left[
+  \begin{array}{*{3}{D{.}{.}{3}}|D{.}{.}{3}}
+   0.706 & -0.000 & -0.708 & -0.975 \\
+   0.001 & -1.000 &  0.002 & -0.450 \\ 
+  -0.708 & -0.002 & -0.706 & -0.030 \\ \hline
+   0     &  0     &  0     &  1     \\
   \end{array}
  \right]
 \]
