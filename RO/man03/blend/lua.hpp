@@ -7,4 +7,4 @@
 #include <rw/math/Math.hpp>
 
 
-void outputLuaPath(rw::trajectory::QPath &path, std::string &robot, rw::math::Q &start_frame);
+void outputLuaPath(std::string filename, rw::trajectory::QPath &path, std::string &robot, rw::math::Q &start_frame);
