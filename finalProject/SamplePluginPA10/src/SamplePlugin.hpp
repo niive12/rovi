@@ -61,6 +61,7 @@ private slots:
     void rovi_load_bgImage();
     void rovi_processImage();
     void rovi_saveData();
+    void find_trackingerror();
 
 
     void find_limits();
@@ -94,6 +95,7 @@ private:
     // vars for finding best
     bool _rovi_markerNotTracked;
     double _rovi_avgTrackingTime;
+    double _rovi_maxTrackingError;
 };
 
 #endif /*RINGONHOOKPLUGIN_HPP_*/

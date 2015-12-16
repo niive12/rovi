@@ -24,6 +24,7 @@ SamplePlugin::SamplePlugin():
     connect(_checkBox_settings_updateCameraview     ,SIGNAL(clicked()), this, SLOT(updateCameraView()) );
     connect(_btn_rovi_saveData                      ,SIGNAL(pressed()), this, SLOT(rovi_saveData()) );
     connect(_btn_rovi_finddt                        ,SIGNAL(pressed()), this, SLOT(find_limits()) );
+    connect(_btn_rovi_findTrackingError                        ,SIGNAL(pressed()), this, SLOT(find_trackingerror()) );
 
 
     // robotics test tab - init values
@@ -493,6 +494,7 @@ void SamplePlugin::rovi_load_bgImage(){
 void SamplePlugin::rovi_processImage(){
 
     if(_settings_coordinatesLoaded){
+        _rovi_maxTrackingError = 0;
         const std::string deviceName = _line_settings_devName->text().toStdString();
         rw::models::Device::Ptr device = _wc->findDevice(deviceName);
         if (device == NULL) RW_THROW("Device: " << deviceName << " not found!");
@@ -704,6 +706,10 @@ void SamplePlugin::rovi_processImage(){
                 std::vector< cv::Point > trackingerror;
                 rotest_computeFakeUV(1, trackingerror);
                 _trackingError[i] = trackingerror[0];
+                double norm2error = sqrt(trackingerror[0].x * trackingerror[0].x + trackingerror[0].y * trackingerror[0].y);
+                if(norm2error > _rovi_maxTrackingError){
+                    _rovi_maxTrackingError = norm2error;
+                }
 
                 if(abs(trackingerror[0].x) > 1024/2 || abs(trackingerror[0].y) > 768/2){
                     _rovi_markerNotTracked = true;

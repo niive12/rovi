@@ -65,7 +65,7 @@ QT4_ADD_RESOURCES(RccSrcFiles resources.qrc)
 add_definitions(-std=c++11)
 
 # Add the source files to build (besides the Qt generated source files)
-SET(SrcFiles SamplePlugin.cpp visualServoing.cpp vis_marker01.cpp vis_marker02.cpp vis_marker03.cpp find_limits_dt.cpp)
+SET(SrcFiles SamplePlugin.cpp visualServoing.cpp vis_marker01.cpp vis_marker02.cpp vis_marker03.cpp find_limits_dt.cpp find_trackingerror.cpp)
 
 # The shared library to build:
 ADD_LIBRARY(SamplePlugin MODULE ${SrcFiles} ${UIS_OUT_H} ${MocSrcFiles} ${RccSrcFiles})
