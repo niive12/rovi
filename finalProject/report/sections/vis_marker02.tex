@@ -56,18 +56,21 @@ The intensity is not important as the ideal marker gives full intensity of the c
 \end{figure}
 
 The circles are then found by using a Hough transform for circles on the green channel.
-The green channel will create a void, and thus edges, where the red and blue circles are found so this is less expensive than finding circles on two colors.
+The green channel will create a void, and thus edges, where the red and blue circles are found.
+This is less expensive than finding circles on two channels and hence applied first.
+The color of the circles can then be found using the center point of the circle and lookup if this point is defined as blue or red in one of the two thresholded images found earlier.
 During evaluation of this method, it was found that this method sometimes missed a red or a blue circle.
 This could be saved by doing an extra Hough transform on the corresponding channel and find the circle there.
-This leads to potentially running the Hough transform 3 times so the timing of the function can wary.
-If finding the marker is more important than keeping the real time constraints.
+This leads to potentially running the Hough transform three times so the timing of this function can wary.
+%If finding the marker is more important than keeping the real time constraints.
 
 In order to deal with projection, the Hough transform must allow more edges to be viewed as circles.
-This means that more points will be found.
-In order to remove the wrong points, the surrounding points are analyzed, and if found not to be green, the circle is removed.
+This means that more circles will be found.
+In order to remove the wrong circles that are either blue or red, the surrounding points are analyzed.
+If these are not found to be green, the circle is removed.
 
-The detector was tested to find 4 correct points in the marker in 30/30 images in the easy set and in 50/52 images in the hard set.
-The situations which did not find the marker, the marker was projected so far the center of the Hough circle was not inside the circle on the marker.
+The detector was tested to find four correct points in the marker in 30/30 images in the easy set and in 50/52 images in the hard set.
+The situations in which the marker was not found, was when the marker was projected so far that the center of the Hough circle was not inside the circle of the marker as seen in figure \ref{fig:circle_detection_worstcase}.
 
 In figure \ref{fig:circle_detection} is a normal case from the easy and a worst case example from the hard set shown.
 As the robot follows the point, it is not expected to be this bad at any situation so the detector is deemed successful.
@@ -81,6 +84,7 @@ As the robot follows the point, it is not expected to be this bad at any situati
  \begin{subfigure}{\exampleWidth}
  \includegraphics[width=\linewidth]{graphics/worst_case_hough_circle}
  \caption{Worst case.}
+ \label{fig:circle_detection_worstcase}
  \end{subfigure}
  \caption{Detecting circles with and without projection.}
  \label{fig:circle_detection}
