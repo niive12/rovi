@@ -8,6 +8,9 @@
 #include <vector>
 #include <algorithm>
 
+#include <ratio>
+#include <chrono>
+
 int image_in_set = 82;
 std::vector<cv::Mat> original_images;
 cv::Mat org;
@@ -75,18 +78,20 @@ bool findMarker01(const cv::Mat &img, std::vector<cv::Point> &points, bool locat
             max_radius_circle );
 
     for( auto i : green_circles ){
-        cv::Point center(cvRound(i[0]), cvRound(i[1]));
-        int radius = cvRound(i[2]);
-        // circle center
-        if( imgBGR[2].at<uchar>(center) > 250 ){
-            red_circles.push_back(i);
-        } else if( imgBGR[0].at<uchar>(center) > 250 ){
-            blue_circles.push_back(i);
+        if(is_circle_near_color(imgBGR[1],i)){
+            cv::Point center(cvRound(i[0]), cvRound(i[1]));
+            int radius = cvRound(i[2]);
+            // circle center
+            if( imgBGR[2].at<uchar>(center) > 250 ){
+                red_circles.push_back(i);
+            } else if( imgBGR[0].at<uchar>(center) > 250 ){
+                blue_circles.push_back(i);
+            }
         }
     }
-    float dist, a, b;
     std::vector<cv::Vec3f> circles;
     if( red_circles.size() < 1){
+//        std::cout << "too few red circles ";
         cv::HoughCircles( imgBGR[2],
                           red_circles,
                           CV_HOUGH_GRADIENT,
@@ -98,6 +103,7 @@ bool findMarker01(const cv::Mat &img, std::vector<cv::Point> &points, bool locat
                           max_radius_circle );
     }
     if( blue_circles.size() < 3){
+        std::cout << "too few blue circles " << blue_circles.size() << ", ";
         circles = blue_circles;
         cv::HoughCircles( imgBGR[0],
                           blue_circles,
@@ -108,6 +114,7 @@ bool findMarker01(const cv::Mat &img, std::vector<cv::Point> &points, bool locat
                           threshold_for_center,
                           min_radius_circle,
                           max_radius_circle );
+//        std::cout << "second trial :" << blue_circles.size() << " ";
         for(auto i : blue_circles){
             if(is_circle_near_color(imgBGR[1],i)){
                 circles.push_back(i);
@@ -124,35 +131,38 @@ bool findMarker01(const cv::Mat &img, std::vector<cv::Point> &points, bool locat
                 }
             }
         }
-        for(auto i : circles)
-            std::cout << i;
         blue_circles = circles;
     }
     cv::Point midpoint(0,0);
     circles = blue_circles;
     for(auto r : red_circles){
-        circles.push_back(r);
+        if(is_circle_near_color(imgBGR[1],r)){
+            circles.push_back(r);
+        }
     }
     if(circles.size() == 0){
+        cv::imshow("image", drawing);
+        std::cout << "\r";
         return false;
     }
-    for(auto i : circles){
-        midpoint.x += i[0];
-        midpoint.y += i[1];
+    if(circles.size()){
+        for(auto i : circles){
+            midpoint.x += i[0];
+            midpoint.y += i[1];
+        }
+        midpoint.x = midpoint.x / circles.size();
+        midpoint.y = midpoint.y / circles.size();
     }
-    midpoint.x = midpoint.x / circles.size();
-    midpoint.y = midpoint.y / circles.size();
 //    cv::circle( drawing, midpoint, blue_circles[0][2], cv::Scalar(0,0,255), 10, 8, 0 );
 
     for(auto i: circles){
-        cv::circle( drawing, cv::Point(i[0],i[1]), 3, cv::Scalar(0,0,255), -1, 8, 0 );
+        cv::circle( drawing, cv::Point(i[0],i[1]), 3, cv::Scalar(0,255,255), -1, 8, 0 );
         // circle outline
         cv::circle( drawing, cv::Point(i[0],i[1]), i[2], cv::Scalar(255,255,255), 3, 8, 0 );
     }
 
-
-
     if( circles.size() > 4){
+        std::cout << "too many circles ";
         for(size_t i = 0; i < circles.size(); ++i){
             if(!is_circle_near_color(imgBGR[1],circles[i])){
                 cv::circle( drawing, cv::Point(circles[i][0],circles[i][1]), circles[i][2], cv::Scalar(255,255,255), 10, 8, 0 );
@@ -163,20 +173,21 @@ bool findMarker01(const cv::Mat &img, std::vector<cv::Point> &points, bool locat
             }
         }
         midpoint = cv::Point(0,0);
-        for(auto i : circles){
-            midpoint.x += i[0];
-            midpoint.y += i[1];
+        if(circles.size()){
+            for(auto i : circles){
+                midpoint.x += i[0];
+                midpoint.y += i[1];
+            }
+            midpoint.x = midpoint.x / circles.size();
+            midpoint.y = midpoint.y / circles.size();
         }
-        midpoint.x = midpoint.x / circles.size();
-        midpoint.y = midpoint.y / circles.size();
-        cv::circle( drawing, midpoint, blue_circles[0][2], cv::Scalar(255,0,255), 10, 8, 0 );
+//        cv::circle( drawing, midpoint, blue_circles[0][2], cv::Scalar(255,0,255), 10, 8, 0 );
 //        cv::imshow("image", drawing);
 //        cv::waitKey();
     }
-
     cv::imshow("image", drawing);
     if(circles.size() != 4) {
-        std::cout << "not found: " << image_in_set << " size: " << circles.size() << std::endl;
+//        std::cout << "not found: " << image_in_set << " size: " << circles.size() << std::endl;
         points.push_back(midpoint);
         return false;
     } else {
@@ -187,17 +198,23 @@ bool findMarker01(const cv::Mat &img, std::vector<cv::Point> &points, bool locat
                 points.push_back(cv::Point( cvRound(i[0]), cvRound(i[1]) ));
             }
         }
+//        std::cout << "\r";
         return true;
     }
 
 }
 
+int n_not_found = 0;
 void image_trackbar(int, void*){
     org = original_images.at(image_in_set).clone();
     cv::imshow("original", org);
 
     std::vector<cv::Point> points;
     bool found = findMarker01(org, points);
+    if(!found){
+        ++n_not_found;
+//        cv::waitKey(0);
+    }
 //    std::cout << "midpoint = " << points[0] << std::endl;
 }
 
@@ -210,17 +227,18 @@ int main(int argc, char* argv[]){
         std::string filename;
         char numbera, numberb;
 
-        original_images.push_back( cv::imread("../SamplePluginPA10/markers/Marker1.ppm"));
-        original_images.push_back( cv::imread("../color_bg.png"));
-        original_images.push_back( cv::imread("../carpet_test1.ppm"));
-        original_images.push_back( cv::imread("../carpet_test2.ppm"));
-        original_images.push_back( cv::imread("../carpet_test3.ppm"));
-        original_images.push_back( cv::imread("../carpet_test4.ppm"));
-        original_images.push_back( cv::imread("../carpet_fail1.png"));
-        original_images.push_back( cv::imread("../carpet_fail2.png"));
-        original_images.push_back( cv::imread("../fuckup1.png"));
-        original_images.push_back( cv::imread("../fuckup2.png"));
-        original_images.push_back( cv::imread("../fuckup3.png"));
+//        original_images.push_back( cv::imread("../SamplePluginPA10/markers/Marker1.ppm"));
+//        original_images.push_back( cv::imread("../color_bg.png"));
+//        original_images.push_back( cv::imread("../carpet_test1.ppm"));
+//        original_images.push_back( cv::imread("../carpet_test2.ppm"));
+//        original_images.push_back( cv::imread("../carpet_test3.ppm"));
+//        original_images.push_back( cv::imread("../carpet_test4.ppm"));
+//        original_images.push_back( cv::imread("../carpet_fail1.png"));
+//        original_images.push_back( cv::imread("../carpet_fail2.png"));
+//        original_images.push_back( cv::imread("../fuckup1.png"));
+//        original_images.push_back( cv::imread("../fuckup2.png"));
+//        original_images.push_back( cv::imread("../fuckup3.png"));
+
 
         for(int i = 1; i <= 30; ++i){
             numbera = i/10 %10 + '0';
@@ -240,17 +258,93 @@ int main(int argc, char* argv[]){
             filename += ".png";
             original_images.push_back( cv::imread(filename) );
         }
+        for(int i = 1; i <= 30; ++i){
+            numbera = i/10 %10 + '0';
+            numberb = i%10 + '0';
+            filename = "../marker_thinline/marker_thinline_";
+            filename += numbera;
+            filename += numberb;
+            filename += ".png";
+            original_images.push_back( cv::imread(filename) );
+        }
+        for(int i = 1; i <= 52; ++i){
+            numbera = i/10 %10 + '0';
+            numberb = i%10 + '0';
+            filename = "../marker_2_hard/marker_thinline_hard_"; //52
+            filename += numbera;
+            filename += numberb;
+            filename += ".png";
+            original_images.push_back( cv::imread(filename) );
+        }
+        for(int i = 1; i <= 30; ++i){
+            numbera = i/10 %10 + '0';
+            numberb = i%10 + '0';
+            filename = "../markers/marker_corny/marker_corny_"; //30
+            filename += numbera;
+            filename += numberb;
+            filename += ".png";
+            original_images.push_back( cv::imread(filename) );
+        }
+        for(int i = 1; i <= 52; ++i){
+            numbera = i/10 %10 + '0';
+            numberb = i%10 + '0';
+            filename = "../markers/marker_corny_hard/marker_corny_hard_"; //52
+            filename += numbera;
+            filename += numberb;
+            filename += ".png";
+            original_images.push_back( cv::imread(filename) );
+        }
     }
 
+    std::chrono::high_resolution_clock::time_point t1;
+    std::chrono::high_resolution_clock::time_point t2;
     cv::createTrackbar("Selected image", "original",&image_in_set,original_images.size()-1,image_trackbar);
-    /* <---------remove one slash to envoke trackbar instead of autoplay
-    for(int i = 0; i < original_images.size()-1; ++i){
+    //* <---------remove one slash to envoke trackbar instead of autoplay
+    double avg_time = 0;
+    for(int i = 0; i < original_images.size()/3.0; ++i){
         image_in_set = i;
+        t1 = std::chrono::high_resolution_clock::now();
         image_trackbar(0,nullptr);
-        if( cv::waitKey(300) == 'q'){
+        t2 = std::chrono::high_resolution_clock::now();
+        avg_time += std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1).count();
+
+        if( cv::waitKey(10) == 'q'){
             break;
         }
     }
+    avg_time /= (original_images.size()/3);
+    std::cout << n_not_found << " / " << original_images.size()/3 << " time: " << avg_time << std::endl;
+    avg_time = 0;
+    n_not_found = 0;
+    for(int i = image_in_set+1; i < (original_images.size()/3.0 * 2); ++i){
+        image_in_set = i;
+        t1 = std::chrono::high_resolution_clock::now();
+        image_trackbar(0,nullptr);
+        t2 = std::chrono::high_resolution_clock::now();
+        avg_time += std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1).count();
+        if( cv::waitKey(10) == 'q'){
+            break;
+        }
+    }
+    avg_time /= (original_images.size()/3);
+    std::cout << n_not_found << " / " << original_images.size()/3 << " time: " << avg_time << std::endl;
+    avg_time = 0;
+    n_not_found = 0;
+    for(int i = image_in_set+1; i < original_images.size(); ++i){
+        image_in_set = i;
+        t1 = std::chrono::high_resolution_clock::now();
+        image_trackbar(0,nullptr);
+        t2 = std::chrono::high_resolution_clock::now();
+        avg_time += std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1).count();
+        if( cv::waitKey(10) == 'q'){
+            break;
+        }
+    }
+    avg_time /= (original_images.size()/3);
+    std::cout << n_not_found << " / " << original_images.size()/3 << " time: " << avg_time << std::endl;
+    avg_time = 0;
+
+    n_not_found = 0;
     /*/
     for(int i =0; 0 < 10; ++i){
     image_in_set = 10;

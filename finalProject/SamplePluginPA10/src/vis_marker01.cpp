@@ -95,18 +95,12 @@ bool featureextraction::findMarker01(const cv::Mat &img, std::vector<cv::Point> 
 
     for( auto i : green_circles ){
         cv::Point center(cvRound(i[0]), cvRound(i[1]));
-//        int radius = cvRound(i[2]);
-        // circle center
-        if( imgBGR[2].at<uchar>(center) > 250 ){
-            red_circles.push_back(i);
-//            cv::circle( drawing, center, 3, cv::Scalar(0,0,255), -1, 8, 0 );
-            // circle outline
-//            cv::circle( drawing, center, radius, cv::Scalar(255,255,255), 3, 8, 0 );
-        } else if( imgBGR[0].at<uchar>(center) > 250 ){
-            blue_circles.push_back(i);
-//            cv::circle( drawing, center, 3, cv::Scalar(0,0,255), -1, 8, 0 );
-            // circle outline
-//            cv::circle( drawing, center, radius, cv::Scalar(255,255,255), 3, 8, 0 );
+        if(is_circle_near_color(imgBGR[1],i)){
+            if( imgBGR[2].at<uchar>(center) > 250 ){
+                red_circles.push_back(i);
+            } else if( imgBGR[0].at<uchar>(center) > 250 ){
+                blue_circles.push_back(i);
+            }
         }
     }
 
@@ -184,7 +178,9 @@ bool featureextraction::findMarker01(const cv::Mat &img, std::vector<cv::Point> 
     cv::Point midpoint(0,0);
     circles = blue_circles;
     for(auto r : red_circles){
-        circles.push_back(r);
+        if(is_circle_near_color(imgBGR[1],r)){
+            circles.push_back(r);
+        }
     }
 
     if(circles.size() > 0){
@@ -204,8 +200,6 @@ bool featureextraction::findMarker01(const cv::Mat &img, std::vector<cv::Point> 
             return false;
         }
     }
-
-//    cv::circle( drawing, midpoint, blue_circles[0][2], cv::Scalar(0,0,255), 10, 8, 0 );
 
     if( circles.size() > 4){
         for(unsigned int i = 0; i < circles.size(); ++i){
