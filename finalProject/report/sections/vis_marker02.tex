@@ -59,6 +59,8 @@ The circles are then found by using a Hough transform for circles on the green c
 The green channel will create a void, and thus edges, where the red and blue circles are found so this is less expensive than finding circles on two colors.
 During evaluation of this method, it was found that this method sometimes missed a red or a blue circle.
 This could be saved by doing an extra Hough transform on the corresponding channel and find the circle there.
+This leads to potentially running the Hough transform 3 times so the timing of the function can wary.
+If finding the marker is more important than keeping the real time constraints.
 
 In order to deal with projection, the Hough transform must allow more edges to be viewed as circles.
 This means that more points will be found.
@@ -67,21 +69,21 @@ In order to remove the wrong points, the surrounding points are analyzed, and if
 The detector was tested to find 4 correct points in the marker in 30/30 images in the easy set and in 50/52 images in the hard set.
 The situations which did not find the marker, the marker was projected so far the center of the Hough circle was not inside the circle on the marker.
 
-% In figure \ref{fig:circle_detection} is a normal case from the easy and a worst case example from the hard set shown.
-% As the robot follows the point, it is not expected to be this bad at any situation so the detector is deemed successful.
-% 
-% \begin{figure}[h]
-%  \centering
-%  \begin{subfigure}{0.49\linewidth}
-%  \includegraphics[width=\linewidth]{graphics/best_case_hough_circle}
-%  \caption{Normal case.}
-%  \end{subfigure}
-%  \begin{subfigure}{0.49\linewidth}
-%  \includegraphics[width=\linewidth]{graphics/worst_case_hough_circle}
-%  \caption{Worst case.}
-%  \end{subfigure}
-%  \caption{Detecting circles with and without projection.}
-%  \label{fig:circle_detection}
-% \end{figure}
+In figure \ref{fig:circle_detection} is a normal case from the easy and a worst case example from the hard set shown.
+As the robot follows the point, it is not expected to be this bad at any situation so the detector is deemed successful.
+
+\begin{figure}[h]
+ \centering
+ \begin{subfigure}{0.49\linewidth}
+ \includegraphics[width=\linewidth]{graphics/best_case_hough_circle}
+ \caption{Normal case.}
+ \end{subfigure}
+ \begin{subfigure}{0.49\linewidth}
+ \includegraphics[width=\linewidth]{graphics/worst_case_hough_circle}
+ \caption{Worst case.}
+ \end{subfigure}
+ \caption{Detecting circles with and without projection.}
+ \label{fig:circle_detection}
+\end{figure}
 
 

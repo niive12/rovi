@@ -113,25 +113,25 @@ In figure \ref{fig:trackingerror_lines}, \ref{fig:trackingerror_circle} and \ref
 \begin{figure}[H]
 \centering
 \includegraphics[width= \linewidth]{graphics/robotics/trackingerror_lines}
-\caption{Euclidean max error for increasing $\Delta t$ when tracking the line image.}
+\caption{Euclidean max error for increasing $\Delta t$ when tracking the line marker.}
 \label{fig:trackingerror_lines}
 \end{figure}
 
 \begin{figure}[H]
 \centering
 \includegraphics[width= \linewidth]{graphics/robotics/trackingerror_circle}
-\caption{Euclidean max error for increasing $\Delta t$ when tracking the circle image.}
+\caption{Euclidean max error for increasing $\Delta t$ when tracking the circle marker.}
 \label{fig:trackingerror_circle}
 \end{figure}
 
 \begin{figure}[H]
 \centering
 \includegraphics[width= \linewidth]{graphics/robotics/trackingerror_corny}
-\caption{Euclidean max error for increasing $\Delta t$ when tracking the corny image.}
+\caption{Euclidean max error for increasing $\Delta t$ when tracking the corny marker.}
 \label{fig:trackingerror_corny}
 \end{figure}
 
-Note that the datapoints were sampled with uniform sample steps, but the datapoints where the program generated 'not track-able' are not plotted.
+Note that the data points were sampled with uniform sample steps, but the data points where the program generated 'not track-able' are not plotted.
 As can be seen in the figures \ref{fig:trackingerror_lines}, \ref{fig:trackingerror_circle} and \ref{fig:trackingerror_corny}, then the tracking error has a high fluctuation and lack of datapoints in the range just before the the sufficient time is reached for which the robot can track the marker.
 From the figures the minimum time needed to track the marker reliable can be found.
 It is furthermore visible that the point from which the marker can be tracked is approximately the same for the three algorithms.
