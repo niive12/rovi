@@ -108,7 +108,7 @@ Waterbed         & 350  & 300    & 300\\ \hline
 
 In order to measure systems ability to track the point, distance from the ideal position to the position based on the image marker is measured.
 In figure \ref{fig:trackingerror_lines}, \ref{fig:trackingerror_circle} and \ref{fig:trackingerror_corny} is the euclidean max error shown for a range of $\Delta t$ in the range where the algorithm goes from not being able to track the marker to being able to.
-\nikolaj{Conclude something: It can be seen that the Circle detector has a larger deviance from the ideal path than the other detectors.}
+%\nikolaj{Conclude something: It can be seen that the Circle detector has a larger deviance from the ideal path than the other detectors.}
 
 \begin{figure}[H]
 \centering
@@ -132,10 +132,27 @@ In figure \ref{fig:trackingerror_lines}, \ref{fig:trackingerror_circle} and \ref
 \end{figure}
 
 Note that the datapoints were sampled with uniform sample steps, but the datapoints where the program generated 'not track-able' are not plotted.
-As can be seen in the figures \ref{fig:trackingerror_lines}, \ref{fig:trackingerror_circle} and \ref{fig:trackingerror_corny}, then the tracking error has a high fluctuation and lack of datapoints in the range just before the the sufficient time is reached for which the robot can track the marker.
-From the figures the minimum time needed to track the marker reliable can be found.
-It is furthermore visible that the point from which the marker can be tracked is approximately the same for the three algorithms.
+
+As can be seen on the figures 
+%\ref{fig:trackingerror_lines}, 
+\ref{fig:trackingerror_circle} 
+%and \ref{fig:trackingerror_corny}
+, then the tracking error has a high fluctuation and lack of datapoints in the range just before the the sufficient time is reached for which the robot can track the marker.
+From the figure the minimum time needed to track the marker reliable can be found.
+It is furthermore visible that the point from which the marker can be tracked is approximately the same for all three speeds.
 Once this point is reached, the error is approximately constant, but dependent on the marker movement speed.
+The breakpoint is around $\Delta t = $ 0.078 [s].
+
+The error when tracking the line was found to be more stable.
+As seen in figure \ref{fig:trackingerror_lines}, then there is a sharp change from when it is able to track the marker and when not ($\Delta t = $ 0.035 [s]).
+The error for the fast marker speed is first stabilised at a low error after $\Delta t =$ 0.045, whereas the other two are constant throughout.
+The final error is generally higher than that of the circle marker, but this is also contributed to by the fact that not the precise center of the marker is found in the vision algorithm.
+
+%The large fluctuation in the maximum error for the Circle algorithm, as seen in figure \ref{fig:trackingerror_circle}, is largely explained by the choice of implementation.
+%The default behaviour of the algorithm would only look for circles once in the green channel of the image.
+%In worst cases, however, the algorithm finds the hough circles on all three color channels of the image.
+%This creates good reasons for the time to variate 
+
 
 
 The joint positions can be seen in appendix \ref{app:joint_positions}.
