@@ -65,5 +65,7 @@ void get_homography_flann(cv::Mat &H, std::vector<cv::KeyPoint> &keypoints, cv::
 
 void get_marker_descriptors(const cv::Mat &img, std::vector<cv::KeyPoint> &keypoints, cv::Mat &descriptors);
 
+double get_area(std::vector<cv::Point2f> &corners);
+
 
 }

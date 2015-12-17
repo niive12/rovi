@@ -49,8 +49,10 @@ In figure \ref{fig:time_sift_crop} is the time shown to find the marker using th
 The timing now has outliers as it takes more time to process the larger image.
 The median is then found in order to estimate the time it takes to find the marker with the optimized solution.
 The median is measured to be $272$ ms.
-The large image is analysed two times, once for the first image and once for image 28 as the transition from 26 to 27 is not continuous.
+The large image is analyzed two times, once for the first image and once for image 28 as the transition from 26 to 27 is not continuous.
 The transition from the easy image set to the hard image set is continuous enough so the detector finds the marker.
+On images where the marker is not present, the detector could successfully reject all images.
+
 
 \begin{figure}[h]
  \centering

@@ -90,3 +90,10 @@ The two properties are then scaled and the blob with the highest value is chosen
 %\nikolaj{Should I test how many times the marker is found in images where the marker is not there?
 %I think it might just always detect the marvin sign or something similar.}
 The center of mass is then returned as the position of the marker to be used for the tracking.
+The average time for finding the marker has been measured to be 23.80 ms.
+Testing on images where the marker is not present does not increase the timing, but the marker is only rejected 72.56\% of the time on images where there another marker.
+% rejected images 
+% 54 / 82 time: 0.0230672
+% 0 / 82  time: 0.0240992
+% 65 / 82 time: 0.0242306
+

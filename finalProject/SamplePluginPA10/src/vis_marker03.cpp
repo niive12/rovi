@@ -4,6 +4,32 @@ std::vector<cv::KeyPoint> keypoints_object;
 cv::Mat descriptors_object;
 std::vector<cv::Point2f> obj_corners(4);
 
+double get_area(std::vector<cv::Point2f> &corners){
+    //finds the area of the triangle expanding from the first corner.
+    if(corners.size() != 4){
+        return 0;
+    }
+    double dx, dy, a, b, c, area;
+    dx = fabs(corners[0].x - corners[3].x);
+    dy = fabs(corners[0].y - corners[3].y);
+    a = sqrt(dx*dx + dy*dy);
+    dx = fabs(corners[0].x - corners[1].x);
+    dy = fabs(corners[0].y - corners[1].y);
+    b = sqrt(dx*dx + dy*dy);
+    dx = fabs(corners[3].x - corners[1].x);
+    dy = fabs(corners[3].y - corners[1].y);
+    c = sqrt(dx*dx + dy*dy);
+
+    area = 0.25 * sqrt(pow(a*a +b*b + c*c,2)-2*(pow(a,4) + pow(b,4) + pow(c,4)));
+    if(a == 0 || b == 0 && c == 0){
+        return 0;
+    }
+    if(a/b > 2 || b/a > 2){
+        return 0;
+    }
+    return area;
+}
+
 
 void featureextraction::init_marker03(cv::Mat &img_object){
     // get descriptors of orig marker
@@ -152,7 +178,8 @@ bool featureextraction::findMarker03(const cv::Mat &img_scene, std::vector<cv::P
     }
     cv::Point midpoint(0,0);
 //    rw::common::Log::log().info() << "matches: " << good_matches.size() << "\n";
-    if(good_matches.size() < 50 || H.empty()){
+    double area = get_area(scene_corners);
+    if( area < 25000 || area > 100000 || H.empty()){
         points.push_back(midpoint);
         return false;
     }
