@@ -7,8 +7,8 @@ The slow data set contains 500 points, the medium, 160, and the fast data set co
 In order to minimize the effect of outliers, the number of trials is increased on the data sets which have less data points.
 
 The time to find the marker is measured and the mean processing time is shown in table \ref{tb:mean_processing_time}.
-The different backgrounds was tested separately to see if it has any impact.
-It can be seen that the Corny detector takes more time on backgrounds such as carpet and mosaik window, as they contain a lot of edges and thus a lot of SIFT features.
+The different backgrounds were tested separately to see if it has any impact.
+It can be seen that the Corny detector takes more time on backgrounds such as carpet and mosaik window, as they contain a lot of SIFT features.
 
 \begin{table}[H]
 \center
@@ -106,7 +106,7 @@ Waterbed         & 350  & 300    & 300\\ \hline
 \label{tb:min_dt_corny}
 \end{table}
 
-In order to measure systems ability to track the point, distance from the ideal position to the position based on the image marker is measured.
+In order to measure the systems ability to track the marker, the distance from the ideal position to the position based on the image marker is measured.
 In figure \ref{fig:trackingerror_lines}, \ref{fig:trackingerror_circle} and \ref{fig:trackingerror_corny} is the euclidean max error shown for a range of $\Delta t$ in the range where the algorithm goes from not being able to track the marker to being able to.
 %\nikolaj{Conclude something: It can be seen that the Circle detector has a larger deviance from the ideal path than the other detectors.}
 
@@ -131,10 +131,10 @@ In figure \ref{fig:trackingerror_lines}, \ref{fig:trackingerror_circle} and \ref
 \label{fig:trackingerror_corny}
 \end{figure}
 
-Note that the datapoints were sampled with uniform sample steps, but the datapoints where the program generated 'not track-able' are not plotted.
+Note that the data points were sampled with uniform sample steps, but the data points where the program generated 'not track-able' are not plotted.
 
 As can be seen on figure \ref{fig:trackingerror_circle}, the tracking error has a high fluctuation and lack of data points in the range just before the the sufficient time is reached for which the robot can track the marker.
-From the figure the minimum time needed to track the marker reliable can be found.
+From the figure the minimum time needed to track the marker reliably can be found.
 It is furthermore visible that the point from which the marker can be tracked is approximately the same for all three speeds.
 Once this point is reached, the error is approximately constant, but dependent on the marker movement speed.
 The breakpoint is around $\Delta t = $ 0.078 [s].
@@ -143,6 +143,18 @@ The error when tracking the line was found to be more stable.
 As seen in figure \ref{fig:trackingerror_lines}, then there is a sharp change from when it is able to track the marker and when not ($\Delta t = $ 0.035 [s]).
 The error for the fast marker speed is first stabilised at a low error after $\Delta t =$ 0.045, whereas the other two are constant throughout.
 The final error is generally higher than that of the circle marker, but this is also contributed to by the fact that not the precise center of the marker is found in the vision algorithm.
+
+The corny marker using SIFT is the slowest of all the algorithms.
+The tracking error of such is seen in figure \ref{fig:trackingerror_corny}.
+It can be seen that that the beginning of the graph has a lot of missing data points because the marker left the image while trying to track it.
+The algorithm is hence very unstable in the beginning and will only be able to track the marker if it is in some sense 'lucky'.
+This problem arises because from the speed optimisation.
+Because the algorithm crops the image, then the algorithm will only succeed if the marker does not leave the cropped area.
+If it does leave the cropped zone, then the processing of the whole image will take too long for it to be able to finish in time so the robot will stand still.
+This also is the reason for why the fast marker movement is not found at all.
+The most stable result will hence first be gained when the whole image can be processed in one time-step, $\Delta t$.
+The algorithm is however also usable for the slow dataset with $\Delta t > XYZ$ and for the medium at $\Delta t > ZYX$.
+
 
 %The large fluctuation in the maximum error for the Circle algorithm, as seen in figure \ref{fig:trackingerror_circle}, is largely explained by the choice of implementation.
 %The default behaviour of the algorithm would only look for circles once in the green channel of the image.
