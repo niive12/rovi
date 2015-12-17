@@ -1,12 +1,13 @@
-In order to make decisions based on images it is important to recognize objects.
-In order to test out different methods to find features, three different image markers has been selected.
+%In order to make decisions based on images it is important to recognize objects.
+In order to track an marker, it is important to detect these on an image when displayed.
+%In order to test out different methods to find features, three different image markers were selected.
 % Three image markers are given and the task is to find points that can represent the marker in the image.
-In figure \ref{fig:markers} can the different markers be seen.
+In figure \ref{fig:markers} can the different markers to be tracked be seen.
 In the simulation, the ideal marker is used but the markers will be tested on a set of real images where lighting, rotation and translation makes the markers harder to detect.
 The detector should evaluate the image and return whether the marker was found, and either the center of the marker or several fixed points on the marker.
 The detector should be invariant to translation, rotation and projection.
 The goal is to use this to track a marker with a robot, keeping the marker in the center of the image and maintain the same distance.
-Thus invariance to scaling is not a priority but the detector should handle small changes in scaling.
+Thus complete invariance to scaling is not a priority, but it should handle small changes in scaling.
 
 \begin{figure}[h]
 \centering
