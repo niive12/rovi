@@ -52,7 +52,8 @@ The median is measured to be $272$ ms.
 The large image is analyzed two times, once for the first image and once for image 28 as the transition from 26 to 27 is not continuous.
 The transition from the easy image set to the hard image set is continuous enough so the detector finds the marker.
 On images where the marker is not present, the detector could successfully reject all images.
-
+The images where the marker did not find the images, the optimization does not work for obvious reasons, so the timing was measured to be $630$ ms on average.
+The marker is rejected if the area between the corners is too small or the figure is too narrow.
 
 \begin{figure}[h]
  \centering

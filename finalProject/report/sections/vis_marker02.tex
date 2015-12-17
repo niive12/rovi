@@ -69,8 +69,10 @@ This means that more circles will be found.
 In order to remove the wrong circles that are either blue or red, the surrounding points are analyzed.
 If these are not found to be green, the circle is removed.
 
-The detector was tested to find four correct points in the marker in 30/30 images in the easy set and in 50/52 images in the hard set.
+The detector was tested to find four correct points in the marker in 30/30 images in the easy set and in 48/52 images in the hard set.
 The situations in which the marker was not found, was when the marker was projected so far that the center of the Hough circle was not inside the circle of the marker as seen in figure \ref{fig:circle_detection_worstcase}.
+The marker was successfully rejected in all images where the marker is not present.
+The marker was measured to take 49.319 ms on average on the images where the marker exists and 68.268 ms on average where the marker does not exist.
 
 In figure \ref{fig:circle_detection} is a normal case from the easy and a worst case example from the hard set shown.
 As the robot follows the point, it is not expected to be this bad at any situation so the detector is deemed successful.
@@ -89,7 +91,6 @@ As the robot follows the point, it is not expected to be this bad at any situati
  \caption{Detecting circles with and without projection.}
  \label{fig:circle_detection}
 \end{figure}
-
 
 The center of the four circles is then passed on to be used to track the marker.
 

@@ -103,7 +103,7 @@ bool findMarker01(const cv::Mat &img, std::vector<cv::Point> &points, bool locat
                           max_radius_circle );
     }
     if( blue_circles.size() < 3){
-        std::cout << "too few blue circles " << blue_circles.size() << ", ";
+//        std::cout << "too few blue circles " << blue_circles.size() << ", ";
         circles = blue_circles;
         cv::HoughCircles( imgBGR[0],
                           blue_circles,
