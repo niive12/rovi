@@ -57,6 +57,8 @@
 
 namespace featureextraction {
 
+double get_area(std::vector<cv::Point2f> &corners);
+
 void init_marker03(cv::Mat &img_object);
 
 bool findMarker03(const cv::Mat &img_scene, std::vector<cv::Point> &points, bool locate_one_point = true, bool constraintTime = false, double maxprocessingtime = 0);
@@ -64,8 +66,6 @@ bool findMarker03(const cv::Mat &img_scene, std::vector<cv::Point> &points, bool
 void get_homography_flann(cv::Mat &H, std::vector<cv::KeyPoint> &keypoints, cv::Mat &descriptors, std::vector<cv::DMatch> &good_matches);
 
 void get_marker_descriptors(const cv::Mat &img, std::vector<cv::KeyPoint> &keypoints, cv::Mat &descriptors);
-
-double get_area(std::vector<cv::Point2f> &corners);
 
 
 }
