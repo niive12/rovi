@@ -8,8 +8,8 @@ void SamplePlugin::find_trackingerror(){
 
     std::vector< std::string > filenames = {"circle.csv", "lines.csv", "corny.csv"};
     std::vector< int > markerUsed = {0,1,3};
-    std::vector< double > ts = {0.045, 0.025, 0.36}, te = {0.1, 0.05, 0.42};
-    std::vector< double > dt = {0.002, 0.001, 0.0015};
+    std::vector< double > ts = {0.053, 0.034, 0.366}, te = {0.09, 0.048, 0.42};
+    std::vector< double > dt = {0.00025, 0.00025, 0.001};
     int bg = 5;
 
     for(int mi = 0; mi < markerUsed.size(); mi++){

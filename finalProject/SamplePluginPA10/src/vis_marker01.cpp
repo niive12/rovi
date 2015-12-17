@@ -18,7 +18,10 @@ bool is_circle_near_color(cv::Mat &color, cv::Vec3f &circle){
     return sum > 5*255; //at least 5 points
 }
 
-bool featureextraction::findMarker01(const cv::Mat &img, std::vector<cv::Point> &points, bool locate_one_point){
+bool featureextraction::findMarker01(const cv::Mat &img, std::vector<cv::Point> &points, bool locate_one_point, bool constraintTime, double maxprocessingtime){
+    std::chrono::high_resolution_clock::time_point start;
+    start = std::chrono::high_resolution_clock::now();
+
     points.clear();
     cv::Mat src_gray;
 //    cv::Mat drawing = img.clone();
@@ -36,12 +39,30 @@ bool featureextraction::findMarker01(const cv::Mat &img, std::vector<cv::Point> 
     hue_min = 0 / 2; hue_max = 20/ 2;
     cv::inRange(imghsv, cv::Scalar(hue_min, sat_min, val_min), cv::Scalar(hue_max,sat_max,val_max), imgBGR[2]);
 
+    if(constraintTime){
+        std::chrono::high_resolution_clock::time_point now;
+        now = std::chrono::high_resolution_clock::now();
+        double runTime = std::chrono::duration_cast<std::chrono::duration<double>>(now - start).count();
+        if(runTime > maxprocessingtime){
+            return false;
+        }
+    }
+
 //    hue_min = 70 / 2; hue_max = 145 / 2;
     hue_min = 70 / 2; hue_max = 175 / 2;
     sat_min = 0.1 * 255;
     sat_max = 1.0 * 255;
     cv::inRange(imghsv, cv::Scalar(hue_min, sat_min, val_min), cv::Scalar(hue_max,sat_max,val_max), imgBGR[1]);
     cv::cvtColor( img, src_gray, CV_BGR2GRAY );
+
+    if(constraintTime){
+        std::chrono::high_resolution_clock::time_point now;
+        now = std::chrono::high_resolution_clock::now();
+        double runTime = std::chrono::duration_cast<std::chrono::duration<double>>(now - start).count();
+        if(runTime > maxprocessingtime){
+            return false;
+        }
+    }
 
     std::vector<cv::Vec3f> red_circles;
     std::vector<cv::Vec3f> blue_circles;
@@ -63,6 +84,15 @@ bool featureextraction::findMarker01(const cv::Mat &img, std::vector<cv::Point> 
             min_radius_circle,
             max_radius_circle );
 
+    if(constraintTime){
+        std::chrono::high_resolution_clock::time_point now;
+        now = std::chrono::high_resolution_clock::now();
+        double runTime = std::chrono::duration_cast<std::chrono::duration<double>>(now - start).count();
+        if(runTime > maxprocessingtime){
+            return false;
+        }
+    }
+
     for( auto i : green_circles ){
         cv::Point center(cvRound(i[0]), cvRound(i[1]));
 //        int radius = cvRound(i[2]);
@@ -80,6 +110,15 @@ bool featureextraction::findMarker01(const cv::Mat &img, std::vector<cv::Point> 
         }
     }
 
+    if(constraintTime){
+        std::chrono::high_resolution_clock::time_point now;
+        now = std::chrono::high_resolution_clock::now();
+        double runTime = std::chrono::duration_cast<std::chrono::duration<double>>(now - start).count();
+        if(runTime > maxprocessingtime){
+            return false;
+        }
+    }
+
     std::vector<cv::Vec3f> circles;
     if( red_circles.size() < 1){
         cv::HoughCircles( imgBGR[2],
@@ -91,6 +130,15 @@ bool featureextraction::findMarker01(const cv::Mat &img, std::vector<cv::Point> 
                           threshold_for_center,
                           min_radius_circle,
                           max_radius_circle );
+    }
+
+    if(constraintTime){
+        std::chrono::high_resolution_clock::time_point now;
+        now = std::chrono::high_resolution_clock::now();
+        double runTime = std::chrono::duration_cast<std::chrono::duration<double>>(now - start).count();
+        if(runTime > maxprocessingtime){
+            return false;
+        }
     }
 
     if( blue_circles.size() < 3){
@@ -109,6 +157,16 @@ bool featureextraction::findMarker01(const cv::Mat &img, std::vector<cv::Point> 
                 circles.push_back(i);
             }
         }
+
+        if(constraintTime){
+            std::chrono::high_resolution_clock::time_point now;
+            now = std::chrono::high_resolution_clock::now();
+            double runTime = std::chrono::duration_cast<std::chrono::duration<double>>(now - start).count();
+            if(runTime > maxprocessingtime){
+                return false;
+            }
+        }
+
         for(unsigned int i = 0; i < circles.size(); ++i){
             cv::Point a(circles[i][0],circles[i][1]);
             for(unsigned int j = i+1; j < circles.size(); ++j){
@@ -136,6 +194,15 @@ bool featureextraction::findMarker01(const cv::Mat &img, std::vector<cv::Point> 
         }
         midpoint.x = midpoint.x / circles.size();
         midpoint.y = midpoint.y / circles.size();
+    }
+
+    if(constraintTime){
+        std::chrono::high_resolution_clock::time_point now;
+        now = std::chrono::high_resolution_clock::now();
+        double runTime = std::chrono::duration_cast<std::chrono::duration<double>>(now - start).count();
+        if(runTime > maxprocessingtime){
+            return false;
+        }
     }
 
 //    cv::circle( drawing, midpoint, blue_circles[0][2], cv::Scalar(0,0,255), 10, 8, 0 );

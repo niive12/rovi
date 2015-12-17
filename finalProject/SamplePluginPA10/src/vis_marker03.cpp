@@ -75,9 +75,12 @@ void featureextraction::get_homography_flann(cv::Mat &H, std::vector<cv::KeyPoin
 
 }
 
-bool featureextraction::findMarker03(const cv::Mat &img_scene, std::vector<cv::Point> &points, bool locate_one_point){
+bool featureextraction::findMarker03(const cv::Mat &img_scene, std::vector<cv::Point> &points, bool locate_one_point, bool constraintTime, double maxprocessingtime){
 //    std::chrono::high_resolution_clock::time_point t1;
 //    std::chrono::high_resolution_clock::time_point t2;
+    std::chrono::high_resolution_clock::time_point start;
+    start = std::chrono::high_resolution_clock::now();
+
     bool debug_images = false;
     points.clear();
 
@@ -90,6 +93,15 @@ bool featureextraction::findMarker03(const cv::Mat &img_scene, std::vector<cv::P
     get_marker_descriptors(img_scene, keypoints_scene, descriptors_scene);
 //    t2 = std::chrono::high_resolution_clock::now();
 //    std::cout << "get_marker_descriptors : " << std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1).count() << '\t';
+    if(constraintTime){
+        std::chrono::high_resolution_clock::time_point now;
+        now = std::chrono::high_resolution_clock::now();
+        double runTime = std::chrono::duration_cast<std::chrono::duration<double>>(now - start).count();
+        if(runTime > maxprocessingtime){
+            return false;
+        }
+    }
+
 
     if(debug_images && false){
         cv::Mat output;
@@ -101,9 +113,28 @@ bool featureextraction::findMarker03(const cv::Mat &img_scene, std::vector<cv::P
     std::vector<cv::DMatch> good_matches;
 
     get_homography_flann(H,keypoints_scene,descriptors_scene, good_matches);
+
+    if(constraintTime){
+        std::chrono::high_resolution_clock::time_point now;
+        now = std::chrono::high_resolution_clock::now();
+        double runTime = std::chrono::duration_cast<std::chrono::duration<double>>(now - start).count();
+        if(runTime > maxprocessingtime){
+            return false;
+        }
+    }
+
     std::vector<cv::Point2f> scene_corners(4);
     if(!H.empty()){
         cv::perspectiveTransform( obj_corners, scene_corners, H);
+    }
+
+    if(constraintTime){
+        std::chrono::high_resolution_clock::time_point now;
+        now = std::chrono::high_resolution_clock::now();
+        double runTime = std::chrono::duration_cast<std::chrono::duration<double>>(now - start).count();
+        if(runTime > maxprocessingtime){
+            return false;
+        }
     }
 
     cv::Mat drawing = img_scene.clone();

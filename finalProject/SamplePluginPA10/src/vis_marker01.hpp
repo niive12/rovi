@@ -7,6 +7,9 @@
 #include <cmath>
 #include <iostream>
 
+#include <chrono>
+#include <ratio>
+
 #include <vector>
 #include <algorithm>
 
@@ -16,6 +19,6 @@
 
 namespace featureextraction {
 
-bool findMarker01(const cv::Mat &img, std::vector<cv::Point> &points, bool locate_one_point = true);
+bool findMarker01(const cv::Mat &img, std::vector<cv::Point> &points, bool locate_one_point = true, bool constraintTime = false, double maxprocessingtime = 0);
 
 }

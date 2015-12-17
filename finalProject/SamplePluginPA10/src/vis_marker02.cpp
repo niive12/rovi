@@ -92,7 +92,10 @@ cv::Point featureextraction::find_center(cv::Mat &org, std::vector<cv::Point> &c
     return midpoint;
 }
 
-bool featureextraction::findMarker02(cv::Mat &img, std::vector<cv::Point> &points){
+bool featureextraction::findMarker02(cv::Mat &img, std::vector<cv::Point> &points, bool constraintTime, double maxprocessingtime){
+    std::chrono::high_resolution_clock::time_point start;
+    start = std::chrono::high_resolution_clock::now();
+
     cv::Mat imghsv = img.clone();
     cv::Mat white;
     cv::cvtColor(img, imghsv, CV_BGR2HSV);
@@ -107,7 +110,18 @@ bool featureextraction::findMarker02(cv::Mat &img, std::vector<cv::Point> &point
     points.clear();
 
     std::vector<cv::Point> center = find_blobs(white, contours, good_contours);
+
+    if(constraintTime){
+        std::chrono::high_resolution_clock::time_point now;
+        now = std::chrono::high_resolution_clock::now();
+        double runTime = std::chrono::duration_cast<std::chrono::duration<double>>(now - start).count();
+        if(runTime > maxprocessingtime){
+            return false;
+        }
+    }
+
     cv::Point midpoint = find_center(img, center, good_contours);
+
 //    cv::imshow("image", drawing);
 
     if(midpoint.x == 0 && midpoint.y == 0){

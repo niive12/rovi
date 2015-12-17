@@ -9,6 +9,8 @@
 
 #include <vector>
 #include <algorithm>
+#include <chrono>
+#include <ratio>
 
 #include <rw/common/Log.hpp>
 
@@ -19,7 +21,7 @@ std::vector<cv::Point> find_blobs(cv::Mat img, std::vector<std::vector<cv::Point
 
 cv::Point find_center(cv::Mat &org, std::vector<cv::Point> &center, std::vector<std::vector<cv::Point> > &contours);
 
-bool findMarker02(cv::Mat &img, std::vector<cv::Point> &points);
+bool findMarker02(cv::Mat &img, std::vector<cv::Point> &points, bool constraintTime = false, double maxprocessingtime = 0);
 
 
 }

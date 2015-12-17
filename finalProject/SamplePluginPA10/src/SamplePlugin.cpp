@@ -578,10 +578,10 @@ void SamplePlugin::rovi_processImage(){
                     cv::cvtColor(img, img, CV_RGB2BGR);
 
                     if(markerused == 0){ // pic 1
-                        markerFound = featureextraction::findMarker01(img, uv, false);
+                        markerFound = featureextraction::findMarker01(img, uv, false, reduceProcessingTime, dt);
                         if(!markerFound){
-                            cv::imshow("marker not found", img);
-                            cv::waitKey(1);
+//                            cv::imshow("marker not found", img);
+//                            cv::waitKey(1);
                         }
                         if(uv.size() == 1){
                             mapping.emplace_back(0,0);
@@ -592,10 +592,10 @@ void SamplePlugin::rovi_processImage(){
                             mapping.emplace_back(-85,-85);
                         }
                     } else if(markerused == 1){ // pic 2a
-                        markerFound = featureextraction::findMarker02(img, uv);
+                        markerFound = featureextraction::findMarker02(img, uv, reduceProcessingTime, dt);
                         if(!markerFound){
-                            cv::imshow("marker not found", img);
-                            cv::waitKey(1);
+//                            cv::imshow("marker not found", img);
+//                            cv::waitKey(1);
                         }
                         mapping.emplace_back(0,0);
                     } else if(markerused == 2){ // pic 2b
@@ -624,7 +624,7 @@ void SamplePlugin::rovi_processImage(){
                         }
                         cv::Mat cropped(img, cv::Rect(x,y,accepted_width,accepted_height));
 
-                        markerFound = featureextraction::findMarker03(cropped, uv, false);
+                        markerFound = featureextraction::findMarker03(cropped, uv, false, reduceProcessingTime, dt);
                         if( !markerFound ){
                             old_position = cv::Point(0,0);
                         } else if(uv.size() > 0 ){
@@ -680,11 +680,11 @@ void SamplePlugin::rovi_processImage(){
                 double robotMoveTime = dt;
                 if(reduceProcessingTime){
                     robotMoveTime -= algoTime;
-                    if(i == 1 && robotMoveTime < -0.05 ){
-                        rw::common::Log::log().info() << "proccess time is : " << algoTime << ", which exceeds Dt\n";
-                        _rovi_markerNotTracked = true;
-                        return;
-                    }
+//                    if(i == 1 && robotMoveTime < -0.05 ){
+//                        rw::common::Log::log().info() << "proccess time is : " << algoTime << ", which exceeds Dt\n";
+//                        _rovi_markerNotTracked = true;
+//                        return;
+//                    }
                 }
                 if(uv.size() > 0 && markerFound && robotMoveTime > 0){
                     // if points where found, use them to compute the new q_goal
@@ -724,6 +724,8 @@ void SamplePlugin::rovi_processImage(){
 
                 if(abs(trackingerror[0].x) > 1024/2 || abs(trackingerror[0].y) > 768/2){
                     _rovi_markerNotTracked = true;
+                    rw::common::Log::log().info() << "proccess time is : " << algoTime << ", which exceeds Dt\n";
+                    return;
                 }
 
                 // calculate the tool pose
