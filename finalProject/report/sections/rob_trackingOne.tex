@@ -118,6 +118,12 @@ Following the marker for the fast marker movement.}
 %Since these numbers should be the closest to ground truth achievable, then these will also be used in comparisons in section \ref{sec:combinedSystem} when the whole system is brought together in the simulation.
 
 It was found that in none of the cases was the velocity constraint violated for all of the datasets down to a $\Delta t = 0.05$ seconds in between each frame.
-The tracking error does also increase as the marker movement speed increases, but the path taken by the robot tool is more or less the same for all of the datasets at the lowest speed.
+The tracking error does also increase as the marker movement speed increases, but the path taken by the robot tool is more or less the same for all of the marker movement speeds.
+
+The error, which is the euclidean distance from the center of the object to the center of the image, is in none of the cases above four pixel.
+This is considered low since it is only above zero when moving, the algorithm is hence working.
+
+Furthermore the velocity constraint are not reached for any of the movement speeds so no constraints are applied.
+
 
 
