@@ -12,8 +12,8 @@ void SamplePlugin::find_trackingerror(){
 //    std::vector< double > dt = {0.00025, 0.00025, 0.001};
   std::vector< int > markerUsed = {3};
     std::vector< std::string > filenames = {"corny.csv"};
-    std::vector< double > ts = {0.43}, te = {0.55};
-    std::vector< double > dt = {0.02};
+    std::vector< double > ts = {0.37}, te = {0.50};
+    std::vector< double > dt = {0.0025};
     int bg = 5;
 
     for(int mi = 0; mi < markerUsed.size(); mi++){

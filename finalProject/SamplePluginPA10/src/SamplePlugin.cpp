@@ -603,6 +603,10 @@ void SamplePlugin::rovi_processImage(){
                         markerFound = false;
                         mapping.emplace_back(0,0);
                     } else if(markerused == 3){ // pic 3
+                        bool constraintTime = false;
+                        if(reduceProcessingTime && i > 0){
+                            constraintTime = true;
+                        }
                         int x = 0,y = 0;
                         accepted_width = img.cols;
                         accepted_height = img.rows;
@@ -624,7 +628,7 @@ void SamplePlugin::rovi_processImage(){
                         }
                         cv::Mat cropped(img, cv::Rect(x,y,accepted_width,accepted_height));
 
-                        markerFound = featureextraction::findMarker03(cropped, uv, false, reduceProcessingTime, dt);
+                        markerFound = featureextraction::findMarker03(cropped, uv, false, constraintTime, dt);
                         if( !markerFound ){
                             old_position = cv::Point(0,0);
                         } else if(uv.size() > 0 ){

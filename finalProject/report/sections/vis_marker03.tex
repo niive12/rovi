@@ -39,13 +39,13 @@ Running with this optimization, the total time goes down to a $630$ ms on averag
 In figure \ref{fig:time_sift_unoptimized} is the time taken to calculate the matches shown.
 It can be seen that calculating the SIFT features is the dominant factor of the process.
 A way to reduce this is to reduce the image by cropping.
-Since the scenario is that the robot will track the marker, the marker can be expected to be in the same position all the time.
+Since the scenario is that the robot is tracking the marker, locality of the marker in the image can be used.
 Since the distance to the object does not change drastically, the marker will keep the same size in relation to the image.
 By using the last known position of the marker and cropping it, the time to find the SIFT features can be reduced.
 If the marker is not found, as it would be the case if the marker has moved too far out of frame, the entire picture should be used for the next analysis.
 This would also be the case for the first image, as the position starts as unknown.
 
-In figure \ref{fig:time_sift_crop} is the timing shown for the finding the marker, using the cropping optimization.
+In figure \ref{fig:time_sift_crop} is the time shown to find the marker using the cropping optimization.
 The timing now has outliers as it takes more time to process the larger image.
 The median is then found in order to estimate the time it takes to find the marker with the optimized solution.
 The median is measured to be $272$ ms.
@@ -58,3 +58,5 @@ The transition from the easy image set to the hard image set is continuous enoug
  \caption{Timing for finding the marker with SIFT optimized for servoing.}
  \label{fig:time_sift_crop}
 \end{figure}
+
+The four corner points of the rectangle are then returned as the points used for tracking.
