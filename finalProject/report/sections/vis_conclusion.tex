@@ -5,6 +5,7 @@ A set of points was then chosen to represent the position of the marker to be us
 The line marker was found using HSV color segmentation for white after which contours were found.
 The blobs were then given a grade depending on their compactness and distance to center.
 Depending on their grade, the marker was then detected or not.
+This was very optimistic and found a fast solution, but also found solutions in images where the marker is not present.
 
 For the circle marker a HSV color segmentation was applied to find a green, blue and red image.
 Hough circles was then applied to find the circles surrounded by green.

@@ -4,7 +4,7 @@ std::vector<cv::KeyPoint> keypoints_object;
 cv::Mat descriptors_object;
 std::vector<cv::Point2f> obj_corners(4);
 
-double get_area(std::vector<cv::Point2f> &corners){
+double featureextraction::get_area(std::vector<cv::Point2f> &corners){
     //finds the area of the triangle expanding from the first corner.
     if(corners.size() != 4){
         return 0;
