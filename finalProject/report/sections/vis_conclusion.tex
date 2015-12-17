@@ -2,6 +2,16 @@
 An algorithm was found to locate the three markers in an image.
 A set of points was then chosen to represent the position of the marker to be used by the tracking algorithms.
 
+The line marker was found using HSV color segmentation for white after which contours were found.
+The blobs were then given a grade depending on their compactness and distance to center.
+Depending on their grade, the marker was then detected or not.
+
+For the circle marker a HSV color segmentation was applied to find a green, blue and red image.
+Hough circles was then applied to find the circles surrounded by green.
+If the marker was not found in the green image, the circles were also searched for in the blue and red image.
+
+The corny marker was found using SIFT.
+The processing time was furthermore improved using cropping on the image depending on the locality of the marker.
 
 
 %The markers were found to detect the presence of the individual markers.
