@@ -59,12 +59,21 @@ for( dataplot in c(1,2,3,4)){
                 #print("Plotting the tracking error.");
                 plottitle = paste(c("Tracking Error, speed: ", speeds[dataspeed], ", tracking: ", methods[method] ), collapse ="");
                 #print("Plotting robot configurations.");
-                min = min(data);
-                max = max(data);
-                plot(time, data[,1], type = "l", xlab = "Time [s]", ylab = "Error [px]", ylim = c(min, max), main = plottitle, col = color[1])
-                legend("topleft", legend = c("u","v"), lty = 1, col = color);
-                for(i in 2:s[2]){
-                    lines(time, data[,i], col = color[i]);
+                plot_eucledian = T
+                if(plot_eucledian){
+			eucledian_error = sqrt(data[,1] * data[,1] + data[,2] * data[,2])
+# 			print(max(eucledian_error))
+			min = 0
+			max = 18
+			plot(time, eucledian_error, type = "l", xlab = "Time [s]", ylab = "Error [px]", ylim = c(min, max), main = plottitle, col = color[1])
+                } else {
+			min = min(data);
+			max = max(data);
+			plot(time, data[,1], type = "l", xlab = "Time [s]", ylab = "Error [px]", ylim = c(min, max), main = plottitle, col = color[1])
+			legend("topleft", legend = c("u","v"), lty = 1, col = color);
+			for(i in 2:s[2]){
+			lines(time, data[,i], col = color[i]);
+			}
                 }
             }else if(dataplot == 4){
                 #print("Plotting the relative link speed.");
