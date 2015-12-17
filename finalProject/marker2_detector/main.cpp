@@ -8,6 +8,9 @@
 #include <vector>
 #include <algorithm>
 
+#include <ratio>
+#include <chrono>
+
 int image_in_set = 0;
 std::vector<cv::Mat> original_images;
 cv::Mat org;
@@ -135,17 +138,17 @@ bool findMarker02(const cv::Mat &img, std::vector<cv::Point> &points){
         return true;
     }
 }
-
+int n_not_found = 0;
 void image_trackbar(int, void*){
     org = original_images.at(image_in_set).clone();
     cv::imshow("original", org);
 
     std::vector<cv::Point> points;
 
-    findMarker02(org, points);
-    if(points.size())
-    std::cout << "midpoint = " << points[0] << std::endl;
-
+    bool found = findMarker02(org, points);
+    if(!found){
+        ++n_not_found;
+    }
 }
 
 int main(int argc, char* argv[]){
@@ -159,6 +162,25 @@ int main(int argc, char* argv[]){
 //        original_images.push_back( cv::imread("../SamplePluginPA10/markers/Marker2a.ppm"));
 //        original_images.push_back( cv::imread("../color_bg2.png"));
 
+
+        for(int i = 1; i <= 30; ++i){
+            numbera = i/10 %10 + '0';
+            numberb = i%10 + '0';
+            filename = "../marker_color/marker_color_"; //30
+            filename += numbera;
+            filename += numberb;
+            filename += ".png";
+            original_images.push_back( cv::imread(filename) );
+        }
+        for(int i = 1; i <= 52; ++i){
+            numbera = i/10 %10 + '0';
+            numberb = i%10 + '0';
+            filename = "../marker_color_hard/marker_color_hard_"; //52
+            filename += numbera;
+            filename += numberb;
+            filename += ".png";
+            original_images.push_back( cv::imread(filename) );
+        }
         for(int i = 1; i <= 30; ++i){
             numbera = i/10 %10 + '0';
             numberb = i%10 + '0';
@@ -177,17 +199,77 @@ int main(int argc, char* argv[]){
             filename += ".png";
             original_images.push_back( cv::imread(filename) );
         }
+        for(int i = 1; i <= 30; ++i){
+            numbera = i/10 %10 + '0';
+            numberb = i%10 + '0';
+            filename = "../markers/marker_corny/marker_corny_"; //30
+            filename += numbera;
+            filename += numberb;
+            filename += ".png";
+            original_images.push_back( cv::imread(filename) );
+        }
+        for(int i = 1; i <= 52; ++i){
+            numbera = i/10 %10 + '0';
+            numberb = i%10 + '0';
+            filename = "../markers/marker_corny_hard/marker_corny_hard_"; //52
+            filename += numbera;
+            filename += numberb;
+            filename += ".png";
+            original_images.push_back( cv::imread(filename) );
+        }
     }
 
     cv::namedWindow("image", cv::WINDOW_NORMAL);
 
+    std::chrono::high_resolution_clock::time_point t1;
+    std::chrono::high_resolution_clock::time_point t2;
     cv::createTrackbar("Selected image", "original",&image_in_set,original_images.size()-1,image_trackbar);
     //* <---------remove one slash to envoke trackbar instead of autoplay
-    for(int i = 0; i < original_images.size()-1; ++i){
+    double avg_time = 0;
+    for(int i = 0; i < original_images.size()/3.0; ++i){
         image_in_set = i;
+        t1 = std::chrono::high_resolution_clock::now();
         image_trackbar(0,nullptr);
-        if(cv::waitKey(200) == 'q'){ break;}
+        t2 = std::chrono::high_resolution_clock::now();
+        avg_time += std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1).count();
+
+        if( cv::waitKey(10) == 'q'){
+            break;
+        }
     }
+    avg_time /= (original_images.size()/3);
+    std::cout << n_not_found << " / " << original_images.size()/3 << " time: " << avg_time << std::endl;
+    avg_time = 0;
+    n_not_found = 0;
+    for(int i = image_in_set+1; i < (original_images.size()/3.0 * 2); ++i){
+        image_in_set = i;
+        t1 = std::chrono::high_resolution_clock::now();
+        image_trackbar(0,nullptr);
+        t2 = std::chrono::high_resolution_clock::now();
+        avg_time += std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1).count();
+        if( cv::waitKey(10) == 'q'){
+            break;
+        }
+    }
+    avg_time /= (original_images.size()/3);
+    std::cout << n_not_found << " / " << original_images.size()/3 << " time: " << avg_time << std::endl;
+    avg_time = 0;
+    n_not_found = 0;
+    for(int i = image_in_set+1; i < original_images.size(); ++i){
+        image_in_set = i;
+        t1 = std::chrono::high_resolution_clock::now();
+        image_trackbar(0,nullptr);
+        t2 = std::chrono::high_resolution_clock::now();
+        avg_time += std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1).count();
+        if( cv::waitKey(10) == 'q'){
+            break;
+        }
+    }
+    avg_time /= (original_images.size()/3);
+    std::cout << n_not_found << " / " << original_images.size()/3 << " time: " << avg_time << std::endl;
+    avg_time = 0;
+
+    n_not_found = 0;
     /*/
     image_trackbar(0,nullptr);
     cv::waitKey();
