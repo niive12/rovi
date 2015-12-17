@@ -107,15 +107,36 @@ Waterbed         & 350  & 300    & 300\\ \hline
 \end{table}
 
 In order to measure systems ability to track the point, distance from the ideal position to the position based on the image marker is measured.
-In figure \ref{fig:travel_error} is the error term shown.
+In figure \ref{fig:trackingerror_lines}, \ref{fig:trackingerror_circle} and \ref{fig:trackingerror_corny} is the euclidean max error shown for a range of $\Delta t$ in the range where the algorithm goes from not being able to track the marker to being able to.
 \nikolaj{Conclude something: It can be seen that the Circle detector has a larger deviance from the ideal path than the other detectors.}
 
-\begin{figure}
- \centering
- \includegraphics[width=\linewidth]{graphics/travel_error} %does not yet exist
- \caption{Travel error between the ideal position and the positions found by the detector.}
- \label{fig:travel_error}
+\begin{figure}[H]
+\centering
+\includegraphics[width= \linewidth]{graphics/robotics/trackingerror_lines}
+\caption{Euclidean max error for increasing $\Delta t$ when tracking the line image.}
+\label{fig:trackingerror_lines}
 \end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width= \linewidth]{graphics/robotics/trackingerror_circle}
+\caption{Euclidean max error for increasing $\Delta t$ when tracking the circle image.}
+\label{fig:trackingerror_circle}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width= \linewidth]{graphics/robotics/trackingerror_corny}
+\caption{Euclidean max error for increasing $\Delta t$ when tracking the corny image.}
+\label{fig:trackingerror_corny}
+\end{figure}
+
+Note that the datapoints were sampled with uniform sample steps, but the datapoints where the program generated 'not track-able' are not plotted.
+As can be seen in the figures \ref{fig:trackingerror_lines}, \ref{fig:trackingerror_circle} and \ref{fig:trackingerror_corny}, then the tracking error has a high fluctuation and lack of datapoints in the range just before the the sufficient time is reached for which the robot can track the marker.
+From the figures the minimum time needed to track the marker reliable can be found.
+It is furthermore visible that the point from which the marker can be tracked is approximately the same for the three algorithms.
+Once this point is reached, the error is approximately constant, but dependent on the marker movement speed.
+
 
 The joint positions can be seen in appendix \ref{app:joint_positions}.
 The joint velocities can be seen in appendix \ref{app:joint_velocities}.
