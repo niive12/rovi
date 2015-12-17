@@ -1,0 +1,18 @@
+The plugin works like the following:
+
+There are two taps, 'ROVI' and 'Settings'.
+
+Settings tap
+ - The settings tap enables the specifications of some of the processes.
+ - This includes a checkbox on whether the processingtime of an image should be included in the time constraint.
+ - A set of line edits in which the name of frames and devices in the wc can be specified (do not change them).
+ - A speed setting tab that selects which of the 3 markerspeeds should be used.
+ - A cameraview botton to specify if the robots view should be shown
+ 
+Rovi taps
+ - A list to chose which marker to load
+ - a list to selec the bckgrounds
+ - a button 'Process Image' to process the image sequence for the given settings.
+ - a slider to pull the robot along the path generated from the above mentions process button
+ - a save data buton that saves some information used for plotting
+ - two other buttons to generate data for other plots (if pressed these WILL take a LONG time - so you should proabably force close robworks if you hit them)
