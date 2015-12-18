@@ -24,7 +24,6 @@ bool featureextraction::findMarker01(const cv::Mat &img, std::vector<cv::Point> 
 
     points.clear();
     cv::Mat src_gray;
-//    cv::Mat drawing = img.clone();
     cv::Mat imghsv;
     cv::cvtColor(img, imghsv, CV_BGR2HSV);
     cv::Mat imgBGR[3];
@@ -48,7 +47,6 @@ bool featureextraction::findMarker01(const cv::Mat &img, std::vector<cv::Point> 
         }
     }
 
-//    hue_min = 70 / 2; hue_max = 145 / 2;
     hue_min = 70 / 2; hue_max = 175 / 2;
     sat_min = 0.1 * 255;
     sat_max = 1.0 * 255;
@@ -220,8 +218,6 @@ bool featureextraction::findMarker01(const cv::Mat &img, std::vector<cv::Point> 
     }
 
     if(circles.size() != 4) {
-//        rw::common::Log::log().info() << image_in_set << " size: " << circles.size() << "\n";
-//        points.push_back(midpoint);
         return false;
     } else {
         if(locate_one_point){

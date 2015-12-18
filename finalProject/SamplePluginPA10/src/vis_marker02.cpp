@@ -14,7 +14,6 @@ std::vector<cv::Point> featureextraction::find_blobs(cv::Mat img, std::vector<st
             cv::Point com = cv::Point( mu.m10/mu.m00 , mu.m01/mu.m00 );
             center.push_back(com);
             good_contours.push_back(contours[i]);
-//            cv::drawContours( drawing, contours, (int)i, cv::Scalar(0,0,255), 2, 8, hierarchy, 0, cv::Point() );
         }
     }
     return center;
@@ -81,13 +80,11 @@ cv::Point featureextraction::find_center(cv::Mat &org, std::vector<cv::Point> &c
         for(size_t i = 0; i < good_centers.size(); ++i){
             midpoint.x += good_centers[i].x;
             midpoint.y += good_centers[i].y;
-//            drawing.at<cv::Vec3b>(good_centers[i]) = cv::Vec3b(0,0,255);
         }
         if( good_centers.size() > 0 ){
             midpoint.x = midpoint.x / good_centers.size();
             midpoint.y = midpoint.y / good_centers.size();
         }
-//        cv::circle( drawing, midpoint, 200,  cv::Scalar(0,0,255), 2, 8, 0 );
     }
     return midpoint;
 }
@@ -101,10 +98,7 @@ bool featureextraction::findMarker02(cv::Mat &img, std::vector<cv::Point> &point
     cv::cvtColor(img, imghsv, CV_BGR2HSV);
     cv::inRange(imghsv, cv::Scalar(0, 0, 127), cv::Scalar(180,50,255), white);
 
-    //    cv::imshow("white", org);
-    //    cv::waitKey(0);
     std::vector<std::vector<cv::Point> > contours;
-//    cv::Mat drawing = original_images.at(image_in_set).clone();
     std::vector<std::vector<cv::Point> > good_contours;
 
     points.clear();
@@ -121,8 +115,6 @@ bool featureextraction::findMarker02(cv::Mat &img, std::vector<cv::Point> &point
     }
 
     cv::Point midpoint = find_center(img, center, good_contours);
-
-//    cv::imshow("image", drawing);
 
     if(midpoint.x == 0 && midpoint.y == 0){
         return false;
