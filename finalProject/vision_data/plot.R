@@ -6,7 +6,8 @@ filename = c("relativeConfVel", "robotConfiguration", "toolPose", "trackingError
 marker = c("marker 1", "marker 2", "marker 3" )
 marker_n = c("marker1","marker2","marker3")
 
-velLim = c(0.12,0.28,0.48)
+velLim = c(0.35,0.50,0.6)
+
 
 color = rainbow(7);
 
@@ -48,6 +49,7 @@ for(m in 1:length(marker)){
 				
 				plottitle = paste(c("Relative Joint Speed, speed: ", speed[v], ", ", marker[m] ), collapse ="");
 				max = velLim[v]
+				print(max(data))
 				
 				plot(time, data[,1], type = "l", xlab = "Time [s]", ylab = "dq relative [%]", ylim = c(0, max), main = plottitle, col = color[1])
 				legend("topleft", legend = 0:(s[2]-1), lty = 1, col = color, ncol=2);
