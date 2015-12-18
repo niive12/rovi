@@ -10,7 +10,7 @@ velLim = c(0.12,0.28,0.48)
 
 color = rainbow(7);
 
-timeintervals = c(0.050,0.100,0.450)
+timeintervals = c(0.100,0.050,0.450)
 
 for(m in 1:length(marker)){
 	for(v in 1:length(speed)){
