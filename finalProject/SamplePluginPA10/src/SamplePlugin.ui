@@ -203,7 +203,7 @@
          </rect>
         </property>
         <property name="text">
-         <string>Find dt's</string>
+         <string>Find dt's (takes &gt;12h)</string>
         </property>
        </widget>
        <widget class="QPushButton" name="_btn_rovi_findTrackingError">
@@ -216,7 +216,7 @@
          </rect>
         </property>
         <property name="text">
-         <string>Find Tracking Error</string>
+         <string>Find Track Error (takes &gt;6h)</string>
         </property>
        </widget>
       </widget>
@@ -339,12 +339,16 @@
          <item row="6" column="0">
           <widget class="QLabel" name="useProcessingTImeLabel">
            <property name="text">
-            <string>Use Processing TIme</string>
+            <string>Use Processing Time</string>
            </property>
           </widget>
          </item>
          <item row="6" column="1">
-          <widget class="QCheckBox" name="_checkBox_settings_useProcessingTime"/>
+          <widget class="QCheckBox" name="_checkBox_settings_useProcessingTime">
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>

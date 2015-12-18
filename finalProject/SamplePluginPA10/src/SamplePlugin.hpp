@@ -27,6 +27,8 @@
 #include <fstream>      // std::ifstream
 #include <vector>
 
+#include <boost/filesystem.hpp>
+
 struct point6D{
     double x, y, z, roll, pitch, yaw;
 };

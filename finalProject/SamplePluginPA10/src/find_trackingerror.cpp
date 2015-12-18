@@ -6,14 +6,14 @@ void SamplePlugin::find_trackingerror(){
     // set the use time checkbox thingy
     _checkBox_settings_useProcessingTime->setChecked(true);
 
-//    std::vector< std::string > filenames = {"circle.csv", "lines.csv", "corny.csv"};
-//    std::vector< int > markerUsed = {0,1,3};
-//    std::vector< double > ts = {0.053, 0.034, 0.366}, te = {0.09, 0.048, 0.42};
-//    std::vector< double > dt = {0.00025, 0.00025, 0.001};
-  std::vector< int > markerUsed = {3};
-    std::vector< std::string > filenames = {"corny.csv"};
-    std::vector< double > ts = {0.5}, te = {0.70};
-    std::vector< double > dt = {0.0025};
+    std::vector< std::string > filenames = {"circle.csv", "lines.csv", "corny.csv"};
+    std::vector< int > markerUsed = {0,1,3};
+    std::vector< double > ts = {0.053, 0.034, 0.5}, te = {0.09, 0.048, 0.7};
+    std::vector< double > dt = {0.00025, 0.00025, 0.0025};
+//  std::vector< int > markerUsed = {3};
+//    std::vector< std::string > filenames = {"corny.csv"};
+//    std::vector< double > ts = {0.5}, te = {0.70};
+//    std::vector< double > dt = {0.0025};
     int bg = 5;
 
     for(int mi = 0; mi < markerUsed.size(); mi++){
@@ -24,7 +24,7 @@ void SamplePlugin::find_trackingerror(){
     _comboBox_rovi_background->setCurrentIndex(bg);
     rovi_load_bgImage();
     for(int mi = 0; mi < markerUsed.size(); mi++){
-        std::fstream trackingerror_file (_myPath  + "/finalProject/" + filenames[mi], std::fstream::out);
+        std::fstream trackingerror_file (_myPath + filenames[mi], std::fstream::out);
         int marker = markerUsed[mi];
         // set the marker
         _comboBox_rovi_marker->setCurrentIndex(marker);

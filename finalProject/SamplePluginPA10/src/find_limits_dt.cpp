@@ -6,8 +6,8 @@ void SamplePlugin::find_limits(){
     // set the use time checkbox thingy
     _checkBox_settings_useProcessingTime->setChecked(true);
 
-    std::fstream dt_file (_myPath  + "/finalProject/finddt.txt", std::fstream::out);
-    std::fstream avgprocesstime (_myPath  + "/finalProject/findProcessTime.txt", std::fstream::out);
+    std::fstream dt_file (_myPath  + "finddt.txt", std::fstream::out);
+    std::fstream avgprocesstime (_myPath  + "findProcessTime.txt", std::fstream::out);
 
 
     for(int markerMovement = 0; markerMovement < _comboBox_settings_loadMarker->count(); markerMovement++){

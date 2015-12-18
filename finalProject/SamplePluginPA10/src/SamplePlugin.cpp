@@ -38,18 +38,23 @@ SamplePlugin::SamplePlugin():
     _framegrabber = NULL;
 
     // load absolute path
-    std::ifstream ifs;
-    ifs.open ("/home/.absolutepath.mypath", std::ifstream::in);
 
-    if(ifs.is_open()){
-        ifs >> _myPath;
-        log().info() << "My path is: " << _myPath << "\n";
+    if(boost::filesystem::exists("/home/.absolutepath.mypath")){
+        std::ifstream ifs;
+        ifs.open ("/home/.absolutepath.mypath", std::ifstream::in);
+        if(ifs.is_open()){
+            ifs >> _myPath;
+            log().info() << "My path is: " << _myPath << "\n";
+        } else {
+            _myPath = "/home/lukas/github/rovi/finalProject/SamplePluginPA10/";
+        }
     }else{
-        log().info() << "File could not be opened.\n";
+        _myPath = "/home/lukas/github/rovi/finalProject/SamplePluginPA10/";
     }
     loadMarkerMovement();
     _checkBox_settings_updateCameraview->setChecked(true);
     updateCameraView();
+    _checkBox_settings_useProcessingTime->setChecked(true);
 }
 
 SamplePlugin::~SamplePlugin()
@@ -64,12 +69,12 @@ void SamplePlugin::initialize() {
     getRobWorkStudio()->stateChangedEvent().add(boost::bind(&SamplePlugin::stateChangedListener, this, _1), this);
 
     // Auto load workcell
-    rw::models::WorkCell::Ptr wc = rw::loaders::WorkCellLoader::Factory::load(_myPath + "/finalProject/PA10WorkCell/ScenePA10RoVi1.wc.xml");
+    rw::models::WorkCell::Ptr wc = rw::loaders::WorkCellLoader::Factory::load(_myPath + "PA10WorkCell/ScenePA10RoVi1.wc.xml");
     getRobWorkStudio()->setWorkCell(wc);
 
     // Load Lena image
     cv::Mat im, image;
-    im = cv::imread(_myPath + "/finalProject/SamplePluginPA10/src/lena.bmp", CV_LOAD_IMAGE_COLOR); // Read the file
+    im = cv::imread(_myPath + "src/lena.bmp", CV_LOAD_IMAGE_COLOR); // Read the file
     cv::cvtColor(im, image, CV_BGR2RGB); // Switch the red and blue color channels
     if(! image.data ) {
         RW_THROW("Could not open or find the image: please modify the file path in the source code!");
@@ -193,16 +198,16 @@ void SamplePlugin::loadMarkerMovement(){
 
     switch (index) {
     case 2:
-        file = QString::fromStdString(_myPath) + "/finalProject/SamplePluginPA10/motions/MarkerMotionSlow.txt";
+        file = QString::fromStdString(_myPath) + "motions/MarkerMotionSlow.txt";
         break;
     case 1:
-        file = QString::fromStdString(_myPath) + "/finalProject/SamplePluginPA10/motions/MarkerMotionMedium.txt";
+        file = QString::fromStdString(_myPath) + "motions/MarkerMotionMedium.txt";
         break;
     case 0:
-        file = QString::fromStdString(_myPath) + "/finalProject/SamplePluginPA10/motions/MarkerMotionFast.txt";
+        file = QString::fromStdString(_myPath) + "motions/MarkerMotionFast.txt";
         break;
     default:
-        file = QString::fromStdString(_myPath) + "/finalProject/SamplePluginPA10/motions/MarkerMotionSlow.txt";
+        file = QString::fromStdString(_myPath) + "motions/MarkerMotionSlow.txt";
         break;
     }
 
@@ -441,15 +446,15 @@ void SamplePlugin::rovi_load_markerImage(){
 
     rw::sensor::Image::Ptr image;
     if (marker == "Marker 1"){
-        image = rw::loaders::ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/markers/Marker1.ppm");
+        image = rw::loaders::ImageLoader::Factory::load(_myPath + "markers/Marker1.ppm");
     } else if( marker == "Marker 2a"){
-        image = rw::loaders::ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/markers/Marker2a.ppm");
+        image = rw::loaders::ImageLoader::Factory::load(_myPath + "markers/Marker2a.ppm");
     } else if( marker == "Marker 2b"){
-        image = rw::loaders::ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/markers/Marker2b.ppm");
+        image = rw::loaders::ImageLoader::Factory::load(_myPath + "markers/Marker2b.ppm");
     } else if( marker == "Marker 3"){
-        image = rw::loaders::ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/markers/Marker3.ppm");
+        image = rw::loaders::ImageLoader::Factory::load(_myPath + "markers/Marker3.ppm");
     } else {
-        image = rw::loaders::ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/markers/Marker1.ppm");
+        image = rw::loaders::ImageLoader::Factory::load(_myPath + "markers/Marker1.ppm");
     }
 
     _textureRender->setImage(*image);
@@ -462,19 +467,19 @@ void SamplePlugin::rovi_load_bgImage(){
 
     rw::sensor::Image::Ptr image;
     if (bg == "Many Butterflies"){
-        image = rw::loaders::ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/color1.ppm");
+        image = rw::loaders::ImageLoader::Factory::load(_myPath + "backgrounds/color1.ppm");
     } else if( bg == "Color Spots"){
-        image = rw::loaders::ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/color2.ppm");
+        image = rw::loaders::ImageLoader::Factory::load(_myPath + "backgrounds/color2.ppm");
     } else if( bg == "One Butterfly"){
-        image = rw::loaders::ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/color3.ppm");
+        image = rw::loaders::ImageLoader::Factory::load(_myPath + "backgrounds/color3.ppm");
     } else if( bg == "Metal"){
-        image = rw::loaders::ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/lines1.ppm");
+        image = rw::loaders::ImageLoader::Factory::load(_myPath + "backgrounds/lines1.ppm");
     } else if( bg == "Carpet"){
-        image = rw::loaders::ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/texture1.ppm");
+        image = rw::loaders::ImageLoader::Factory::load(_myPath + "backgrounds/texture1.ppm");
     } else if( bg == "Mosaik Window"){
-        image = rw::loaders::ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/texture2.ppm");
+        image = rw::loaders::ImageLoader::Factory::load(_myPath + "backgrounds/texture2.ppm");
     } else if( bg == "Waterbed"){
-        image = rw::loaders::ImageLoader::Factory::load(_myPath + "/finalProject/SamplePluginPA10/backgrounds/texture3.ppm");
+        image = rw::loaders::ImageLoader::Factory::load(_myPath + "backgrounds/texture3.ppm");
     } else {
         if(_bgRender != nullptr){
             delete _bgRender;
@@ -530,7 +535,7 @@ void SamplePlugin::rovi_processImage(){
         cv::Point old_position(0,0);
         int accepted_width;
         int accepted_height;
-        cv::Mat img_object = cv::imread(_myPath + "/finalProject/SamplePluginPA10/markers/Marker3.ppm");
+        cv::Mat img_object = cv::imread(_myPath + "markers/Marker3.ppm");
         featureextraction::init_marker03(img_object);
 
         rw::math::Q vC = device->getVelocityLimits();

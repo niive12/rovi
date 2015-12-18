@@ -1,3 +1,17 @@
+To compile the plugin:
+Go to /SamplePluginPA10/src/SamplePlugin.cpp
+ - go to line 52 (_myPath = "/home/lukas/github/rovi/finalProject/SamplePluginPA10/";)
+ - change the path to your aboslut path to the folder
+Go to /SamplePluginPA10/build
+ - type 'cmake ../src/'
+ - type 'make'
+ or 
+ - QTcreator -> openproject -> got to and open /SamplePluginPA10/src/CMakeLists.txt
+ - let it build it (Ctrl + B) or similar
+Now open the plugin in RobWorkStudio
+
+
+
 The plugin works like the following:
 
 There are two taps, 'ROVI' and 'Settings'.
