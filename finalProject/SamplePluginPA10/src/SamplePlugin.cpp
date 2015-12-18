@@ -45,6 +45,7 @@ SamplePlugin::SamplePlugin():
         ifs >> _myPath;
         log().info() << "My path is: " << _myPath << "\n";
     }else{
+        _myPath = ""; //If using a file to tell where the path is, is unwanted, it could be set here.
         log().info() << "File could not be opened.\n";
     }
     loadMarkerMovement();
