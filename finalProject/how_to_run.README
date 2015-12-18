@@ -1,0 +1,27 @@
+How to run the plugin:
+
+A file called /home/.absolutepath.mypath with the build folder must be created.
+The file just a text file with the absolute path (from the start of the filesystem to folder where the the zip file is unpacked)
+This was done in order to avoid putting files in the same folder as the robwork installation.
+
+If this behaviour is unwanted, this can be circumvented by putting the path in the _mypath variable in the constuctor on line 48 in SamplePlugin.cpp
+
+Then the plugin can be build by running cmake on 
+_mypath /finalProject/SamplePluginPA10/src/CMakeLists.txt
+
+The plugin can then be loaded by loading 
+_mypath /finalProject/SamplePluginPA10/libs/release/libSamplePlugin.so
+from robwork studio
+
+To test the tracking, select a marker and background from the ROVI tab.
+In the settings tab, the timestep, dt can be set, the marker movement can be changed.
+To track the image, use "Process Image".
+Then the marker will move according to the settings.
+When it is done, the positions can be changed with the trackbar, going back to previously calculated positions so the user can see what the robot saw at the given timesteps.
+If the user wants data, the "Save Data" button can be used, creating csv files which then can be plotted.
+
+The two other buttons, "Find dt's" and "Find Tracking Error", is for testing the system, processing them would take several hours.
+
+TODO: remove large I in "Use Processing TIme" and make it ticked by default
+Should Device name, TCP, and marker be changable by the user?
+

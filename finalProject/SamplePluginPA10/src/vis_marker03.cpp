@@ -42,21 +42,11 @@ void featureextraction::init_marker03(cv::Mat &img_object){
 }
 
 void featureextraction::get_marker_descriptors(const cv::Mat &img, std::vector<cv::KeyPoint> &keypoints, cv::Mat &descriptors){
-//    std::chrono::high_resolution_clock::time_point t1;
-//    std::chrono::high_resolution_clock::time_point t2;
-
     cv::SiftFeatureDetector detector;
-//    t1 = std::chrono::high_resolution_clock::now();
     detector.detect(img, keypoints);
-//    t2 = std::chrono::high_resolution_clock::now();
-//    std::cout << "detector: " << std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1).count() << '\t';
 
     cv::SiftDescriptorExtractor extractor;
-//    t1 = std::chrono::high_resolution_clock::now();
     extractor.compute( img, keypoints, descriptors);
-//    t2 = std::chrono::high_resolution_clock::now();
-//    std::cout << "extractor: " << std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1).count() << '\t';
-
 }
 
 
@@ -91,10 +81,6 @@ void featureextraction::get_homography_flann(cv::Mat &H, std::vector<cv::KeyPoin
         object.push_back(keypoints_object[i.queryIdx].pt);
         scene.push_back( keypoints[i.trainIdx].pt );
     }
-    if(good_matches.size() < 50){
-//        rw::common::Log::log().error() << "Min dist: " << min_dist << "\n";
-//        rw::common::Log::log().error() << "ERROR: Not enough points for Homography in get_homography_flan.\n";
-    }
     if(object.size() >= 4){
         H = cv::findHomography( object, scene, CV_RANSAC );
     }
@@ -114,11 +100,7 @@ bool featureextraction::findMarker03(const cv::Mat &img_scene, std::vector<cv::P
     std::vector<cv::KeyPoint> keypoints_scene;
     cv::Mat descriptors_scene;
 
-
-//    t1 = std::chrono::high_resolution_clock::now();
     get_marker_descriptors(img_scene, keypoints_scene, descriptors_scene);
-//    t2 = std::chrono::high_resolution_clock::now();
-//    std::cout << "get_marker_descriptors : " << std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1).count() << '\t';
     if(constraintTime){
         std::chrono::high_resolution_clock::time_point now;
         now = std::chrono::high_resolution_clock::now();
@@ -177,7 +159,6 @@ bool featureextraction::findMarker03(const cv::Mat &img_scene, std::vector<cv::P
         cv::waitKey(100);
     }
     cv::Point midpoint(0,0);
-//    rw::common::Log::log().info() << "matches: " << good_matches.size() << "\n";
     double area = get_area(scene_corners);
     if( area < 25000 || area > 100000 || H.empty()){
         points.push_back(midpoint);
@@ -198,4 +179,3 @@ bool featureextraction::findMarker03(const cv::Mat &img_scene, std::vector<cv::P
     }
     return true;
 }
-
