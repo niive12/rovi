@@ -153,7 +153,7 @@ Because the algorithm crops the image, then the algorithm will only succeed if t
 If it does leave the cropped zone, then the processing of the whole image will take too long for it to be able to finish in time so the robot will stand still.
 This also is the reason for why the fast marker movement is not found at all.
 The most stable result will hence first be gained when the whole image can be processed in one time-step, $\Delta t$.
-The algorithm is however also usable for the slow dataset with $\Delta t > XYZ$ and for the medium at $\Delta t > ZYX$.
+The algorithm is however also usable for the slow dataset with $\Delta t > 440ms$ and for the medium likewise.
 
 
 %The large fluctuation in the maximum error for the Circle algorithm, as seen in figure \ref{fig:trackingerror_circle}, is largely explained by the choice of implementation.
