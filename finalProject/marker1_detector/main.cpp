@@ -299,7 +299,7 @@ int main(int argc, char* argv[]){
     std::chrono::high_resolution_clock::time_point t1;
     std::chrono::high_resolution_clock::time_point t2;
     cv::createTrackbar("Selected image", "original",&image_in_set,original_images.size()-1,image_trackbar);
-    //* <---------remove one slash to envoke trackbar instead of autoplay
+    /* <---------remove one slash to envoke trackbar instead of autoplay
     double avg_time = 0;
     for(int i = 0; i < original_images.size()/3.0; ++i){
         image_in_set = i;
@@ -308,10 +308,11 @@ int main(int argc, char* argv[]){
         t2 = std::chrono::high_resolution_clock::now();
         avg_time += std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1).count();
 
-        if( cv::waitKey(10) == 'q'){
-            break;
+        if( cv::waitKey(1000) == 'q'){
+            return 0;
         }
     }
+    return 0;
     avg_time /= (original_images.size()/3);
     std::cout << n_not_found << " / " << original_images.size()/3 << " time: " << avg_time << std::endl;
     avg_time = 0;
@@ -323,7 +324,7 @@ int main(int argc, char* argv[]){
         t2 = std::chrono::high_resolution_clock::now();
         avg_time += std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1).count();
         if( cv::waitKey(10) == 'q'){
-            break;
+            return 0;
         }
     }
     avg_time /= (original_images.size()/3);
@@ -337,7 +338,7 @@ int main(int argc, char* argv[]){
         t2 = std::chrono::high_resolution_clock::now();
         avg_time += std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1).count();
         if( cv::waitKey(10) == 'q'){
-            break;
+            return 0;
         }
     }
     avg_time /= (original_images.size()/3);
@@ -347,9 +348,11 @@ int main(int argc, char* argv[]){
     n_not_found = 0;
     /*/
     for(int i =0; 0 < 10; ++i){
-    image_in_set = 10;
-    image_trackbar(0,nullptr);
-    cv::waitKey();
+        image_in_set = 10;
+        image_trackbar(0,nullptr);
+        if(cv::waitKey() == 'q'){
+            return 0;
+        }
     }
     //*/
     return 0;

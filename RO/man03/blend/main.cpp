@@ -16,142 +16,7 @@
 #include "lua.hpp"
 
 
-/*
 
-//rw::math::Vector3D<double> W_rot(const rw::math::Rotation3D<double> &R){
-//    double theta = acos((R(0,0) + R(1,1) + R(2,2) - 1) / 2);
-
-//    rw::math::Vector3D<double> W(0,0,0);
-//    W[0] = (R(2,1) - R(1,2));
-//    W[1] = (R(0,2) - R(2,0));
-//    W[2] = (R(1,0) - R(0,1));
-
-//    if(theta < 10e-6 || theta > (rw::math::Pi - 10e-6)){
-//        W *= 0.5;
-//    } else{
-//        double length = W.norm2();
-//        W *= (theta / length);
-//    }
-//    return W;
-//}
-
-//rw::math::Vector3D<double> P_linear_int_back(const rw::math::Vector3D<double> &P_i_low, const rw::math::Vector3D<double> &P_i, double &t_i_low, double &t_i, double &t){
-//    rw::math::Vector3D<double> P_t(P_i);
-//    double scale = (t - t_i);
-//    scale /= (t_i_low - t_i);
-//    rw::math::Vector3D<double> p_vec(P_i_low - P_i);
-
-//    P_t += (scale * p_vec);
-//    return P_t;
-//}
-
-//rw::math::Rotation3D<double> R_eaa(const rw::math::Vector3D<double> &v, double &theta){
-//    rw::math::Rotation3D<double> Reaa;
-//    double c = cos(theta), s = sin(theta);
-
-//    for(int i = 0; i < 3; i++){
-//        Reaa(i,i) = v[i] * v[i] * (1 - c) + c;
-//    }
-//    double v12 = v[0] * v[1] * (1 - c);
-//    double v13 = v[0] * v[2] * (1 - c);
-//    double v23 = v[1] * v[2] * (1 - c);
-//    double v3s = v[2] * s;
-//    double v2s = v[1] * s;
-//    double v1s = v[0] * s;
-
-//    Reaa(1,0) = v12 + v3s;
-//    Reaa(2,0) = v13 - v2s;
-//    Reaa(2,1) = v23 + v1s;
-//    Reaa(0,1) = v12 - v3s;
-//    Reaa(0,2) = v13 + v2s;
-//    Reaa(1,2) = v23 - v1s;
-
-//    return Reaa;
-//}
-
-//rw::math::Rotation3D<double> R_eaa(const rw::math::Vector3D<double> &theta_v){
-//    // R_eaa(theta*v) == R_eaa(v, theta) where ||v|| = 1
-
-//    double theta = theta_v.norm2();
-//    rw::math::Vector3D<double> v = theta_v / theta;
-
-//    std::cout << " reaa, theta: " << theta << ", v: " << v << ", norm: " << v.norm2() << "\n";
-
-//    return R_eaa(v, theta);
-//}
-
-//rw::math::Rotation3D<double> R_linear_int_back(const rw::math::Rotation3D<double> &R_i_low,
-//                                               const rw::math::Rotation3D<double> &R_i,
-//                                               double &t_i_low, double &t_i, double &t){
-//    double scale = (t - t_i);
-//    scale /= (t_i_low - t_i);
-//    rw::math::Rotation3D<double> R_W_rot = R_i; // note that this is done because inverse manipulates with the data it is called on...
-//    R_W_rot = R_W_rot.inverse();
-//    R_W_rot = R_i_low * R_W_rot;
-//    rw::math::Vector3D<double> tmp = scale * W_rot(R_W_rot);
-//    rw::math::Rotation3D<double> Reaa = R_eaa(tmp);
-
-//    rw::math::Rotation3D<double> R_t = Reaa * R_i;
-//    return R_t;
-//}
-
-//rw::math::Transform3D<double> linear_segmentation(const rw::math::Transform3D<double> &T_i_low,
-//                                                  const rw::math::Transform3D<double> &T_i,
-//                                                  double &t_i_low, double &t_i, double &t){
-//    rw::math::Transform3D<double> T;
-//    T.R() = R_linear_int_back(T_i_low.R(), T_i.R(), t_i_low, t_i, t);
-//    T.P() = P_linear_int_back(T_i_low.P(), T_i.P(), t_i_low, t_i, t);
-
-//    return T;
-//}
-
-//rw::math::Vector3D<double> parabola(double dt, const rw::math::Vector3D<double> &X,
-//                                    const rw::math::Vector3D<double> &v1,
-//                                    const rw::math::Vector3D<double> &v2,
-//                                    double tau){
-//    rw::math::Vector3D<double> P;
-
-//    P = (v2 - v1);
-//    P /= (4 * tau);
-//    P *= (dt + tau) * (dt + tau);
-//    P += (v1 * dt);
-//    P += X;
-
-//    return P;
-//}
-
-//rw::math::Transform3D<double> parabolic_blend(const rw::math::Transform3D<double> &T_i,
-//                                              const rw::math::Transform3D<double> &T_i_low,
-//                                              const rw::math::Transform3D<double> &T_i_high,
-//                                              double t_i, double t_i_low, double t_i_high, double t, double tau){
-//    rw::math::Transform3D<double> T;
-
-//    // consider positional part
-//    rw::math::Vector3D<double> P_low = (T_i_low.P() - T_i.P()) / (t_i_low - t_i);
-//    rw::math::Vector3D<double> P_high = (T_i_high.P() - T_i.P()) / (t_i_high - t_i);
-
-//    T.P() = parabola(t - t_i, T_i.P(), P_low, P_high, tau);
-
-//    // consider rotational part
-//    rw::math::Rotation3D<double> R_low = T_i.R();
-//    R_low = R_low.inverse();
-//    rw::math::Rotation3D<double> R_high = R_low;
-//    R_low = T_i_low.R() * R_low;
-//    R_high = T_i_high.R() * R_high;
-
-//    rw::math::Vector3D<double> W_low = W_rot(R_low);
-//    rw::math::Vector3D<double> W_high = W_rot(R_high);
-//    W_low /= (t_i_low - t_i);
-//    W_high /= (t_i_high - t_i);
-
-//    rw::math::Vector3D<double> P = parabola(t - t_i, rw::math::Vector3D<double>::zero(), W_low, W_high, tau);
-//    rw::math::Rotation3D<double> Reaa = R_eaa(P);
-
-//    T.R() = Reaa * T_i.R();
-
-//    return T;
-//}
-//*/
 
 
 bool velocityConstraint(rw::math::Q &dq, rw::models::Device::Ptr &device, double &timestep, double &tau){
@@ -213,7 +78,7 @@ void plottime(std::string filename, std::vector< double > &time, double dt){
 int main(){
     // load absolute path
     std::ifstream ifs;
-    ifs.open ("/home/.absolutepath.mypath", std::ifstream::in); //a file where the path to the code git repository is defined
+    ifs.open ("/home/.absolutepath.mypath", std::ifstream::in); //a file where the path to the assigment is defined
 
     std::string myPath;
     if(ifs.is_open()){
@@ -222,6 +87,7 @@ int main(){
     }else{
         std::cout << "File could not be opened.\n";
     }
+    const std::string wcFile = myPath + "/URInterpolate/Scene.wc.xml";
 
     rw::math::RPY<double> angle(0, rw::math::Pi / 4, rw::math::Pi);
 //    rw::math::RPY<double> angle(rw::math::Pi / 4, 0, rw::math::Pi);
@@ -244,7 +110,6 @@ int main(){
     std::string deviceName = "UR-6-85-5-A";
     std::string boxName = "Pallet";
     std::string toolName = "Tool";
-    const std::string wcFile = myPath + "/RO/man03/URInterpolate/Scene.wc.xml";
 
     rw::math::Q robotInit(6, 0.476, -0.440, 0.62, -0.182, 2.047, -1.574);
 

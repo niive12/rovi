@@ -548,9 +548,9 @@ void SamplePlugin::rovi_processImage(){
         if( _comboBox_settings_loadMarker->currentIndex() == 2) {// slow
             n_times = 1;
         }else if( _comboBox_settings_loadMarker->currentIndex() == 1) {// medium
-            n_times = 3;
+            n_times = 1;
         }else if( _comboBox_settings_loadMarker->currentIndex() == 0) {// fast
-            n_times = 10;
+            n_times = 1;
 //            rw::common::Log::log().info() << "I have set the n_times to 1 on fast so it can be tested faster\n";
         }
         for(int trial = 0; trial < n_times; ++trial) {
